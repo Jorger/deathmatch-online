@@ -1,123 +1,70 @@
-"use strict";
+(() => {
+  // Utilidades
+  const $ = document.querySelector.bind(document);
+  const $$ = document.querySelectorAll.bind(document);
+  const BASE_HEIGHT = 732;
+  const BASE_WIDTH = 412;
+  const CELL_DIMENSION = BASE_WIDTH / 7;
+  $(
+    "html"
+  ).style.cssText += `--h: ${BASE_HEIGHT}px; --w: ${BASE_WIDTH}px; --db: ${CELL_DIMENSION}px`;
+  const setHtml = (element, html) => (element.innerHTML = html);
+  const ObjectKeys = (obj) => Object.keys(obj);
 
-(function () {
-
-    let socket, //Socket.IO client
-        buttons, //Button elements
-        message, //Message element
-        score, //Score element
-        points = { //Game points
-            draw: 0,
-            win: 0,
-            lose: 0
-        };
-
-    /**
-     * Disable all button
-     */
-    function disableButtons() {
-        for (let i = 0; i < buttons.length; i++) {
-            buttons[i].setAttribute("disabled", "disabled");
-        }
+  const $on = (target, type, callback, parameter = {}) => {
+    if (target) {
+      target.addEventListener(type, callback, parameter);
     }
+  };
 
-    /**
-     * Enable all button
-     */
-    function enableButtons() {
-        for (let i = 0; i < buttons.length; i++) {
-            buttons[i].removeAttribute("disabled");
-        }
-    }
+  const inlineStyles = (styles) =>
+    ObjectKeys(styles).length
+      ? `style='${ObjectKeys(styles)
+          .map((v) => `${v}:${styles[v]}`)
+          .join(";")}'`
+      : "";
 
-    /**
-     * Set message text
-     * @param {string} text
-     */
-    function setMessage(text) {
-        message.innerHTML = text;
-    }
+  /*
+  FILAS HORIZINTAL..
+  COlumnas Vertical...
+  */
 
-    /**
-     * Set score text
-     * @param {string} text
-     */
-    function displayScore(text) {
-        score.innerHTML = [
-            "<h2>" + text + "</h2>",
-            "Won: " + points.win,
-            "Lost: " + points.lose,
-            "Draw: " + points.draw
-        ].join("<br>");
-    }
+  const Game = () => {
+    const BOARD_ELEMENTS = ["💀", "⚰️", "🩸", "🎃", "⚱️"];
+    // let BOARD_GAME = newBoard();
 
-    /**
-     * Binde Socket.IO and button events
-     */
-    function bind() {
+    // 💀 ⚰️ ⚱️ 👻 🩸 🪓 💣 🚀 🔫 🦇 🎃 🗡️
+    const RenderBoard = (board = []) =>
+      board.map((cell, row) =>
+        cell
+          .map(
+            (v, col) =>
+              `<div class="df a c" i=${`${row * SIZE + col}`} ${inlineStyles({
+                left: `${Math.round(CELL_DIMENSION * col)}px`,
+                top: `${Math.round(CELL_DIMENSION * row)}px`,
+              })}>${BOARD_ELEMENTS[v - 1]}</div>`
+          )
+          .join("")
+      ).join("");
 
-        socket.on("start", () => {
-            enableButtons();
-            setMessage("Round " + (points.win + points.lose + points.draw + 1));
-        });
+    // const createBoard = () => {
 
-        socket.on("win", () => {
-            points.win++;
-            displayScore("You win!");
-        });
+    // }
 
-        socket.on("lose", () => {
-            points.lose++;
-            displayScore("You lose!");
-        });
+    setHtml($("#render"), `<div class="df f wi he"><board>${RenderBoard(newBoard())}</board><button id="test">Generate</button></div>`);
 
-        socket.on("draw", () => {
-            points.draw++;
-            displayScore("Draw!");
-        });
 
-        socket.on("end", () => {
-            disableButtons();
-            setMessage("Waiting for opponent...");
-        });
+    $on($("#test"), "click", () => {
+      setHtml($("board"), RenderBoard(newBoard()));
+    })
+  };
 
-        socket.on("connect", () => {
-            disableButtons();
-            setMessage("Waiting for opponent...");
-        });
+  const Screen = (screen = "Game", params = {}) => {
+    const Handler = { Game };
+    Handler[screen](params);
+  };
 
-        socket.on("disconnect", () => {
-            disableButtons();
-            setMessage("Connection lost!");
-        });
-
-        socket.on("error", () => {
-            disableButtons();
-            setMessage("Connection error!");
-        });
-
-        for (let i = 0; i < buttons.length; i++) {
-            ((button, guess) => {
-                button.addEventListener("click", function (e) {
-                    disableButtons();
-                    socket.emit("guess", guess);
-                }, false);
-            })(buttons[i], i + 1);
-        }
-    }
-
-    /**
-     * Client module init
-     */
-    function init() {
-        socket = io({ upgrade: false, transports: ["websocket"] });
-        buttons = document.getElementsByTagName("button");
-        message = document.getElementById("message");
-        score = document.getElementById("score");
-        disableButtons();
-        bind();
-    }
-
-    window.addEventListener("load", init, false);
-
+  // Renderizar la base del juego...
+  setHtml($("#root"), `<div id="render" class="df c wi he"></div>`);
+  Screen();
 })();

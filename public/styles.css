@@ -1,0 +1,95 @@
+:root {
+  --b: #000;
+  --i: #fff;
+  --c-br: #754;
+}
+
+/* Estilos globales */
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  background: var(--b);
+  color: var(--i);
+  font-family: Arial;
+  overflow: hidden;
+  position: fixed;
+  user-select: none;
+}
+
+div {
+  box-sizing: border-box;
+}
+
+/* Clase para centrar elementos en la pantalla*/
+.df {
+  display: flex;
+}
+
+.df.a {
+  align-items: center;
+}
+
+.df.c {
+  justify-content: center;
+}
+
+.df.f {
+  flex-direction: column;
+}
+
+.wi {
+  width: 100%;
+}
+
+.he {
+  height: 100%;
+}
+
+#root {
+  height: var(--h);
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+  width: var(--w);
+  background: white;
+}
+
+
+board {
+  --s-c: #08457b;
+  cursor: pointer;
+  width: var(--w);
+  height: var(--w);
+  position: relative;
+  background: #005695;
+  background-image: linear-gradient(
+      45deg,
+      var(--s-c) 25%,
+      transparent 26%,
+      transparent 75%,
+      var(--s-c) 75%,
+      var(--s-c)
+    ),
+    linear-gradient(
+      45deg,
+      var(--s-c) 25%,
+      transparent 26%,
+      transparent 75%,
+      var(--s-c) 75%,
+      var(--s-c)
+    );
+  background-size: calc(var(--db) * 2) calc(var(--db) * 2);
+  background-position: 0 0, var(--db) var(--db);
+}
+
+board div {
+  pointer-events: none;
+  font-size: 2.5em;
+  height: var(--db);
+  position: absolute;
+  width: var(--db);
+}
