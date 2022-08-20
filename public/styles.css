@@ -1,7 +1,8 @@
+/* https://xem.github.io/unicode13/emoji.html */
+/* @font-face { font-family: emoji; src: url(//xem.github.io/unicode13/Twemoji.ttf) } */
 :root {
   --b: #000;
   --i: #fff;
-  --c-br: #754;
 }
 
 /* Estilos globales */
@@ -86,10 +87,16 @@ board {
   background-position: 0 0, var(--db) var(--db);
 }
 
+/* boar.d {
+
+} */
+
 board div {
-  pointer-events: none;
-  font-size: 2.5em;
+  font-size: 3em;
   height: var(--db);
+  pointer-events: none;
   position: absolute;
+  transition: all 0.2s ease-out;
   width: var(--db);
+  /* text-shadow: 0 -0.5rem 1rem #000000, 0 0.5rem 1rem #370303; */
 }

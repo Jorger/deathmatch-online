@@ -1,5 +1,8 @@
 "use strict";
 const SIZE = 7;
+const HEIGHT = 732;
+const WIDTH = 412;
+const CELL = WIDTH / 7;
 
 const randomNumber = (min, max) =>
   Math.floor(Math.random() * (max - min + 1)) + min;
@@ -9,7 +12,7 @@ const isValidBoard = (board = []) => {
     const elements = [];
     for (let i = 0; i < SIZE; i++) {
       for (let c = 0; c < SIZE; c++) {
-        if (board[i][c] === type) {
+        if (board[i][c].v === type) {
           elements.push({
             type,
             i,
@@ -27,7 +30,7 @@ const isValidBoard = (board = []) => {
 
     for (let i = 0; i < SIZE; i++) {
       for (let c = 0; c < SIZE; c++) {
-        const value = board[i][c];
+        const value = board[i][c].v;
         /**
          * 0 y 1 coordendas para completar tres...
          * 2 posición a moverse...
@@ -111,12 +114,12 @@ const isValidBoard = (board = []) => {
             ],
           ],
         ]
-          .filter((v) => board?.[v[0]]?.[v[1]] === value)
+          .filter((v) => board?.[v[0]]?.[v[1]]?.v === value)
           .map((v) => [
             v[0],
             v[1],
             v[2],
-            v[3].filter((p) => board?.[p[0]]?.[p[1]] === value),
+            v[3].filter((p) => board?.[p[0]]?.[p[1]]?.v === value),
           ])
           .filter((v) => v[3].length !== 0);
 
@@ -134,7 +137,7 @@ const isValidBoard = (board = []) => {
 
     for (let i = 0; i < SIZE; i++) {
       for (let c = 0; c < SIZE; c++) {
-        const value = board[i][c];
+        const value = board[i][c].v;
         /**
          * 0, Tiene coodenadas de los otros dos puntos para hacer 4...
          * 1, la posición de destino a donde se mueve y completa 4.
@@ -190,13 +193,13 @@ const isValidBoard = (board = []) => {
         ]
           .filter(
             (v) =>
-              board?.[v[0][0][0]]?.[v[0][0][1]] === value &&
-              board?.[v[0][1][0]]?.[v[0][1][1]] === value
+              board?.[v[0][0][0]]?.[v[0][0][1]]?.v === value &&
+              board?.[v[0][1][0]]?.[v[0][1][1]]?.v === value
           )
           .map((v) => [
             v[0],
             v[1],
-            v[2].filter((p) => board?.[p[0]]?.[p[1]] === value),
+            v[2].filter((p) => board?.[p[0]]?.[p[1]]?.v === value),
           ])
           .filter((v) => v[2].length !== 0);
 
@@ -234,15 +237,33 @@ const generateBoard = () => {
   const board = [];
 
   const is3Lines = (r, c, value) =>
-    [board?.[r - 2]?.[c], board?.[r - 1]?.[c]].every((v) => v === value) ||
-    [board?.[r]?.[c - 2], board?.[r]?.[c - 1]].every((v) => v === value);
+    [board?.[r - 2]?.[c]?.v, board?.[r - 1]?.[c]?.v].every(
+      (v) => v === value
+    ) ||
+    [board?.[r]?.[c - 2]?.v, board?.[r]?.[c - 1]?.v].every((v) => v === value);
 
   const isSquare = (r, c, value) =>
     [
-      [board?.[r - 1]?.[c], board?.[r - 1]?.[c + 1], board?.[r]?.[c + 1]],
-      [board?.[r + 1]?.[c], board?.[r + 1]?.[c + 1], board?.[r]?.[c + 1]],
-      [board?.[r - 1]?.[c], board?.[r - 1]?.[c + 1], board?.[r]?.[c + 1]],
-      [board?.[r - 1]?.[c], board?.[r - 1]?.[c - 1], board?.[r]?.[c - 1]],
+      [
+        board?.[r - 1]?.[c]?.v,
+        board?.[r - 1]?.[c + 1]?.v,
+        board?.[r]?.[c + 1]?.v,
+      ],
+      [
+        board?.[r + 1]?.[c]?.v,
+        board?.[r + 1]?.[c + 1]?.v,
+        board?.[r]?.[c + 1]?.v,
+      ],
+      [
+        board?.[r - 1]?.[c]?.v,
+        board?.[r - 1]?.[c + 1]?.v,
+        board?.[r]?.[c + 1]?.v,
+      ],
+      [
+        board?.[r - 1]?.[c]?.v,
+        board?.[r - 1]?.[c - 1]?.v,
+        board?.[r]?.[c - 1]?.v,
+      ],
     ]
       .map((item) => item.every((v) => v === value))
       .filter((v) => v).length !== 0;
@@ -261,7 +282,13 @@ const generateBoard = () => {
         }
       } while (1);
 
-      board[i][c] = value;
+      board[i][c] = {
+        v: value,
+        i: i * SIZE + c,
+        l: Math.round(CELL * c),
+        t: Math.round(CELL * i),
+        p : {i, c},
+      };
     }
   }
 
