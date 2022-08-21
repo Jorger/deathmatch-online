@@ -62,6 +62,7 @@ div {
 
 board {
   --s-c: #08457b;
+  overflow: hidden;
   cursor: pointer;
   width: var(--w);
   height: var(--w);
@@ -85,6 +86,14 @@ board {
     );
   background-size: calc(var(--db) * 2) calc(var(--db) * 2);
   background-position: 0 0, var(--db) var(--db);
+}
+
+board.d {
+  pointer-events: none;
+}
+
+board.o {
+  filter: brightness(0.5);
 }
 
 /* boar.d {
