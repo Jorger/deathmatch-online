@@ -177,6 +177,10 @@
           []),
       ];
 
+      /**
+       * Se revisa cada posición, para saber si existe match
+       * Se valida horizontal, vertical, cuadrado y L...
+       */
       const validations = [];
       for (let i = 0; i < SIZE; i++) {
         for (let c = 0; c < SIZE; c++) {
@@ -184,17 +188,17 @@
           const horizontal = validateLine(i, c, copyBoard[i][c].v);
           const vertical = validateLine(i, c, copyBoard[i][c].v, false);
           const square = validateSquare(i, c, copyBoard[i][c].v);
-          const isGhost = square.length === 4;
-          const isAxe = horizontal.length >= 4;
-          const isSyringe = vertical.length >= 4;
-          const isBoom = horizontal.length >= 3 && vertical.length >= 3;
-          const prize = isBoom
+          const isExtraLife = square.length === 4;
+          const isHorizontal = horizontal.length >= 4;
+          const isVertical = vertical.length >= 4;
+          const isL = horizontal.length >= 3 && vertical.length >= 3;
+          const prize = isL
             ? 9
-            : isAxe
+            : isHorizontal
             ? 7
-            : isSyringe
+            : isVertical
             ? 8
-            : isGhost
+            : isExtraLife
             ? 6
             : 0;
           const itemsRemove = uniqueValues([
@@ -210,11 +214,13 @@
         }
       }
 
+      // Se filtra sólo aquellos que tengan premios...
       const prizes = validations
         .map((v) => (v.prize ? v : []))
         .filter((v) => v.length !== 0);
       let listPrizes = [];
 
+      // Se agrupa los premios similares...
       for (let i = 0; i < prizes.length; i++) {
         const baseItems = prizes[i].itemsRemove;
         listPrizes.push([i]);
@@ -235,8 +241,10 @@
         }
       }
 
+      // Se ordena y se dejan sólo los premios similares...
       listPrizes = uniqueValues(listPrizes.map((v) => v.sort()));
       const removePrizes = [];
+      // Se valida que premios contiene a los otros premios...
       for (let i = 0; i < listPrizes.length; i++) {
         for (let c = 0; c < listPrizes.length; c++) {
           if (c !== i) {
@@ -246,14 +254,18 @@
           }
         }
       }
+      // Se deja los premios que no sean repetidos...
       listPrizes = listPrizes.filter((_, i) => !removePrizes.includes(i));
       const finalPrizez = [];
+      // De los premios que quedan, se obtiene aleatoriamente el premio que se dará...
       for (let i = 0; i < listPrizes.length; i++) {
         const randomPrize = randomNumber(0, listPrizes[i].length - 1);
         const prize = prizes[listPrizes[i][randomPrize]];
         finalPrizez.push([prize.position, prize.prize]);
       }
 
+      // Se devuevel los items que se deben ir del board...
+      // Además se saca de la lista la posición de los premios..
       const itemsRemove = uniqueValues(
         validations
           .map((v) => v.itemsRemove)
@@ -276,26 +288,58 @@
       };
     };
 
+    // Mueve las figuras a su posición o la devuelve a donde estaban...
+    const changePositionElements = (move = [], reverse = false) => {
+      for (let i = 0; i < 2; i++) {
+        addStyle($(`#t-${move[i].i}`), {
+          left: `${move[reverse ? i : +!i].l}px`,
+          top: `${move[reverse ? i : +!i].t}px`,
+        });
+      }
+    };
+
+    const removeAnimateBoardElements = (
+      newBoard = [],
+      itemsRemove = [],
+      prizes = []
+    ) => {
+      console.log("itemsRemove", itemsRemove);
+      console.log("prizes", prizes);
+      const iconPrize = ["❤️", "🪓", "💉", "💣"];
+
+      // Test de cambiar el valor por el premio...
+      console.log("itera prizes");
+      for(let i = 0; i < prizes.length; i++) {
+        const id = newBoard[prizes[i][0][0]][prizes[i][0][1]].i;
+        newBoard[prizes[i][0][0]][prizes[i][0][1]].v = prizes[i][1];
+        setHtml($(`#t-${id}`), iconPrize[(prizes[i][1] - MAX_ELEMENTS) - 1]);
+      }
+      // Test de ocultar...
+      // for (let i = 0; i < SIZE; i++) {
+      //   for (let c = 0; c < SIZE; c++) {
+      //     const {i:id = 0} = newBoard[i][c];
+      //     classList($(`#t-${id}`), "h");
+      //   }
+      // }
+      for (let i = 0; i < itemsRemove.length; i++) {
+        const {i:id = 0, v = 0} = newBoard[itemsRemove[i][0]][itemsRemove[i][1]];
+        console.log({id, v});
+        classList($(`#t-${id}`), "h");
+      }
+
+      console.log("newBoard", newBoard);
+    };
+
+    /**
+     * Función que valida el movimiento (swipe) dle usuario para saber si hay match...
+     * @param {*} move
+     */
     const validateMove = async (move = []) => {
-      // const make movement
-      // await delay(70);
-      // console.log("VALOR ORIGINAL", clone(move));
       // Se bloquea el board...
       blockBoard(true);
-      // border: reverse ? '1px solid red' : '1px solid blue',
-      // Mueve las figuras a su posición o la devuelve a donde estaban...
-      const changePosition = (reverse = false) => {
-        for (let i = 0; i < 2; i++) {
-          addStyle($(`#t-${move[i].i}`), {
-            left: `${move[reverse ? i : +!i].l}px`,
-            top: `${move[reverse ? i : +!i].t}px`,
-          });
-        }
-      };
-
       // Cambia la posición de las figuras..
-      changePosition();
-      // Se debe validar si hay match...
+      changePositionElements(move);
+      // Se clona el board y se cambia las posiciones...
       const copyBoard = clone(BOARD);
       for (let i = 0; i < 2; i++) {
         copyBoard[move[i].p.i][move[i].p.c] = {
@@ -304,27 +348,16 @@
           i: move[+!i].i,
         };
       }
+      // Se debe validar si hay match...
       const { itemsRemove = [], prizes = [] } = validateMatch(copyBoard);
-      console.log("prizes", prizes);
-      console.log("itemsRemove", itemsRemove);
-      await delay(200);
-      if (itemsRemove.length === 0) {
-        changePosition(true);
+      if (itemsRemove.length !== 0) {
+        removeAnimateBoardElements(copyBoard, itemsRemove, prizes);
+      } else {
+        // Como no hay match, se devuelve los elementos a su posición original...
+        await delay(200);
+        changePositionElements(move, true);
         blockBoard();
       }
-      // blockBoard();
-      // for (let i = 0; i < 2; i++) {
-      //   const next = +!i;
-      //   addStyle($(`#t-${move[i].i}`), {
-      //     left: `${move[next].l}px`,
-      //     top: `${move[next].t}px`,
-      //   });
-      //   BOARD[move[i].p.i][move[i].p.c] = {
-      //     ...BOARD[move[i].p.i][move[i].p.c],
-      //     v: move[next].v,
-      //     i: move[next].i,
-      //   };
-      // }
     };
 
     // Agregra los eventos...

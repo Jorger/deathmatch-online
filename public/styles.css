@@ -107,5 +107,41 @@ board div {
   position: absolute;
   transition: all 0.2s ease-out;
   width: var(--db);
-  /* text-shadow: 0 -0.5rem 1rem #000000, 0 0.5rem 1rem #370303; */
+  opacity: 1;
+  box-shadow: none;
+  /* border-radius: 50%; */
+  /* text-shadow: 0px -1rem 2rem #719089, 0px 0rem 3rem #ff0000; */
 }
+
+board div.h {
+  /* background: #fff; */
+  /* text-shadow: 0px -1rem 2rem #719089, 0px 0rem 3rem #ff0000; */
+  /* box-shadow: 0px 0px 20px 11px #fff, inset 0px -1px 6px 12px #0ff; */
+  /* transition: all 0.5s ease-in; */
+  opacity: 0;
+  transform: scale(0);
+  /* transform: translateY(-100vh); */
+}
+
+/* board div::after {
+  content: "👻";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  text-align: center;
+} */
+
+/* board div.h::before {
+  content: "";
+  position: absolute;
+  width: 20%;
+  height: 20%;
+  box-shadow: 0 0 12px 7px #fff, 0 0 20px 13px #0ff;
+  border-radius: 50%;
+}
+
+board div.h::before {
+  content: "";
+} */
