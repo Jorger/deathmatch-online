@@ -83,20 +83,20 @@
   */
 
   const Game = ({ BOARD = newBoard() }) => {
-    const BOARD_ELEMENTS = ["💀", "🎃", "🕯️", "⚰️", "🧨"];
+    const BOARD_ELEMENTS = ["💀", "🔥", "🧛", "🧟‍♂️", "👹"];
     // let BOARD_GAME = newBoard();
 
-    // 💀 ⚰️ ⚱️ 👻 🩸 🪓 💣 🚀 🔫 🦇 🎃 🗡️ 🔥 💉 🧨
+    // 💀 ⚰️ ⚱️ 👻 🩸 🪓 💣 🚀 🔫 🦇 🎃 🗡️ 🔥 💉 🧨 🕯️ 🧟‍♂️
     const RenderBoard = (board = []) =>
       board
         .map((cell) =>
           cell
             .map(
               (v) =>
-                `<div class="df a c" id="t-${`${v.i}`}" ${inlineStyles({
+                `<item class="df a c" id="t-${`${v.i}`}" ${inlineStyles({
                   left: `${v.l}px`,
                   top: `${v.t}px`,
-                })}>${BOARD_ELEMENTS[v.v - 1]}</div>`
+                })}>${BOARD_ELEMENTS[v.v - 1]}</item>`
             )
             .join("")
         )
@@ -104,9 +104,14 @@
 
     setHtml(
       $("#render"),
-      `<div class="df f wi he"><button id="test">Generate</button><board>${RenderBoard(
+      `<div class="df f wi he" ${inlineStyles({
+        "margin-top": "230px",
+      })}>
+      <h1>DeathMatch</h1>
+      <p>Acá se muestra más data</p>
+      <board>${RenderBoard(
         BOARD
-      )}</board></div>`
+      )}</board><button id="test">Generate</button></div>`
     );
 
     $on($("#test"), "click", () => {
@@ -305,7 +310,8 @@
     ) => {
       console.log("itemsRemove", itemsRemove);
       console.log("prizes", prizes);
-      const iconPrize = ["❤️", "🪓", "💉", "💣"];
+      const iconPrize = ["🩸", "🪓", "💉", "💣"];
+      //❤️
 
       // Test de cambiar el valor por el premio...
       console.log("itera prizes");
@@ -348,13 +354,13 @@
           i: move[+!i].i,
         };
       }
+      await delay(200);
       // Se debe validar si hay match...
       const { itemsRemove = [], prizes = [] } = validateMatch(copyBoard);
       if (itemsRemove.length !== 0) {
         removeAnimateBoardElements(copyBoard, itemsRemove, prizes);
       } else {
         // Como no hay match, se devuelve los elementos a su posición original...
-        await delay(200);
         changePositionElements(move, true);
         blockBoard();
       }

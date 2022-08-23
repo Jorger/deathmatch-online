@@ -14,10 +14,11 @@
 html,
 body {
   background: var(--b);
-  color: var(--i);
+  /* color: var(--i); */
   font-family: Arial;
   overflow: hidden;
   position: fixed;
+  -webkit-user-select: none;
   user-select: none;
 }
 
@@ -100,8 +101,8 @@ board.o {
 
 } */
 
-board div {
-  font-size: 3em;
+item {
+  font-size: 2.7em;
   height: var(--db);
   pointer-events: none;
   position: absolute;
@@ -110,10 +111,10 @@ board div {
   opacity: 1;
   box-shadow: none;
   /* border-radius: 50%; */
-  /* text-shadow: 0px -1rem 2rem #719089, 0px 0rem 3rem #ff0000; */
+  /* text-shadow: 0px 0px 7px var(--i); */
 }
 
-board div.h {
+item.h {
   /* background: #fff; */
   /* text-shadow: 0px -1rem 2rem #719089, 0px 0rem 3rem #ff0000; */
   /* box-shadow: 0px 0px 20px 11px #fff, inset 0px -1px 6px 12px #0ff; */
@@ -123,15 +124,13 @@ board div.h {
   /* transform: translateY(-100vh); */
 }
 
-/* board div::after {
-  content: "👻";
+item.h::after {
+  content: "💥";
   position: absolute;
   width: 100%;
   height: 100%;
-  left: 0;
-  top: 0;
   text-align: center;
-} */
+}
 
 /* board div.h::before {
   content: "";
