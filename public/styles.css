@@ -63,7 +63,7 @@ div {
 
 board {
   --s-c: #08457b;
-  overflow: hidden;
+  /* overflow: hidden; */
   cursor: pointer;
   width: var(--w);
   height: var(--w);
@@ -111,7 +111,7 @@ item {
   opacity: 1;
   box-shadow: none;
   /* border-radius: 50%; */
-  /* text-shadow: 0px 0px 7px var(--i); */
+  text-shadow: 0px 0px 7px var(--b);
 }
 
 item.h {

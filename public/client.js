@@ -84,6 +84,7 @@
 
   const Game = ({ BOARD = newBoard() }) => {
     const BOARD_ELEMENTS = ["💀", "🔥", "🧛", "🧟‍♂️", "👹"];
+    const ICON_PRIZE = ["🩸", "🪓", "💉", "💣"];
     // let BOARD_GAME = newBoard();
 
     // 💀 ⚰️ ⚱️ 👻 🩸 🪓 💣 🚀 🔫 🦇 🎃 🗡️ 🔥 💉 🧨 🕯️ 🧟‍♂️
@@ -303,37 +304,140 @@
       }
     };
 
-    const removeAnimateBoardElements = (
-      newBoard = [],
+    const tmpRenderBoardConsole = (tmpBoard = []) => {
+      for (let i = 0; i < SIZE; i++) {
+        let tmpCol = "";
+        for (let c = 0; c < SIZE; c++) {
+          if (tmpBoard[i][c].v) {
+            if (BOARD_ELEMENTS[tmpBoard[i][c].v - 1]) {
+              tmpCol += BOARD_ELEMENTS[tmpBoard[i][c].v - 1];
+            } else {
+              tmpCol += ICON_PRIZE[tmpBoard[i][c].v - MAX_ELEMENTS - 1];
+            }
+          } else {
+            tmpCol += "🚫";
+          }
+        }
+        console.log(tmpCol);
+      }
+    };
+
+    const removeAnimateBoardElements = async (
+      copyBoard = [],
       itemsRemove = [],
       prizes = []
     ) => {
       console.log("itemsRemove", itemsRemove);
       console.log("prizes", prizes);
-      const iconPrize = ["🩸", "🪓", "💉", "💣"];
       //❤️
 
       // Test de cambiar el valor por el premio...
       console.log("itera prizes");
-      for(let i = 0; i < prizes.length; i++) {
-        const id = newBoard[prizes[i][0][0]][prizes[i][0][1]].i;
-        newBoard[prizes[i][0][0]][prizes[i][0][1]].v = prizes[i][1];
-        setHtml($(`#t-${id}`), iconPrize[(prizes[i][1] - MAX_ELEMENTS) - 1]);
+      for (let i = 0; i < prizes.length; i++) {
+        // Se cambia en el board el valor del premio...
+        copyBoard[prizes[i][0][0]][prizes[i][0][1]].v = prizes[i][1];
+        // Se renderiza el primeio en el HTML...
+        setHtml(
+          $(`#t-${copyBoard[prizes[i][0][0]][prizes[i][0][1]].i}`),
+          ICON_PRIZE[prizes[i][1] - MAX_ELEMENTS - 1]
+        );
       }
       // Test de ocultar...
-      // for (let i = 0; i < SIZE; i++) {
-      //   for (let c = 0; c < SIZE; c++) {
-      //     const {i:id = 0} = newBoard[i][c];
-      //     classList($(`#t-${id}`), "h");
-      //   }
-      // }
+      // // for (let i = 0; i < SIZE; i++) {
+      // //   for (let c = 0; c < SIZE; c++) {
+      // //     const {i:id = 0} = copyBoard[i][c];
+      // //     classList($(`#t-${id}`), "h");
+      // //   }
+      // // }
+      const originalItemsRemove = [];
       for (let i = 0; i < itemsRemove.length; i++) {
-        const {i:id = 0, v = 0} = newBoard[itemsRemove[i][0]][itemsRemove[i][1]];
-        console.log({id, v});
+        // El valor (v) se necesita para el puntaje v = 0...
+        const { i: id = 0 } = copyBoard[itemsRemove[i][0]][itemsRemove[i][1]];
+        originalItemsRemove.push(id);
+        // Se añade la clase de ocultar los elementos...
         classList($(`#t-${id}`), "h");
+        // Se establece que el valor en 0 en el board, para así imdicar que se han eliminado
+        // y se pueda validar los espacios vacíos...
+        copyBoard[itemsRemove[i][0]][itemsRemove[i][1]].v = 0;
       }
 
-      console.log("newBoard", newBoard);
+      // Ahora se debe traer la cantidad de elementos que hay en el board...
+      // Para así determinar cuales no se deben mostrar en la nueva board...
+      // const BOARD_ELEMENTS = ["💀", "🔥", "🧛", "🧟‍♂️", "👹"];
+      const newBoardItems = newBoard(
+        new Array(MAX_ELEMENTS)
+          .fill(null)
+          .map((_, i) => [i + 1, elementOnBoard(copyBoard, i + 1).length])
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 2)
+          .map((v) => v[0])
+      );
+      // Ahora se debe determinar los espacios vacíos que han quedado...
+      // En este caso hacia abajo para así saber los espacios que quedan arriba
+      // y que se deben completar con los nuevos ítemas de la nueva board...
+      console.log("ITERA EL BOARD");
+      // debugger;
+      for (let i = 0; i < SIZE; i++) {
+        for (let c = 0; c < SIZE; c++) {
+          // Tiene un elemento y no tiene base...
+          if (
+            c + 1 < SIZE &&
+            copyBoard[c][i].v &&
+            !copyBoard?.[c + 1]?.[i]?.v
+          ) {
+            // Ahora mover hacia abajo uno los elementos que están arriba...
+            for (let d = c; d >= 0; d--) {
+              if (d + 1 < SIZE && copyBoard?.[d]?.[i]?.v) {
+                copyBoard[d + 1][i].v = copyBoard[d][i].v;
+                copyBoard[d + 1][i].i = copyBoard[d][i].i;
+                copyBoard[d][i].v = 0;
+              }
+            }
+          }
+        }
+      }
+      // Temporal para ver el nuevo board cuando se mueve hacia abajo...
+      // Temporal para ver el nuevo board cuando se mueve hacia abajo...
+      // console.log("newBoardItems", newBoardItems);
+      console.log("newBoardItems");
+      tmpRenderBoardConsole(newBoardItems);
+
+      console.log("copyBoard CON ESPACIONS");
+      tmpRenderBoardConsole(copyBoard);
+
+      console.log("originalItemsRemove", originalItemsRemove);
+      // Ahora hacer el merge entre las dos boards...
+      // for (let i = 0; i < SIZE; i++) {
+      //   for (let c = 0; c < SIZE; c++) {
+
+      //   }
+      // }
+
+
+      await delay(200);
+
+      // for(let i = 0; i < originalItemsRemove.length; i++) {
+      //   classList($(`#t-${originalItemsRemove[i].i}`), 'h', "remove");
+      //   addStyle($(`#t-${originalItemsRemove[i].i}`), {
+      //     border: `1px solid red`,
+      //     top: `${(CELL * (i + 1)) * -1}px`,
+      //   });
+      // }
+
+      // Prueba de caída...
+      for (let i = 0; i < SIZE; i++) {
+        for (let c = 0; c < SIZE; c++) {
+          if (copyBoard[i][c].v) {
+            addStyle($(`#t-${copyBoard[i][c].i}`), {
+              left: `${copyBoard[i][c].l}px`,
+              top: `${copyBoard[i][c].t}px`,
+            });
+          }
+        }
+      }
+
+
+
     };
 
     /**

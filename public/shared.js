@@ -14,7 +14,7 @@ const randomNumber = (min, max) =>
  * @param {*} type
  * @returns
  */
-const elementOBoard = (board = [], type = 0) => {
+const elementOnBoard = (board = [], type = 0) => {
   const elements = [];
   for (let i = 0; i < SIZE; i++) {
     for (let c = 0; c < SIZE; c++) {
@@ -220,10 +220,10 @@ const isValidBoard = (board = []) => {
   };
 
   // Se busca si hay extra life (6), axe (7), syringe (8), Bomb (9)
-  const extraLife = elementOBoard(board, 6); // ❤️
-  const axe = elementOBoard(board, 7); // 🪓 // Horizontal...
-  const syringe = elementOBoard(board, 8); // 💉 // vertical...
-  const bomb = elementOBoard(board, 9); // 💣
+  const extraLife = elementOnBoard(board, 6); // ❤️
+  const axe = elementOnBoard(board, 7); // 🪓 // Horizontal...
+  const syringe = elementOnBoard(board, 8); // 💉 // vertical...
+  const bomb = elementOnBoard(board, 9); // 💣
   const three = getThree();
   const four = getFour();
 
@@ -815,6 +815,7 @@ const generateBoard = (skip = []) => {
 };
 
 const newBoard = (skip = []) => {
+  console.log("skip", skip);
   let board = generateBoard(skip);
 
   do {
@@ -824,6 +825,9 @@ const newBoard = (skip = []) => {
       break;
     }
   } while (1);
+
+  console.log("EL BOARD");
+  console.log(board);
 
   return board;
 };
