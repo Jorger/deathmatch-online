@@ -31,9 +31,9 @@
 
   const hasClass = (target, className) => {
     if (target) {
-      className.split(" ").forEach((classText) => {
+      for(let classText of className.split(" ")) {
         return target.classList.contains(classText);
-      });
+      }
     }
   };
 
@@ -83,8 +83,18 @@
   */
 
   const Game = ({ BOARD = newBoard() }) => {
-    const BOARD_ELEMENTS = ["💀", "🔥", "🧛", "🧟‍♂️", "👹"];
-    const ICON_PRIZE = ["🩸", "🪓", "💉", "💣"];
+    const BOARD_ELEMENTS = [
+      "💀",
+      "🔥",
+      "🧛",
+      "🧟‍♂️",
+      "👹",
+      "🩸",
+      "🪓",
+      "💉",
+      "💣",
+    ];
+    // const ICON_PRIZE = ["🩸", "🪓", "💉", "💣"];
     // let BOARD_GAME = newBoard();
 
     // 💀 ⚰️ ⚱️ 👻 🩸 🪓 💣 🚀 🔫 🦇 🎃 🗡️ 🔥 💉 🧨 🕯️ 🧟‍♂️
@@ -309,11 +319,7 @@
         let tmpCol = "";
         for (let c = 0; c < SIZE; c++) {
           if (tmpBoard[i][c].v) {
-            if (BOARD_ELEMENTS[tmpBoard[i][c].v - 1]) {
-              tmpCol += BOARD_ELEMENTS[tmpBoard[i][c].v - 1];
-            } else {
-              tmpCol += ICON_PRIZE[tmpBoard[i][c].v - MAX_ELEMENTS - 1];
-            }
+            tmpCol += BOARD_ELEMENTS[tmpBoard[i][c].v - 1];
           } else {
             tmpCol += "🚫";
           }
@@ -339,7 +345,7 @@
         // Se renderiza el primeio en el HTML...
         setHtml(
           $(`#t-${copyBoard[prizes[i][0][0]][prizes[i][0][1]].i}`),
-          ICON_PRIZE[prizes[i][1] - MAX_ELEMENTS - 1]
+          BOARD_ELEMENTS[prizes[i][1] - 1]
         );
       }
       // Test de ocultar...
@@ -403,18 +409,83 @@
       tmpRenderBoardConsole(newBoardItems);
 
       console.log("copyBoard CON ESPACIONS");
-      tmpRenderBoardConsole(copyBoard);
+      tmpRenderBoardConsole(clone(copyBoard));
 
       console.log("originalItemsRemove", originalItemsRemove);
+      // Guarda las posiciones desde donde empezarán los ítems a moverse cuando cae...
+      const positionsItemsRemove = [];
+      // Guarda el índice de los elementos que se adicionan al board...
+      // es necesario por si el board no tiene solución...
+      const newIndexItemsBoard = [];
+      let counterItems = 0;
       // Ahora hacer el merge entre las dos boards...
-      // for (let i = 0; i < SIZE; i++) {
-      //   for (let c = 0; c < SIZE; c++) {
+      for (let i = 0; i < SIZE; i++) {
+        for (let c = 0; c < SIZE; c++) {
+          if (!copyBoard[i][c].v) {
+            copyBoard[i][c].v = newBoardItems[i][c].v;
+            copyBoard[i][c].i = originalItemsRemove[counterItems];
+            newIndexItemsBoard.push([i, c]);
+            positionsItemsRemove.push({
+              i: originalItemsRemove[counterItems],
+              l: Math.round(CELL * c),
+              t: Math.round((CELL * i + CELL) * -1),
+            });
 
-      //   }
-      // }
+            // classList($(`#t-${originalItemsRemove[counterItems]}`), 'v',);
+            // classList($(`#t-${originalItemsRemove[counterItems]}`), 'h', "remove");
+            // addStyle($(`#t-${originalItemsRemove[counterItems]}`), {
+            //   left: `${Math.round(CELL * c)}px`,
+            //   top: `${Math.round(((CELL * i) + CELL) * -1)}px`,
+            // });
+            setHtml(
+              $(`#t-${originalItemsRemove[counterItems]}`),
+              BOARD_ELEMENTS[newBoardItems[i][c].v - 1]
+            );
 
+            counterItems++;
+          }
+        }
+      }
 
+      // Como no es válido, se pondrá un premio de forma aletoria...
+      if (!isValidBoard(copyBoard).isValid) {
+        console.log("PONER UN PREMIO DE FORMA ALETORIA EN LOS NUEVOS");
+        console.log("newIndexItemsBoard", newIndexItemsBoard);
+        console.log("EL TAMAÑO: ", newIndexItemsBoard.length);
+        const randomPosition = randomNumber(0, newIndexItemsBoard.length - 1);
+        const positions = newIndexItemsBoard[randomPosition];
+        console.log({ randomPosition, positions });
+        copyBoard[positions[0]][positions[1]].v = randomNumber(7, 9);
+        setHtml(
+          $(`#t-${copyBoard[positions[0]][positions[1]].i}`),
+          BOARD_ELEMENTS[copyBoard[positions[0]][positions[1]].v - 1]
+        );
+      }
+
+      console.log("MERGE!!");
+      tmpRenderBoardConsole(copyBoard);
+      console.log("newIndexItemsBoard", newIndexItemsBoard);
+      await delay(100);
+      for (let i = 0; i < positionsItemsRemove.length; i++) {
+        classList($(`#t-${positionsItemsRemove[i].i}`), "v");
+        addStyle($(`#t-${positionsItemsRemove[i].i}`), {
+          left: `${positionsItemsRemove[i].l}px`,
+          top: `${positionsItemsRemove[i].t}px`,
+        });
+      }
       await delay(200);
+      for (let i = 0; i < positionsItemsRemove.length; i++) {
+        classList($(`#t-${positionsItemsRemove[i].i}`), "h", "remove");
+      }
+
+      // await delay(100);
+      // // Poner la ubicación de inicio de los nuevos...
+      // for(let i = 0; i < originalItemsRemove.length; i++) {
+      //   classList($(`#t-${originalItemsRemove[i]}`), 'h', "remove");
+
+      //   classList($(`#t-${originalItemsRemove[counterItems]}`), 'v',);
+      // }
+      await delay(100);
 
       // for(let i = 0; i < originalItemsRemove.length; i++) {
       //   classList($(`#t-${originalItemsRemove[i].i}`), 'h', "remove");
@@ -428,7 +499,12 @@
       for (let i = 0; i < SIZE; i++) {
         for (let c = 0; c < SIZE; c++) {
           if (copyBoard[i][c].v) {
-            addStyle($(`#t-${copyBoard[i][c].i}`), {
+            const item = $(`#t-${copyBoard[i][c].i}`);
+            if (hasClass(item, "v")) {
+              classList(item, "v", "remove");
+            }
+
+            addStyle(item, {
               left: `${copyBoard[i][c].l}px`,
               top: `${copyBoard[i][c].t}px`,
             });
@@ -436,8 +512,16 @@
         }
       }
 
+      BOARD = copyBoard;
+      await delay(300);
 
-
+      const { itemsRemove: newItemsRemove = [], prizes: newPrizes = [] } =
+        validateMatch(BOARD);
+      if (newItemsRemove.length !== 0) {
+        removeAnimateBoardElements(BOARD, newItemsRemove, newPrizes);
+      } else {
+        blockBoard();
+      }
     };
 
     /**
