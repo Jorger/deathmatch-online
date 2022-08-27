@@ -100,46 +100,14 @@
       "💀",
       "🎃",
       "🧛",
-      "🧟‍♂️",
+      "🔥",
       "👹",
       "🧨",
       "🪓",
       "🚀",
       "💣",
     ];
-    // const ICON_PRIZE = ["🩸", "🪓", "💉", "💣"];
-
-    // 💀 ⚰️ ⚱️ 👻 🩸 🪓 💣 🚀 🔫 🦇 🎃 🗡️ 🔥 💉 🧨 🕯️ 🧟‍♂️
-    const RenderBoard = (board = []) =>
-      board
-        .map((cell) =>
-          cell
-            .map(
-              (v) =>
-                `<item class="df a c" id="t-${`${v.i}`}" ${inlineStyles({
-                  left: `${v.l}px`,
-                  top: `${v.t}px`,
-                })}>${BOARD_ELEMENTS[v.v - 1]}</item>`
-            )
-            .join("")
-        )
-        .join("");
-
-    setHtml(
-      $("#render"),
-      `<div class="df f wi he">
-      <h1>DeathMatch</h1>
-      <p>Acá se muestra más data</p>
-      <board>${RenderBoard(
-        BOARD
-      )}</board><button id="test">Generate</button></div>`
-    );
-
-    $on($("#test"), "click", () => {
-      BOARD = newBoard();
-      console.log(BOARD);
-      setHtml($("board"), RenderBoard(BOARD));
-    });
+    // 💀 ⚰️ ⚱️ 👻 🩸 🪓 💣 🚀 🔫 🦇 🎃 🗡️ 🔥 💉 🧨 🕯️ 🧟‍♂️ 😈
 
     /**
      * Blquea el board y le pone una capa si es necesario...
@@ -663,10 +631,7 @@
             const item = $(`#t-${copyBoard[i][c].i}`);
             if (hasClass(item, "v")) {
               classList(item, "v", "remove");
-              setHtml(
-                item,
-                BOARD_ELEMENTS[copyBoard[i][c].v - 1]
-              );
+              setHtml(item, BOARD_ELEMENTS[copyBoard[i][c].v - 1]);
             }
 
             addStyle(item, {
@@ -750,12 +715,26 @@
       console.log("LÍNEA 694 movesPrizes");
       console.log(movesPrizes);
 
-      // Se entre los ítems que se mueven hay premios, se debe validar los ítemas a quitar...
-      for (let i = 0; i < movesPrizes.length; i++) {
-        itemsRemove = uniqueValues([
-          ...itemsRemove,
-          ...removeItemsFromPrize(movesPrizes[i], copyBoard),
-        ]);
+      // Se han movido premios, así que se debe validar los elementos que se eliminan...
+      if (movesPrizes.length !== 0) {
+        for (let i = 0; i < movesPrizes.length; i++) {
+          itemsRemove = uniqueValues([
+            ...itemsRemove,
+            ...removeItemsFromPrize(movesPrizes[i], copyBoard),
+          ]);
+        }
+
+        // Sacar los premios que se habían calculado...
+        itemsRemove = itemsRemove.filter(
+          (r) =>
+            !(
+              (
+                prizes?.find(
+                  (v) => v?.[0]?.[0] === r[0] && v?.[0]?.[1] === r[1]
+                ) || []
+              ).length !== 0
+            )
+        );
       }
 
       if (itemsRemove.length !== 0) {
@@ -766,6 +745,77 @@
         blockBoard();
       }
     };
+
+    const RenderScore = () =>
+      `<div class="sc df a c f wi">
+                <div class="scn">
+                  <div class="df wi he">
+                  ${new Array(2)
+                    .fill(null)
+                    .map(
+                      (_, i) => `
+                      <div class="scv df a c" id=scv-${i + 1}>0</div>
+                    `
+                    )
+                    .join("")}
+                  </div>
+                  <div class="sci wi df a">
+                      ${new Array(5)
+                        .fill(null)
+                        .map(
+                          (_, i) => `
+                      <div id=in-${i + 1}>${i + 1}</div>
+                    `
+                        )
+                        .join("")}
+                  </div>
+                </div>
+              </div>`;
+
+    // Your Turn - Opponent's Turn
+    const RenderTurn = () => {
+      const Names = (name = "") =>
+        `<div class="tuna df a c" id="na-1">${name}</div>`;
+
+      return `<div class="tu wi">
+                <div class="df a tun wi df">
+                  ${Names("Jorge")}
+                  <div class="tunc df">
+                    <div id="tu-1">Circule 01</div>
+                    <div id="tu-2">Circule 02</div>
+                  </div>
+                  ${Names("Juan")}
+                </div>
+                <div class="tup wi">
+                  <progress class="wi" id="pro" value="50" max="100"></progress>
+                  <div class="wi" id="tupl">Opponent's Turn</div>
+                </div>
+              </div>`;
+    };
+
+    // Renderizar la parte superior del juego...
+    const RenderTop = () => {
+      return `<top class="wi">${RenderScore()}${RenderTurn()}</top>`;
+    };
+
+    const RenderBoard = () =>
+      `<board>${BOARD.map((cell) =>
+        cell
+          .map(
+            (v) =>
+              `<item class="df a c" id="t-${`${v.i}`}" ${inlineStyles({
+                left: `${v.l}px`,
+                top: `${v.t}px`,
+              })}>${BOARD_ELEMENTS[v.v - 1]}</item>`
+          )
+          .join("")
+      ).join("")}</board>`;
+
+    // Renderizar el UI...
+    setHtml(
+      $("#render"),
+      `<game class="df f wi he">${RenderTop()}${RenderBoard()}</game>`
+    );
 
     // Agregra los eventos...
     // 0 Guarda el índice del elemento que está ene sa posición...

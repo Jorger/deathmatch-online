@@ -1,3 +1,7 @@
+/* Pages gradients */
+/* https://uigradients.com/#Firewatch */
+/* https://www.cssmatic.com/gradient-generator */
+/* https://www.colorzilla.com/gradient-editor/ */
 :root {
   --b: #000;
   --i: #fff;
@@ -71,6 +75,8 @@ board {
   height: var(--w);
   position: relative;
   background: #005695;
+  /* box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset; */
+  box-shadow: rgba(6, 24, 44, 0.4) 0px 0px 0px 2px, rgba(6, 24, 44, 0.65) 0px 4px 6px -1px, rgba(255, 255, 255, 0.08) 0px 1px 0px inset;
   -webkit-tap-highlight-color: transparent;
   background-image: linear-gradient(
       45deg,
@@ -164,3 +170,156 @@ item.v {
   opacity: 0;
   transform: scale(0);
 }
+
+game {
+  background: #073d72;
+}
+
+top {
+  /* border: 1px solid red; */
+  height: calc(var(--h) - var(--w) - 20px); 
+  position: relative;
+}
+/* Para el score */
+.sc {
+  position: absolute;
+  /* border: 1px solid green; */
+  top: 20px;
+}
+
+.scn {
+  width: 180px;
+  height: 65px;
+  /* border: 1px solid red; */
+  background: #062d53;
+  border-radius: 10px;
+  padding: 10px;
+  /* box-shadow: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px; */
+  /* outline: 2px solid black; */
+}
+
+.scv {
+  width: 50%;
+  /* border: 1px solid orange; */
+  border-radius: 15px;
+  color: var(--i);
+  font-size: 23px;
+  background: #ff0000;
+  font-weight: bold;
+  box-shadow: rgba(0, 0, 0, 0.15) 0px 3px 3px 0px;
+}
+
+.scv:not(:last-child) {
+  margin-right: 10px;
+}
+
+/* temporal */
+.scv:last-child {
+  background: #1e90ff;
+}
+
+.sci {
+  background: #062d53;
+  border-radius: 10px;
+  /* height: 30px; */
+  padding: 8px;
+  justify-content: space-around;
+  color: var(--i);
+  /* box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px; */
+  /* box-shadow: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px; */
+  /* border-radius: 0 0 10px 10px; */
+}
+
+.sci div {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  border: 1px solid black;
+  text-align: center;
+  line-height: 25px;
+  font-size: 12px;
+  font-weight: bold;
+  /* box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px; */
+}
+
+/* red: #f44336 */
+/* blue: #03a9f4 */
+
+/* Para el progreso y los emojis que se "enfrentan" */
+.tu {
+  position: absolute;
+  bottom: 0;
+  height: 110px;
+  background: linear-gradient(to top, #004e92, #000428); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+  box-shadow: rgba(255, 255, 255, 0.2) 0px 0px 0px 1px inset, rgba(0, 0, 0, 0.9) 0px 0px 0px 1px;
+}
+
+.tu:before,
+.tu::after {
+  content: "🧟‍♂️";
+  position: absolute;
+  font-size: 105px;
+  top: -120px;
+  left: 3%;
+}
+
+.tu::after {
+  content: "🧟‍♀️";
+  right: 3%;
+  left: unset;
+}
+
+/* Para los nombres y número de lanzamientos... */
+.tun {
+  /* border: 1px solid red; */
+  margin: 15px 0 5px 0;
+  justify-content: space-around;
+  /* height: 60px; */
+}
+
+.tuna {
+  /* background: linear-gradient(to top, #ef473a, #cb2d3e);; */
+  background: #08143a;
+  color: white;
+  width: 100px;
+  height: 43px;
+  border-radius: 10px;
+  box-shadow: rgb(0 0 0 / 16%) 0px 1px 4px, rgb(214 204 204) 0px 0px 0px 3px;
+}
+
+
+/* La barra de progreso */
+.tup {
+  padding: 10px;
+  position: relative;
+}
+
+progress {
+  --p-a: linear-gradient(to bottom,  #ffb76b 0%,#ffa73d 50%,#ff7c00 51%,#ff7f04 100%);
+  --p-b: #08143a;
+  height: 25px;
+  background: var(--p-b);
+  position: relative;
+}
+
+progress::-moz-progress-bar {
+  background: var(--p-a);
+}
+
+progress::-webkit-progress-value {
+  background: var(--p-a);
+}
+
+progress::-webkit-progress-bar {
+  background: var(--p-b);
+}
+
+#tupl {
+  position: absolute;
+  left: 0;
+  top: 13px;
+  text-align: center;
+  text-shadow: 1px 1px 1px var(--b);
+  color: var(--i);
+}
+
