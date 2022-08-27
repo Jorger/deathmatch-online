@@ -10,6 +10,19 @@
   const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   const clone = (value) => JSON.parse(JSON.stringify(value));
 
+  const debounce = (fn, delay) => {
+    var t;
+    return function () {
+      clearTimeout(t);
+      t = setTimeout(fn, delay);
+    };
+  };
+
+  /**
+   * Determina si el dispotivo es mobile
+   */
+  // const isMobile = () => /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
   const $on = (target, type, callback, parameter = {}) => {
     if (target) {
       target.addEventListener(type, callback, parameter);
@@ -31,7 +44,7 @@
 
   const hasClass = (target, className) => {
     if (target) {
-      for(let classText of className.split(" ")) {
+      for (let classText of className.split(" ")) {
         return target.classList.contains(classText);
       }
     }
@@ -85,17 +98,16 @@
   const Game = ({ BOARD = newBoard() }) => {
     const BOARD_ELEMENTS = [
       "💀",
-      "🔥",
+      "🎃",
       "🧛",
       "🧟‍♂️",
       "👹",
-      "🩸",
+      "🧨",
       "🪓",
-      "💉",
+      "🚀",
       "💣",
     ];
     // const ICON_PRIZE = ["🩸", "🪓", "💉", "💣"];
-    // let BOARD_GAME = newBoard();
 
     // 💀 ⚰️ ⚱️ 👻 🩸 🪓 💣 🚀 🔫 🦇 🎃 🗡️ 🔥 💉 🧨 🕯️ 🧟‍♂️
     const RenderBoard = (board = []) =>
@@ -115,9 +127,7 @@
 
     setHtml(
       $("#render"),
-      `<div class="df f wi he" ${inlineStyles({
-        "margin-top": "230px",
-      })}>
+      `<div class="df f wi he">
       <h1>DeathMatch</h1>
       <p>Acá se muestra más data</p>
       <board>${RenderBoard(
@@ -128,10 +138,15 @@
     $on($("#test"), "click", () => {
       BOARD = newBoard();
       console.log(BOARD);
-      // console.log(isValidBoard(BOARD));
       setHtml($("board"), RenderBoard(BOARD));
     });
 
+    /**
+     * Blquea el board y le pone una capa si es necesario...
+     * @param {*} d
+     * @param {*} o
+     * @returns
+     */
     const blockBoard = (d = false, o = false) =>
       classList(
         $("board"),
@@ -139,7 +154,11 @@
         d || o ? "add" : "remove"
       );
 
-    // Función que valida si se ha hecho match de figuras...
+    /**
+     * Dada un board, valida si se ha hecho match...
+     * @param {*} copyBoard
+     * @returns
+     */
     const validateMatch = (copyBoard = []) => {
       const validateLine = (r = 0, c = 0, v = 0, horizontal = true) => {
         const cells = [[r, c]];
@@ -304,7 +323,126 @@
       };
     };
 
-    // Mueve las figuras a su posición o la devuelve a donde estaban...
+    /**
+     * Dado un tipo de premio y la matriz, se devuelve los ítems que se debe eliminar en el board...
+     * Además si entre los ítems que se eliminan hay un premio, se llama de forma recursiva
+     * para así eliminar sus vlaores...
+     * @param {*} prize
+     * @param {*} copyBoard
+     * @param {*} previusPrizes
+     * @returns
+     */
+    const removeItemsFromPrize = (
+      prize = [],
+      copyBoard = [],
+      previusPrizes = []
+    ) => {
+      // debugger;
+      let itemsRemove = [[prize[0][0], prize[0][1]]];
+      console.log("VALOR DE prize ES: ", prize);
+      console.log("previusPrizes", previusPrizes);
+      // 🧨
+      if (prize[1] === 6) {
+        const items = [
+          [-1, 0],
+          [-1, -1],
+          [0, -1],
+          [1, -1],
+          [1, 0],
+          [-1, 1],
+          [0, 1],
+          [1, 1],
+        ];
+
+        for (let i = 0; i < items.length; i++) {
+          const row = prize[0][0] + items[i][0];
+          const col = prize[0][1] + items[i][1];
+          if (copyBoard?.[row]?.[col]) {
+            itemsRemove.push([row, col]);
+          }
+        }
+      }
+
+      // 🪓 ó 🚀
+      if (prize[1] === 7 || prize[1] === 8) {
+        const base = prize[0][prize[1] === 8 ? 1 : 0];
+        for (let counter = 0; counter < SIZE; counter++) {
+          const row = prize[1] === 7 ? base : counter;
+          const col = prize[1] === 7 ? counter : base;
+          if (copyBoard?.[row]?.[col]) {
+            itemsRemove.push([row, col]);
+          }
+        }
+      }
+
+      // 💣
+      if (prize[1] === 9) {
+        const initialRow = prize[0][0] - 2;
+        const initialCol = prize[0][1] - 2;
+
+        for (let i = initialRow; i < initialRow + 5; i++) {
+          for (let c = initialCol; c < initialCol + 5; c++) {
+            if (copyBoard?.[i]?.[c]) {
+              itemsRemove.push([i, c]);
+            }
+          }
+        }
+      }
+
+      itemsRemove = uniqueValues(itemsRemove);
+      console.log("VALORES ÚNICOS ACÁ");
+      console.log(itemsRemove);
+
+      let newItemsRemove = [];
+      for (let i = 0; i < itemsRemove.length; i++) {
+        const position = itemsRemove[i];
+        const value = copyBoard[position[0]][position[1]].v;
+
+        if (itemIsPrize(value)) {
+          const isCurretPrize =
+            position[0] === prize[0][0] && position[1] === prize[0][1];
+          let prizeProcessed = false;
+
+          if (!isCurretPrize) {
+            console.log("previusPrizes", previusPrizes);
+            for (let d = 0; d < previusPrizes.length; d++) {
+              const previusPosition = previusPrizes[d][0];
+
+              if (
+                previusPosition[0] === position[0] &&
+                previusPosition[1] === position[1]
+              ) {
+                prizeProcessed = true;
+                break;
+              }
+            }
+          }
+
+          if (!isCurretPrize && !prizeProcessed) {
+            newItemsRemove.push(
+              removeItemsFromPrize([position, value], copyBoard, [
+                ...previusPrizes,
+                ...[prize],
+              ])
+            );
+          }
+        }
+      }
+
+      console.log("newItemsRemove");
+      console.log(newItemsRemove);
+
+      console.log("NUEVOS VALORES ÚNICOS");
+      itemsRemove = uniqueValues([...itemsRemove, ...newItemsRemove.flat()]);
+
+      return itemsRemove;
+    };
+
+    /**
+     * Mueve las figuras a su posición o la devuelve a donde estaban
+     * @param {*} move
+     * @param {*} reverse
+     */
     const changePositionElements = (move = [], reverse = false) => {
       for (let i = 0; i < 2; i++) {
         addStyle($(`#t-${move[i].i}`), {
@@ -314,6 +452,7 @@
       }
     };
 
+    // TODO: Elminar función...
     const tmpRenderBoardConsole = (tmpBoard = []) => {
       for (let i = 0; i < SIZE; i++) {
         let tmpCol = "";
@@ -328,6 +467,49 @@
       }
     };
 
+    /**
+     * Agrega el label de movimiento extra en el board...
+     * Pasado un tiempo, lo elimina del Dom
+     * @param {*} row
+     * @param {*} col
+     */
+    const renderExtraMove = async (row = 0, col = 0) => {
+      const element = document.createElement("div");
+      const id = `ex-${randomNumber(1, 1000)}`;
+      element.innerHTML = "EXTRA MOVE!";
+      element.className = "df a c extra";
+      const posiblePositions = [
+        [-1, -1],
+        [1, -1],
+        [1, 1],
+        [-1, 1],
+      ];
+      for (let i = 0; i < posiblePositions.length; i++) {
+        const newRow = row + posiblePositions[i][0];
+        const newCol = col + posiblePositions[i][1];
+        if (newRow >= 0 && newRow < SIZE && newCol >= 0 && newCol < SIZE) {
+          element.style.left = Math.round(CELL * newCol) + "px";
+          element.style.top = Math.round(CELL * newRow) + "px";
+          break;
+        }
+      }
+      element.setAttribute("id", id);
+      $("board").appendChild(element);
+      await delay(10);
+      classList($(`#${id}`), "s");
+      await delay(1000);
+      classList($(`#${id}`), "h");
+      await delay(500);
+      $(`#${id}`).remove();
+    };
+
+    /**
+     * Dada la board, los premios y los ítemas a eliminar
+     * realiza la animación, además ontiene el nuevo board que se generará...
+     * @param {*} copyBoard
+     * @param {*} itemsRemove
+     * @param {*} prizes
+     */
     const removeAnimateBoardElements = async (
       copyBoard = [],
       itemsRemove = [],
@@ -335,9 +517,8 @@
     ) => {
       console.log("itemsRemove", itemsRemove);
       console.log("prizes", prizes);
-      //❤️
 
-      // Test de cambiar el valor por el premio...
+      // Se establecen los premios...
       console.log("itera prizes");
       for (let i = 0; i < prizes.length; i++) {
         // Se cambia en el board el valor del premio...
@@ -347,14 +528,13 @@
           $(`#t-${copyBoard[prizes[i][0][0]][prizes[i][0][1]].i}`),
           BOARD_ELEMENTS[prizes[i][1] - 1]
         );
+
+        if (itemIsPrize(prizes[i][1]) && prizes[i][1] !== 9) {
+          renderExtraMove(prizes[i][0][0], prizes[i][0][1]);
+        }
       }
-      // Test de ocultar...
-      // // for (let i = 0; i < SIZE; i++) {
-      // //   for (let c = 0; c < SIZE; c++) {
-      // //     const {i:id = 0} = copyBoard[i][c];
-      // //     classList($(`#t-${id}`), "h");
-      // //   }
-      // // }
+
+      // Se ocultan los elementos que se destruyen...
       const originalItemsRemove = [];
       for (let i = 0; i < itemsRemove.length; i++) {
         // El valor (v) se necesita para el puntaje v = 0...
@@ -376,13 +556,13 @@
           .map((_, i) => [i + 1, elementOnBoard(copyBoard, i + 1).length])
           .sort((a, b) => b[1] - a[1])
           .slice(0, 2)
-          .map((v) => v[0])
+          .filter((v) => v[1] >= 4)
+          .map((v) => v?.[0])
       );
       // Ahora se debe determinar los espacios vacíos que han quedado...
       // En este caso hacia abajo para así saber los espacios que quedan arriba
       // y que se deben completar con los nuevos ítemas de la nueva board...
       console.log("ITERA EL BOARD");
-      // debugger;
       for (let i = 0; i < SIZE; i++) {
         for (let c = 0; c < SIZE; c++) {
           // Tiene un elemento y no tiene base...
@@ -402,8 +582,19 @@
           }
         }
       }
-      // Temporal para ver el nuevo board cuando se mueve hacia abajo...
-      // Temporal para ver el nuevo board cuando se mueve hacia abajo...
+
+      // Saber los espacios que quedan, para así indicar el punto de partida de las figuras...
+      const spaces = [];
+      for (let i = 0; i < SIZE; i++) {
+        let counter = 0;
+        for (let c = 0; c < SIZE; c++) {
+          counter += +!copyBoard[c][i].v;
+        }
+        spaces.push(counter);
+      }
+
+      // console.log("Los spaces que quedan: ", spaces);
+
       // console.log("newBoardItems", newBoardItems);
       console.log("newBoardItems");
       tmpRenderBoardConsole(newBoardItems);
@@ -428,19 +619,8 @@
             positionsItemsRemove.push({
               i: originalItemsRemove[counterItems],
               l: Math.round(CELL * c),
-              t: Math.round((CELL * i + CELL) * -1),
+              t: Math.round(CELL * (spaces[c] - i) * -1),
             });
-
-            // classList($(`#t-${originalItemsRemove[counterItems]}`), 'v',);
-            // classList($(`#t-${originalItemsRemove[counterItems]}`), 'h', "remove");
-            // addStyle($(`#t-${originalItemsRemove[counterItems]}`), {
-            //   left: `${Math.round(CELL * c)}px`,
-            //   top: `${Math.round(((CELL * i) + CELL) * -1)}px`,
-            // });
-            setHtml(
-              $(`#t-${originalItemsRemove[counterItems]}`),
-              BOARD_ELEMENTS[newBoardItems[i][c].v - 1]
-            );
 
             counterItems++;
           }
@@ -456,10 +636,6 @@
         const positions = newIndexItemsBoard[randomPosition];
         console.log({ randomPosition, positions });
         copyBoard[positions[0]][positions[1]].v = randomNumber(7, 9);
-        setHtml(
-          $(`#t-${copyBoard[positions[0]][positions[1]].i}`),
-          BOARD_ELEMENTS[copyBoard[positions[0]][positions[1]].v - 1]
-        );
       }
 
       console.log("MERGE!!");
@@ -473,35 +649,24 @@
           top: `${positionsItemsRemove[i].t}px`,
         });
       }
-      await delay(200);
+      await delay(100);
       for (let i = 0; i < positionsItemsRemove.length; i++) {
         classList($(`#t-${positionsItemsRemove[i].i}`), "h", "remove");
       }
 
-      // await delay(100);
-      // // Poner la ubicación de inicio de los nuevos...
-      // for(let i = 0; i < originalItemsRemove.length; i++) {
-      //   classList($(`#t-${originalItemsRemove[i]}`), 'h', "remove");
-
-      //   classList($(`#t-${originalItemsRemove[counterItems]}`), 'v',);
-      // }
       await delay(100);
 
-      // for(let i = 0; i < originalItemsRemove.length; i++) {
-      //   classList($(`#t-${originalItemsRemove[i].i}`), 'h', "remove");
-      //   addStyle($(`#t-${originalItemsRemove[i].i}`), {
-      //     border: `1px solid red`,
-      //     top: `${(CELL * (i + 1)) * -1}px`,
-      //   });
-      // }
-
-      // Prueba de caída...
+      // Caída...
       for (let i = 0; i < SIZE; i++) {
         for (let c = 0; c < SIZE; c++) {
           if (copyBoard[i][c].v) {
             const item = $(`#t-${copyBoard[i][c].i}`);
             if (hasClass(item, "v")) {
               classList(item, "v", "remove");
+              setHtml(
+                item,
+                BOARD_ELEMENTS[copyBoard[i][c].v - 1]
+              );
             }
 
             addStyle(item, {
@@ -513,7 +678,7 @@
       }
 
       BOARD = copyBoard;
-      await delay(300);
+      await delay(200);
 
       const { itemsRemove: newItemsRemove = [], prizes: newPrizes = [] } =
         validateMatch(BOARD);
@@ -521,6 +686,33 @@
         removeAnimateBoardElements(BOARD, newItemsRemove, newPrizes);
       } else {
         blockBoard();
+      }
+    };
+
+    /**
+     * Determina si el valor dado es un valor de premio...
+     * @param {*} value
+     * @returns
+     */
+    const itemIsPrize = (value) => [6, 7, 8, 9].includes(value);
+
+    /**
+     * Valida sí sólo se ha hecho click/touch a un elemento
+     * En este caso para saber si es un premio, el cual se puede ejecutar
+     * dando sólo click...
+     * @param {*} element
+     */
+    const validateClick = (element = {}) => {
+      console.log("LLEGA AL ELEMENTO DE validateClick");
+      if (itemIsPrize(element?.v)) {
+        const itemsRemove = removeItemsFromPrize(
+          [[element.p.i, element.p.c], element.v],
+          BOARD
+        );
+        console.log("los ítems que llegan acá");
+        console.log(itemsRemove);
+        // debugger;
+        removeAnimateBoardElements(BOARD, itemsRemove);
       }
     };
 
@@ -535,16 +727,37 @@
       changePositionElements(move);
       // Se clona el board y se cambia las posiciones...
       const copyBoard = clone(BOARD);
+      const movesPrizes = [];
       for (let i = 0; i < 2; i++) {
-        copyBoard[move[i].p.i][move[i].p.c] = {
-          ...copyBoard[move[i].p.i][move[i].p.c],
-          v: move[+!i].v,
-          i: move[+!i].i,
+        const row = move[i].p.i;
+        const col = move[i].p.c;
+        const value = move[+!i].v;
+        const id = move[+!i].i;
+        copyBoard[row][col] = {
+          ...copyBoard[row][col],
+          v: value,
+          i: id,
         };
+
+        if (itemIsPrize(value)) {
+          movesPrizes.push([[row, col], value]);
+        }
       }
       await delay(200);
       // Se debe validar si hay match...
-      const { itemsRemove = [], prizes = [] } = validateMatch(copyBoard);
+      let { itemsRemove = [], prizes = [] } = validateMatch(copyBoard);
+      // Saber si uno de los elementos que se ha movido es un premio...
+      console.log("LÍNEA 694 movesPrizes");
+      console.log(movesPrizes);
+
+      // Se entre los ítems que se mueven hay premios, se debe validar los ítemas a quitar...
+      for (let i = 0; i < movesPrizes.length; i++) {
+        itemsRemove = uniqueValues([
+          ...itemsRemove,
+          ...removeItemsFromPrize(movesPrizes[i], copyBoard),
+        ]);
+      }
+
       if (itemsRemove.length !== 0) {
         removeAnimateBoardElements(copyBoard, itemsRemove, prizes);
       } else {
@@ -631,15 +844,17 @@
               eventMove.end = coordenates;
               validateMove([origin, BOARD[move[0]][move[1]]]);
             } else {
-              // TODO: Se debe validar el tipo de valor que tenía en start por que puede ser de un sólo click...
+              console.log("INGREA A ESTE PUNTO LÍNEA 767");
+              validateClick(getIndexCell(eventMove.start));
               eventMove = {};
             }
           }
         }
       },
-      end: (e) => {
-        // console.log("EN end:", e.type);
-        // TODO: Se debe validar el tipo de valor que tenía en start por que puede ser de un sólo click...
+      end: () => {
+        if (eventMove?.start && !eventMove?.end) {
+          validateClick(getIndexCell(eventMove.start));
+        }
         eventMove = {};
       },
     };
@@ -672,8 +887,28 @@
     Handler[screen](params);
   };
 
+  const onWindowResize = debounce(
+    () =>
+      addStyle($("#render"), {
+        transform:
+          window.innerWidth < WIDTH || window.innerHeight < HEIGHT
+            ? `scale(${Math.min(
+                window.innerWidth / WIDTH,
+                window.innerHeight / HEIGHT
+              )}) translate(${
+                window.innerWidth < WIDTH
+                  ? Math.round((window.innerWidth - WIDTH) / 2)
+                  : 0
+              }px, 0)`
+            : "none",
+      }),
+    50
+  );
+
   // Renderizar la base del juego...
   setHtml($("#root"), `<div id="render" class="df c wi he"></div>`);
   Screen();
   $on(document, "contextmenu", (event) => event.preventDefault());
+  $on(window, "resize", onWindowResize);
+  onWindowResize();
 })();
