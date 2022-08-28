@@ -1,5 +1,7 @@
 (() => {
   // Utilidades
+  const CACHE_KEY = "death-match";
+  const COLOR = { b: "#1e90ff", r: "#ff0000" };
   const $ = document.querySelector.bind(document);
   const $$ = document.querySelectorAll.bind(document);
   $(
@@ -10,6 +12,44 @@
   const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   const clone = (value) => JSON.parse(JSON.stringify(value));
 
+  //STORAGE
+  /**
+   * Guadar la información dada en localStorage/sessionStorage
+   * @param {*} data
+   */
+  const saveCache = (data) =>
+    localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+
+  /**
+   * Obtener la data que está guardarda en localStorage
+   */
+  const getDataCache = () =>
+    localStorage.getItem(CACHE_KEY)
+      ? JSON.parse(localStorage.getItem(CACHE_KEY))
+      : {};
+
+  /**
+   * Guarda valores de una propiedad en localstorage
+   * @param {*} property
+   * @param {*} value
+   */
+  const savePropierties = (property, value) => {
+    const localCache = getDataCache();
+    localCache[property] = value;
+    saveCache(localCache);
+  };
+
+  /**
+   * Dada una propiedad, devuelve la información de la misma
+   */
+  const getValueFromCache = (key = "", initial) =>
+    getDataCache()[key] || initial;
+
+  const getUser = () => [
+    ["name", "token"].map((v) => getValueFromCache(v, "")),
+  ];
+  // FIN STORAGE
+
   const debounce = (fn, delay) => {
     var t;
     return function () {
@@ -17,11 +57,6 @@
       t = setTimeout(fn, delay);
     };
   };
-
-  /**
-   * Determina si el dispotivo es mobile
-   */
-  // const isMobile = () => /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
   const $on = (target, type, callback, parameter = {}) => {
     if (target) {
@@ -90,12 +125,26 @@
     return newValue;
   };
 
+  const newArray = (size = 2, cb) =>
+    new Array(size)
+      .fill(null)
+      .map((_, i) => cb(i, (v) => v))
+      .join("");
+
+  const Back = () => `<button id=back>⬅️</button>`;
+  // $on($("#back"), "click", () => Screen("Lobby"))
   /*
   FILAS HORIZINTAL..
   COlumnas Vertical...
   */
 
-  const Game = ({ BOARD = newBoard() }) => {
+  /*
+  type:
+  0, vs mismo device...
+  1, vs la máquina...
+  2, realtime...
+  */
+  const Game = ({ BOARD = newBoard(), type = 0, users = {}, level = 0 }) => {
     const BOARD_ELEMENTS = [
       "💀",
       "🎃",
@@ -108,6 +157,61 @@
       "💣",
     ];
     // 💀 ⚰️ ⚱️ 👻 🩸 🪓 💣 🚀 🔫 🦇 🎃 🗡️ 🔥 💉 🧨 🕯️ 🧟‍♂️ 😈
+    const userData = [
+      ["one", "c"],
+      ["two", "o"],
+    ]
+      .map((v) => ({
+        [v[0]]: {
+          p: 0,
+          c: COLOR[users[v[1]]],
+          n: users[users[v[1]]][0],
+          t: users[users[v[1]]][1],
+        },
+      }))
+      .reduce((a, s) => ({ ...a, ...s }), {});
+
+    // let counterProgress = 100;
+    let playerHasTurn = users.t === 1 ? "one" : "two";
+
+    const chronometer = () => {
+      let interval;
+      let counter = 100;
+      let callback;
+
+      const pause = () => {
+        if (interval) {
+          clearInterval(interval);
+          interval = null;
+        }
+      };
+
+      const tick = () => {
+        interval = setInterval(() => {
+          counter--;
+          $("progress").value = counter;
+
+          if (counter <= 0 && callback) {
+            pause();
+            callback();
+          }
+        }, 250);
+      };
+
+      const start = (cb) => {
+        callback = cb;
+        counter = 100;
+        tick();
+      };
+
+      return {
+        tick,
+        start,
+        pause,
+      };
+    };
+
+    const progress = chronometer();
 
     /**
      * Blquea el board y le pone una capa si es necesario...
@@ -305,10 +409,7 @@
       copyBoard = [],
       previusPrizes = []
     ) => {
-      // debugger;
       let itemsRemove = [[prize[0][0], prize[0][1]]];
-      console.log("VALOR DE prize ES: ", prize);
-      console.log("previusPrizes", previusPrizes);
       // 🧨
       if (prize[1] === 6) {
         const items = [
@@ -358,9 +459,6 @@
       }
 
       itemsRemove = uniqueValues(itemsRemove);
-      console.log("VALORES ÚNICOS ACÁ");
-      console.log(itemsRemove);
-
       let newItemsRemove = [];
       for (let i = 0; i < itemsRemove.length; i++) {
         const position = itemsRemove[i];
@@ -372,7 +470,6 @@
           let prizeProcessed = false;
 
           if (!isCurretPrize) {
-            console.log("previusPrizes", previusPrizes);
             for (let d = 0; d < previusPrizes.length; d++) {
               const previusPosition = previusPrizes[d][0];
 
@@ -396,13 +493,7 @@
           }
         }
       }
-
-      console.log("newItemsRemove");
-      console.log(newItemsRemove);
-
-      console.log("NUEVOS VALORES ÚNICOS");
       itemsRemove = uniqueValues([...itemsRemove, ...newItemsRemove.flat()]);
-
       return itemsRemove;
     };
 
@@ -417,21 +508,6 @@
           left: `${move[reverse ? i : +!i].l}px`,
           top: `${move[reverse ? i : +!i].t}px`,
         });
-      }
-    };
-
-    // TODO: Elminar función...
-    const tmpRenderBoardConsole = (tmpBoard = []) => {
-      for (let i = 0; i < SIZE; i++) {
-        let tmpCol = "";
-        for (let c = 0; c < SIZE; c++) {
-          if (tmpBoard[i][c].v) {
-            tmpCol += BOARD_ELEMENTS[tmpBoard[i][c].v - 1];
-          } else {
-            tmpCol += "🚫";
-          }
-        }
-        console.log(tmpCol);
       }
     };
 
@@ -483,11 +559,8 @@
       itemsRemove = [],
       prizes = []
     ) => {
-      console.log("itemsRemove", itemsRemove);
-      console.log("prizes", prizes);
-
+      progress.pause();
       // Se establecen los premios...
-      console.log("itera prizes");
       for (let i = 0; i < prizes.length; i++) {
         // Se cambia en el board el valor del premio...
         copyBoard[prizes[i][0][0]][prizes[i][0][1]].v = prizes[i][1];
@@ -513,6 +586,11 @@
         // Se establece que el valor en 0 en el board, para así imdicar que se han eliminado
         // y se pueda validar los espacios vacíos...
         copyBoard[itemsRemove[i][0]][itemsRemove[i][1]].v = 0;
+
+        // TODO: se debe mostrar el puntage dependiendo del usuario
+        // Para establecer el puntaje
+        userData.one.p += 1;
+        $("#scv-1").innerHTML = userData.one.p;
       }
 
       // Ahora se debe traer la cantidad de elementos que hay en el board...
@@ -530,7 +608,6 @@
       // Ahora se debe determinar los espacios vacíos que han quedado...
       // En este caso hacia abajo para así saber los espacios que quedan arriba
       // y que se deben completar con los nuevos ítemas de la nueva board...
-      console.log("ITERA EL BOARD");
       for (let i = 0; i < SIZE; i++) {
         for (let c = 0; c < SIZE; c++) {
           // Tiene un elemento y no tiene base...
@@ -561,16 +638,6 @@
         spaces.push(counter);
       }
 
-      // console.log("Los spaces que quedan: ", spaces);
-
-      // console.log("newBoardItems", newBoardItems);
-      console.log("newBoardItems");
-      tmpRenderBoardConsole(newBoardItems);
-
-      console.log("copyBoard CON ESPACIONS");
-      tmpRenderBoardConsole(clone(copyBoard));
-
-      console.log("originalItemsRemove", originalItemsRemove);
       // Guarda las posiciones desde donde empezarán los ítems a moverse cuando cae...
       const positionsItemsRemove = [];
       // Guarda el índice de los elementos que se adicionan al board...
@@ -597,18 +664,11 @@
 
       // Como no es válido, se pondrá un premio de forma aletoria...
       if (!isValidBoard(copyBoard).isValid) {
-        console.log("PONER UN PREMIO DE FORMA ALETORIA EN LOS NUEVOS");
-        console.log("newIndexItemsBoard", newIndexItemsBoard);
-        console.log("EL TAMAÑO: ", newIndexItemsBoard.length);
         const randomPosition = randomNumber(0, newIndexItemsBoard.length - 1);
         const positions = newIndexItemsBoard[randomPosition];
-        console.log({ randomPosition, positions });
         copyBoard[positions[0]][positions[1]].v = randomNumber(7, 9);
       }
 
-      console.log("MERGE!!");
-      tmpRenderBoardConsole(copyBoard);
-      console.log("newIndexItemsBoard", newIndexItemsBoard);
       await delay(100);
       for (let i = 0; i < positionsItemsRemove.length; i++) {
         classList($(`#t-${positionsItemsRemove[i].i}`), "v");
@@ -650,6 +710,7 @@
       if (newItemsRemove.length !== 0) {
         removeAnimateBoardElements(BOARD, newItemsRemove, newPrizes);
       } else {
+        progress.tick();
         blockBoard();
       }
     };
@@ -668,16 +729,11 @@
      * @param {*} element
      */
     const validateClick = (element = {}) => {
-      console.log("LLEGA AL ELEMENTO DE validateClick");
       if (itemIsPrize(element?.v)) {
-        const itemsRemove = removeItemsFromPrize(
-          [[element.p.i, element.p.c], element.v],
-          BOARD
+        removeAnimateBoardElements(
+          BOARD,
+          removeItemsFromPrize([[element.p.i, element.p.c], element.v], BOARD)
         );
-        console.log("los ítems que llegan acá");
-        console.log(itemsRemove);
-        // debugger;
-        removeAnimateBoardElements(BOARD, itemsRemove);
       }
     };
 
@@ -711,10 +767,6 @@
       await delay(200);
       // Se debe validar si hay match...
       let { itemsRemove = [], prizes = [] } = validateMatch(copyBoard);
-      // Saber si uno de los elementos que se ha movido es un premio...
-      console.log("LÍNEA 694 movesPrizes");
-      console.log(movesPrizes);
-
       // Se han movido premios, así que se debe validar los elementos que se eliminan...
       if (movesPrizes.length !== 0) {
         for (let i = 0; i < movesPrizes.length; i++) {
@@ -747,56 +799,45 @@
     };
 
     const RenderScore = () =>
-      `<div class="sc df a c f wi">
-                <div class="scn">
-                  <div class="df wi he">
-                  ${new Array(2)
-                    .fill(null)
-                    .map(
-                      (_, i) => `
-                      <div class="scv df a c" id=scv-${i + 1}>0</div>
-                    `
-                    )
-                    .join("")}
-                  </div>
-                  <div class="sci wi df a">
-                      ${new Array(5)
-                        .fill(null)
-                        .map(
-                          (_, i) => `
-                      <div id=in-${i + 1}>${i + 1}</div>
-                    `
-                        )
-                        .join("")}
-                  </div>
-                </div>
-              </div>`;
+      `<div class="sc df a c f wi"><div class="scn"><div class="df wi he">${newArray(
+        2,
+        (i) =>
+          `<div class="scv df a c" id=scv-${i + 1} ${inlineStyles({
+            background: userData[!i ? "one" : "two"].c,
+          })}>0</div>`
+      )}</div><div class="sci wi df a s">${newArray(
+        5,
+        (i) => `<div id=in-${i + 1}>${i + 1}</div>`
+      )}</div></div></div>`;
 
     // Your Turn - Opponent's Turn
     const RenderTurn = () => {
-      const Names = (name = "") =>
-        `<div class="tuna df a c" id="na-1">${name}</div>`;
+      const Names = (name = "", id = 1) =>
+        `<div class="tuna df a c" id="na-${id}">${name}</div>`;
 
-      return `<div class="tu wi">
-                <div class="df a tun wi df">
-                  ${Names("Jorge")}
-                  <div class="tunc df">
-                    <div id="tu-1">Circule 01</div>
-                    <div id="tu-2">Circule 02</div>
-                  </div>
-                  ${Names("Juan")}
-                </div>
-                <div class="tup wi">
-                  <progress class="wi" id="pro" value="50" max="100"></progress>
-                  <div class="wi" id="tupl">Opponent's Turn</div>
-                </div>
-              </div>`;
+      const Turns = (p) =>
+        newArray(
+          2,
+          (i) =>
+            `<div class="tuni" id=mov-${p}-${i} ${inlineStyles({
+              background: userData[p === 1 ? "one" : "two"].c,
+            })}></div>`
+        );
+
+      return `<div class="tu wi"><div class="tun df a s wi">${Names(
+        userData.one.n
+      )}<div class="df">${newArray(
+        2,
+        (i) => `<div class="df">${Turns(i + 1)}</div>`
+      )}</div>${Names(
+        userData.two.n,
+        2
+      )}</div><div class="tup wi"><progress class="wi" value="100" max="100"></progress><div class="wi" id="tupl"></div></div></div>`;
     };
 
     // Renderizar la parte superior del juego...
-    const RenderTop = () => {
-      return `<top class="wi">${RenderScore()}${RenderTurn()}</top>`;
-    };
+    const RenderTop = () =>
+      `<top class="wi">${RenderScore()}${RenderTurn()}</top>`;
 
     const RenderBoard = () =>
       `<board>${BOARD.map((cell) =>
@@ -814,8 +855,10 @@
     // Renderizar el UI...
     setHtml(
       $("#render"),
-      `<game class="df f wi he">${RenderTop()}${RenderBoard()}</game>`
+      `<div class="ba df f wi he">${Back()}${RenderTop()}${RenderBoard()}</div>`
     );
+
+    // Back()[1];
 
     // Agregra los eventos...
     // 0 Guarda el índice del elemento que está ene sa posición...
@@ -894,7 +937,6 @@
               eventMove.end = coordenates;
               validateMove([origin, BOARD[move[0]][move[1]]]);
             } else {
-              console.log("INGREA A ESTE PUNTO LÍNEA 767");
               validateClick(getIndexCell(eventMove.start));
               eventMove = {};
             }
@@ -902,15 +944,15 @@
         }
       },
       end: () => {
-        if (eventMove?.start && !eventMove?.end) {
+        eventMove?.start &&
+          !eventMove?.end &&
           validateClick(getIndexCell(eventMove.start));
-        }
         eventMove = {};
       },
     };
 
     //Para los eventos...
-    const addListenerMulti = (el, ...evts) => {
+    const addListenerMulti = (el, evts) => {
       for (let event of evts) {
         el.addEventListener(
           event[0],
@@ -922,18 +964,98 @@
 
     addListenerMulti(
       $("board"),
-      ["mousedown", handleEvent.start],
-      ["mousemove", handleEvent.move],
-      ["mouseup", handleEvent.end],
-      ["touchstart", handleEvent.start],
-      ["touchmove", handleEvent.move],
-      ["touchend", handleEvent.end],
-      ["mouseleave", handleEvent.end]
+      [
+        [["mousedown", "touchstart"], "start"],
+        [["mousemove", "touchmove"], "move"],
+        [["mouseup", "touchend", "mouseleave"], "end"],
+      ]
+        .map((v) => v[0].map((d) => [d, handleEvent[v[1]]]))
+        .flat()
     );
+
+    // Inicia el juego...
+    console.log({ playerHasTurn });
+    console.log("userData", userData);
+    console.log("EL TIPO", { type });
+    console.log("LOS USERS", users);
+    console.log("el level:", level);
+    // blockBoard(true, true);
+    progress.start(() => {
+      blockBoard(true, true);
+      // console.log("TERMINA");
+    });
+
+    $on($("#back"), "click", () => {
+      progress.pause();
+      Screen("Lobby");
+    });
   };
 
-  const Screen = (screen = "Game", params = {}) => {
-    const Handler = { Game };
+  const RenderListButtons = (btns = []) =>
+    `<div class="df a c f mBs">${btns
+      .map((v, i) => `<button id="el-${i}" class="mB wi">${v}</button>`)
+      .join("")}</div>`;
+
+  const evenListButtons = (cb) =>
+    $$(".mBs > button").forEach((btn) =>
+      $on(btn, "click", (e) => cb(+e.target.id.split("-")[1]))
+    );
+
+  // <span>💀</span>
+  const Logo = () => `<div class="lg df a c f"><h1>DEATH MATCH</h1></div>`;
+
+  const Difficulty = () => {
+    setHtml(
+      $("#render"),
+      `<div class="ba df f a wi he">${Back()}${Logo()}${RenderListButtons([
+        "EASY",
+        "MEDIUM",
+        "HARD",
+      ])}</div>`
+    );
+
+    evenListButtons((type) => {
+      Screen("Game", {
+        type: 2,
+        level: type + 1,
+        users: setOrder(
+          [...getUser(), ["Bot", ""]],
+          getValueFromCache("token", "")
+        ),
+      });
+    });
+  };
+
+  const Lobby = () => {
+    setHtml(
+      $("#render"),
+      `<div class="ba df f a wi he">${Logo()}${RenderListButtons([
+        "TWO PLAYERS",
+        "VS BOT",
+        "PLAY WITH FRIENDS",
+        "PLAY ONLINE",
+      ])}</div>`
+    );
+
+    evenListButtons((type) => {
+      if (type === 0) {
+        return Screen("Game", {
+          type: 1,
+          users: setOrder(
+            [...getUser(), ["Guest", ""]],
+            getValueFromCache("token", "")
+          ),
+        });
+      }
+
+      if (type === 1) {
+        return Screen("Difficulty");
+      }
+    });
+  };
+
+  const Screen = (screen = "Lobby", params = {}) => {
+    const Handler = { Game, Lobby, Difficulty };
     Handler[screen](params);
   };
 
@@ -954,6 +1076,13 @@
       }),
     50
   );
+
+  if (!ObjectKeys(getDataCache()).length) {
+    [
+      ["name", `Zombie ${randomNumber(2, 100)}`],
+      ["token", guid()],
+    ].forEach((v) => savePropierties(v[0], v[1]));
+  }
 
   // Renderizar la base del juego...
   setHtml($("#root"), `<div id="render" class="df c wi he"></div>`);

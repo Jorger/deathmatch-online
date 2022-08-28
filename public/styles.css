@@ -1,10 +1,7 @@
-/* Pages gradients */
-/* https://uigradients.com/#Firewatch */
-/* https://www.cssmatic.com/gradient-generator */
-/* https://www.colorzilla.com/gradient-editor/ */
 :root {
   --b: #000;
   --i: #fff;
+  --a: linear-gradient(to top, #2a5298, #1e3c72);
 }
 
 /* Estilos globales */
@@ -39,6 +36,10 @@ div {
 
 .df.c {
   justify-content: center;
+}
+
+.df.s {
+  justify-content: space-around;
 }
 
 .df.f {
@@ -104,7 +105,7 @@ board.d {
 }
 
 board.o {
-  filter: brightness(0.5);
+  filter: brightness(0.6);
 }
 
 board:active {
@@ -171,12 +172,11 @@ item.v {
   transform: scale(0);
 }
 
-game {
-  background: #073d72;
+.ba {
+  background: var(--a);
 }
 
 top {
-  /* border: 1px solid red; */
   height: calc(var(--h) - var(--w) - 20px); 
   position: relative;
 }
@@ -190,7 +190,6 @@ top {
 .scn {
   width: 180px;
   height: 65px;
-  /* border: 1px solid red; */
   background: #062d53;
   border-radius: 10px;
   padding: 10px;
@@ -200,11 +199,9 @@ top {
 
 .scv {
   width: 50%;
-  /* border: 1px solid orange; */
   border-radius: 15px;
   color: var(--i);
   font-size: 23px;
-  background: #ff0000;
   font-weight: bold;
   box-shadow: rgba(0, 0, 0, 0.15) 0px 3px 3px 0px;
 }
@@ -214,27 +211,24 @@ top {
 }
 
 /* temporal */
-.scv:last-child {
-  background: #1e90ff;
-}
+/* .scv:last-child {
+  background: #ff0000;
+} */
 
 .sci {
   background: #062d53;
   border-radius: 10px;
-  /* height: 30px; */
   padding: 8px;
-  justify-content: space-around;
   color: var(--i);
   /* box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px; */
   /* box-shadow: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px; */
-  /* border-radius: 0 0 10px 10px; */
 }
 
 .sci div {
   width: 25px;
   height: 25px;
   border-radius: 50%;
-  border: 1px solid black;
+  border: 1px solid var(--i);
   text-align: center;
   line-height: 25px;
   font-size: 12px;
@@ -242,16 +236,12 @@ top {
   /* box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px; */
 }
 
-/* red: #f44336 */
-/* blue: #03a9f4 */
-
 /* Para el progreso y los emojis que se "enfrentan" */
 .tu {
   position: absolute;
   bottom: 0;
   height: 110px;
-  background: linear-gradient(to top, #004e92, #000428); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
-  box-shadow: rgba(255, 255, 255, 0.2) 0px 0px 0px 1px inset, rgba(0, 0, 0, 0.9) 0px 0px 0px 1px;
+  background: linear-gradient(to top, #004e92, #000428);
 }
 
 .tu:before,
@@ -271,20 +261,19 @@ top {
 
 /* Para los nombres y número de lanzamientos... */
 .tun {
-  /* border: 1px solid red; */
   margin: 15px 0 5px 0;
-  justify-content: space-around;
-  /* height: 60px; */
 }
 
 .tuna {
   /* background: linear-gradient(to top, #ef473a, #cb2d3e);; */
+  text-align: center;
   background: #08143a;
   color: white;
   width: 100px;
   height: 43px;
   border-radius: 10px;
-  box-shadow: rgb(0 0 0 / 16%) 0px 1px 4px, rgb(214 204 204) 0px 0px 0px 3px;
+  border: 2px solid white;
+  /* box-shadow: rgb(0 0 0 / 16%) 0px 1px 4px, rgb(214 204 204) 0px 0px 0px 3px; */
 }
 
 
@@ -323,3 +312,77 @@ progress::-webkit-progress-bar {
   color: var(--i);
 }
 
+/* Donde muestra los turnos */
+.tuni {
+  width: 25px;
+  height: 25px;
+  border: 2px solid var(--i);
+  border-radius: 50%;
+  margin: 5px;
+}
+
+
+
+/* Estilo para los botones... */
+.mB {
+  background-image: linear-gradient(-180deg, #FF7E31, #E62C03);
+  border-radius: 6px;
+  box-shadow: rgba(0, 0, 0, 0.1) 0 2px 4px;
+  color: #FFFFFF;
+  cursor: pointer;
+  padding: 0 20px;
+  width: 100%;
+  border: 0;
+}
+
+.mB:hover {
+  box-shadow: rgba(253, 76, 0, 0.5) 0 3px 8px;
+}
+
+/* Para el logo */
+/* .lg {
+  border: 1px solid red;
+} */
+
+.lg h1 {
+  color: white;
+}
+
+/* Listado de botones del lobby */
+.mBs {
+  /* border: 1px solid red; */
+  width: 70%;
+}
+
+.mBs .mB {
+  margin-bottom: 10px;
+  height: 50px;
+}
+
+
+/* .lg span {
+  width: 80px;
+  height: 80px;
+  line-height: 80px;
+  text-align: center;
+  font-size: 3.5em;
+  border-radius: 50%;
+  border: 5px solid white;
+} */
+
+/* CSS */
+
+
+
+
+/* Para el botón back */
+#back {
+  cursor: pointer;
+  position: absolute;
+  left: 3%;
+  top: 1%;
+  font-size: 1.8em;
+  z-index: 1;
+  background-color: transparent;
+  border: none;
+}

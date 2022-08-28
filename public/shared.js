@@ -8,6 +8,41 @@ const CELL = WIDTH / 7;
 const randomNumber = (min, max) =>
   Math.floor(Math.random() * (max - min + 1)) + min;
 
+const guid = () => {
+  const s4 = () =>
+    Math.floor((1 + Math.random()) * 0x10000)
+      .toString(16)
+      .substring(1);
+  return (
+    s4() +
+    s4() +
+    "-" +
+    s4() +
+    "-" +
+    s4() +
+    "-" +
+    s4() +
+    "-" +
+    s4() +
+    s4() +
+    s4()
+  );
+};
+
+const setOrder = (users = [], current = "") => {
+  const color = randomNumber(1, 2);
+  const indexb = color === 1 ? 0 : 1;
+  const indexr = color === 1 ? 1 : 0;
+  const isCurrent = current === users[indexb][1];
+  return {
+    b: users[indexb],
+    r: users[indexr],
+    c: isCurrent ? "b" : "r",
+    o: isCurrent ? "r" : "b",
+    t: randomNumber(1, 2),
+  };
+};
+
 /**
  * dado el tipo, retorna el array con los elementos del mismo tipo...
  * @param {*} board
