@@ -232,7 +232,7 @@ top {
   /* box-shadow: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px; */
 }
 
-.sci div {
+.scin {
   width: 25px;
   height: 25px;
   border-radius: 50%;
@@ -241,7 +241,16 @@ top {
   line-height: 25px;
   font-size: 12px;
   font-weight: bold;
+  transition: all 0.2s ease-out;
+  opacity: 0.2;
   /* box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px; */
+}
+
+.scin.ac {
+  background: #feae13;
+  border-width: 2px;
+  color: var(--i);
+  opacity: 1;
 }
 
 /* Para el progreso y los emojis que se "enfrentan" */
@@ -393,4 +402,22 @@ progress::-webkit-progress-bar {
   z-index: 1;
   background-color: transparent;
   border: none;
+}
+
+/* Para los mensajes del board... */
+#msb {
+  padding: 10px;
+  background: #000000d6;
+  color: var(--i);
+  font-size: 2em;
+  position: absolute;
+  z-index: 2;
+  bottom: 200px;
+  pointer-events: none;
+  display: none;
+  text-align: center;
+}
+
+#msb.sh {
+  display: block;
 }

@@ -54,9 +54,12 @@
 
   const debounce = (fn, delay) => {
     var t;
-    return function () {
-      clearTimeout(t);
-      t = setTimeout(fn, delay);
+    return {
+      cls: () => clearTimeout(t),
+      fn:() => {
+        clearTimeout(t);
+        t = setTimeout(fn, delay);
+      }
     };
   };
 
@@ -128,7 +131,6 @@
   };
 
   const chronometer = (cb, options) => {
-    console.log(options);
     const { base = 100, inc = -1, int = 250 } = options || {};
     let interval;
     let counter = base;
@@ -147,7 +149,7 @@
           pause();
         }
 
-        cb(counter);
+        cb(counter, interval);
       }, int);
     };
 
@@ -187,6 +189,7 @@
     typeGame = 0,
     users = {},
     level = 0,
+    maxRounds = 5,
   }) => {
     const BOARD_ELEMENTS = [
       "💀",
@@ -199,6 +202,9 @@
       "🚀",
       "💣",
     ];
+
+    // Contador y actual..
+    let validateRounds = 0;
     // 💀 ⚰️ ⚱️ 👻 🩸 🪓 💣 🚀 🔫 🦇 🎃 🗡️ 🔥 💉 🧨 🕯️ 🧟‍♂️ 😈
     const indexCurrentUser = users.users.findIndex(
       (v) => v[1] === getUser()[1]
@@ -225,45 +231,89 @@
     // // let counterProgress = 100;
     let counterTimer = 0;
     let playerHasTurn = users.turn === userData.one.t ? "one" : "two";
-    console.log({ playerHasTurn });
+    const initialPlayerTurn = playerHasTurn;
 
-    const progress = chronometer((counter) => {
-      if (counter > 0) {
-        counterTimer = counter;
-        if ($("progress")) {
+    const progress = chronometer((counter, interval) => {
+      if($("board")) {
+        if (counter > 0) {
+          counterTimer = counter;
           $("progress").value = counter;
+        } else {
+          validateTurn();
         }
       } else {
-        validateTurn();
+        clearInterval(interval);
       }
     });
 
-    const validateTurn = (initial = false) => {
+    const showMovements = () => {
+      for(let i = 1; i <= 2; i++) {
+        for(let d = 0; d < 2; d++) {
+          const { m , c } = userData[i === 1 ? "one" : "two"];
+          addStyle($(`#mov-${i}-${d}`), { background: m > d ? c : "none" });
+        }
+      }
+    };
+
+    const turnsMessage = (txt = "", show = false) => {
+      classList($("#msb"), "sh", show ? "add" : "remove");
+      setHtml($("#msb"), txt);
+    };
+
+    const validateTurn = async (initial = false) => {
+      if(!$("board")) return;
       playerHasTurn = !initial
         ? playerHasTurn === "one"
           ? "two"
           : "one"
         : playerHasTurn;
-      setHtml(
-        $("#tupl"),
-        playerHasTurn === "one" ? "Your Turn" : "Opponent's Turn"
-      );
-      // Poner el número de  movimientos para ambos de nuevo...
-      userData.two.m = userData.one.m = 2;
-      const isBoardBlocked = typeGame !== 1 ? playerHasTurn === "two" : false;
-      blockBoard(isBoardBlocked, isBoardBlocked);
 
-      progress.start();
+      blockBoard(true);
+      $("progress").value = 100;
 
-      if (typeGame === 2 && playerHasTurn === "two") {
-        console.log("DEBE JUGAR EL BOT");
-        playIA();
+      if(playerHasTurn === initialPlayerTurn) {
+        validateRounds++;
+        if(validateRounds <= maxRounds) {
+          for(let i = 1; i <= maxRounds; i++) {
+            classList(
+              $(`#in-${i}`),
+              "ac",
+              i === validateRounds ? "add" : "remove"
+            );
+          }
+
+          // Poner el número de  movimientos para ambos de nuevo...
+          userData.one.m = userData.two.m = 2;
+          // Para establecer los movimientos ene UI...
+          showMovements();
+          turnsMessage(`Round ${validateRounds}`, true);
+          await delay(1000);
+        }
+      }
+
+      if(validateRounds <= maxRounds) {
+        const txtTurn = playerHasTurn === "one" ? "Your Turn" : "Opponent's Turn";
+        setHtml($("#tupl"), txtTurn);
+        turnsMessage(txtTurn, true);
+        await delay(1000);
+        turnsMessage();
+
+        const isBoardBlocked = typeGame !== 1 ? playerHasTurn === "two" : false;
+        blockBoard(isBoardBlocked, isBoardBlocked);
+
+        progress.start();
+
+        if (typeGame === 2 && playerHasTurn === "two") {
+          playIA();
+        }
+      } else {
+        console.log("TERMINA EL JUEGO!!");
       }
     };
 
-    const playIA = debounce(() => {
+    const { fn: playIA, cls: cancelPlayIA } = debounce(() => {
       // Obtener los posibles movimientos...
-      if (playerHasTurn === "one") return;
+      if (playerHasTurn === "one" || !$("board")) return;
       const moves = isValidBoard(BOARD).values;
       const difficulty = level === 2 ? (randomNumber(0, 1) ? 1 : 3) : level;
       const elements = ["three", "dynamite", "axe", "rocket", "four", "bomb"];
@@ -275,7 +325,6 @@
           : [4, 5, 3, 2, 1, 0];
       const posible = {};
       for (let i = 0; i < order.length; i++) {
-        console.log(elements[order[i]]);
         if (moves[elements[order[i]]].length !== 0) {
           posible.type = elements[order[i]];
           posible.value = moves[elements[order[i]]];
@@ -283,42 +332,19 @@
         }
       }
       const indexLaunch = randomNumber(0, posible.value.length - 1);
-      console.log("posible", posible);
-      console.log(moves);
-      console.log({ difficulty, indexLaunch });
       if (["three", "four"].includes(posible.type)) {
-        const movingValues = [];
-        if (posible.type === "three") {
-          // Random de las opciones...
-          const randomPosition = randomNumber(
-            0,
-            posible.value[indexLaunch].length - 1
-          );
-          const indexCanMove = randomNumber(
-            0,
-            posible.value[indexLaunch][randomPosition][3].length - 1
-          );
-          const origin = posible.value[indexLaunch][randomPosition][2];
-          const destinity =
-            posible.value[indexLaunch][randomPosition][3][indexCanMove];
-          console.log({ randomPosition, indexCanMove, origin, destinity });
-          movingValues[0] = BOARD[origin[0]][origin[1]];
-          movingValues[1] = BOARD[destinity[0]][destinity[1]];
-        }
-        validateMove(movingValues);
-
-        // const indexes = posible.type === "three" ? [3, 2] : [2, 1];
-        // const indexCanMove = randomNumber(0, posible.value[indexLaunch][indexes[0]].length - 1);
-        // const origin = posible.value[indexLaunch][indexes[1]];
-        // const destinity = posible.value[indexLaunch][indexes[0]][indexCanMove];
-        // const movingValues = [BOARD[origin[0]][origin[1]], BOARD[destinity[0]][destinity[1]]];
-        // validateMove(movingValues);
+        const randomPosition = randomNumber(0, posible.value[indexLaunch].length - 1);
+        const indexes = posible.type === "three" ? [2, 3] : [1, 2];
+        const indexCanMove = randomNumber(0, posible.value[indexLaunch][randomPosition][indexes[1]].length - 1);
+        const origin = posible.value[indexLaunch][randomPosition][indexes[0]];
+        const destinity = posible.value[indexLaunch][randomPosition][indexes[1]][indexCanMove];
+        validateMove([BOARD[origin[0]][origin[1]], BOARD[destinity[0]][destinity[1]]]);
       }
 
-      // if(["dynamite", "axe", "rocket", "bomb"].includes(posible.type)) {
-      //   validateClick();
-      // }
-    }, [2000, 500, 300][level - 1]);
+      if(["dynamite", "axe", "rocket", "bomb"].includes(posible.type)) {
+        validateClick(BOARD[posible.value[indexLaunch].i][posible.value[indexLaunch].c]);
+      }
+    }, [25, 15, 10][level - 1] * 100);
 
     /**
      * Blquea el board y le pone una capa si es necesario...
@@ -681,6 +707,8 @@
 
         if (itemIsPrize(prizes[i][1]) && prizes[i][1] !== 9) {
           renderExtraMove(prizes[i][0][0], prizes[i][0][1]);
+          userData[playerHasTurn].m ++;
+          showMovements();
         }
       }
 
@@ -715,7 +743,7 @@
           .fill(null)
           .map((_, i) => [i + 1, elementOnBoard(copyBoard, i + 1).length])
           .sort((a, b) => b[1] - a[1])
-          .slice(0, 2)
+          .slice(0, 1)
           .filter((v) => v[1] >= 4)
           .map((v) => v?.[0])
       );
@@ -824,13 +852,18 @@
       if (newItemsRemove.length !== 0) {
         removeAnimateBoardElements(BOARD, newItemsRemove, newPrizes);
       } else {
-        progress.tick();
+        if(userData[playerHasTurn].m === 0) {
+          progress.pause();
+          validateTurn();
+        } else {
+          progress.tick();
         if (typeGame === 1 || (typeGame > 1 && playerHasTurn === "one")) {
           blockBoard();
         }
 
         if (typeGame === 2 && playerHasTurn === "two") {
           playIA();
+        }
         }
       }
     };
@@ -850,6 +883,8 @@
      */
     const validateClick = (element = {}) => {
       if (itemIsPrize(element?.v)) {
+        userData[playerHasTurn].m--;
+        showMovements();
         removeAnimateBoardElements(
           BOARD,
           removeItemsFromPrize([[element.p.i, element.p.c], element.v], BOARD)
@@ -910,6 +945,8 @@
       }
 
       if (itemsRemove.length !== 0) {
+        userData[playerHasTurn].m--;
+        showMovements();
         removeAnimateBoardElements(copyBoard, itemsRemove, prizes);
       } else {
         // Como no hay match, se devuelve los elementos a su posición original...
@@ -925,9 +962,7 @@
           `<div class="scv df a c" id=scv-${i + 1} ${inlineStyles({
             background: userData[!i ? "one" : "two"].c,
           })}>0</div>`
-      )}</div><div class="sci wi df a s">${newArray(
-        5,
-        (i) => `<div id=in-${i + 1}>${i + 1}</div>`
+      )}</div><div class="sci wi df a s">${newArray(maxRounds, (i) => `<div class=scin id=in-${i + 1}>${i + 1}</div>`
       )}</div></div></div>`;
 
     // Your Turn - Opponent's Turn
@@ -939,7 +974,7 @@
         newArray(
           2,
           (i) =>
-            `<div class="tuni" id=mov-${p}-${i} ${inlineStyles({
+            `<div class="tuni" id=mov-${p}-${p === 2 ? +!i : i} ${inlineStyles({
               background: userData[p === 1 ? "one" : "two"].c,
             })}></div>`
         );
@@ -973,11 +1008,12 @@
       ).join("")}</board>`;
 
     const Overlay = () => `<div class="df a c wi he" id=ov></div>`;
+    const Messages = () => `<div class="df a c wi" id=msb></div>`;
 
     // Renderizar el UI...
     setHtml(
       $("#render"),
-      `<div class="ba df f wi he">${Overlay()}${Back()}${RenderTop()}${RenderBoard()}</div>`
+      `<div class="ba df f wi he">${Messages()}${Overlay()}${Back()}${RenderTop()}${RenderBoard()}</div>`
     );
 
     // Back()[1];
@@ -1100,16 +1136,9 @@
     );
 
     // Inicia el juego...
-    // console.log({ playerHasTurn });
-    // console.log("userData", userData);
     console.log("EL TIPO", { typeGame });
     console.log("LOS USERS", users);
     console.log("el level:", level);
-    // blockBoard(true, true);
-    // progress.start(() => {
-    //   blockBoard(true, true);
-    //   // console.log("TERMINA");
-    // });
 
     const initialCounter = 3;
     setHtml($("#ov"), initialCounter);
@@ -1117,7 +1146,6 @@
       (counter) => {
         setHtml($("#ov"), counter);
         if (counter === 0) {
-          console.log("INICIA EL JUEGO");
           $("#ov").remove();
           validateTurn(true);
         }
@@ -1127,6 +1155,9 @@
     initialTimer.start();
 
     $on($("#back"), "click", () => {
+      // Revisar si es necesario
+      // if(typeGame === 2) return location.reload();
+      cancelPlayIA();
       initialTimer.pause();
       progress.pause();
       Screen("Lobby");
@@ -1195,7 +1226,7 @@
     Handler[screen](params);
   };
 
-  const onWindowResize = debounce(
+  const {fn: onWindowResize} = debounce(
     () =>
       addStyle($("#render"), {
         transform:
@@ -1215,7 +1246,7 @@
 
   if (!ObjectKeys(getDataCache()).length) {
     [
-      ["name", `Zombie ${randomNumber(2, 100)}`],
+      ["name", `Zombie ${randomNumber(1, 100)}`],
       ["token", guid()],
     ].forEach((v) => savePropierties(v[0], v[1]));
   }

@@ -41,6 +41,8 @@ const setOrder = (users = []) => {
   };
 };
 
+const isValidIndex = (r, c) => r >= 0 && r < SIZE && c >= 0 && c < SIZE;
+
 /**
  * dado el tipo, retorna el array con los elementos del mismo tipo...
  * @param {*} board
@@ -84,7 +86,7 @@ const isValidBoard = (board = []) => {
             [
               [i - 2, c - 1],
               [i - 3, c],
-              [i - 1, c + 1],
+              [i - 2, c + 1],
             ],
           ],
           [
@@ -118,7 +120,7 @@ const isValidBoard = (board = []) => {
             ],
           ],
           [
-            i - 2,
+            i - 2, //acá
             c,
             [i - 1, c],
             [
@@ -154,6 +156,7 @@ const isValidBoard = (board = []) => {
             ],
           ],
         ]
+          .filter((v) => isValidIndex(v[2][0], v[2][1]))
           .filter((v) => board?.[v[0]]?.[v[1]]?.v === value)
           .map((v) => [
             v[0],
@@ -161,7 +164,6 @@ const isValidBoard = (board = []) => {
             v[2],
             v[3].filter((p) => board?.[p[0]]?.[p[1]]?.v === value),
           ])
-          .filter(v => v[2][0] >= 0 && v[2][0] < SIZE && v[2][1] >= 0 && v[2][1] < SIZE)
           .filter((v) => v[3].length !== 0);
 
         if (previus.length !== 0) {
@@ -175,7 +177,6 @@ const isValidBoard = (board = []) => {
 
   const getFour = () => {
     const lines = [];
-
     for (let i = 0; i < SIZE; i++) {
       for (let c = 0; c < SIZE; c++) {
         const value = board[i][c].v;
@@ -232,6 +233,7 @@ const isValidBoard = (board = []) => {
             ],
           ],
         ]
+          .filter((v) => isValidIndex(v[1][0], v[1][1]))
           .filter(
             (v) =>
               board?.[v[0][0][0]]?.[v[0][0][1]]?.v === value &&
