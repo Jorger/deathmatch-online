@@ -29,17 +29,15 @@ const guid = () => {
   );
 };
 
-const setOrder = (users = [], current = "") => {
-  const color = randomNumber(1, 2);
-  const indexb = color === 1 ? 0 : 1;
-  const indexr = color === 1 ? 1 : 0;
-  const isCurrent = current === users[indexb][1];
+const setOrder = (users = []) => {
+  const color = randomNumber(0, 1);
+  const turn = randomNumber(0, 1);
+  users[0][2] = color ? "r": "b";
+  users[1][2] = color ? "b": "r";
+
   return {
-    b: users[indexb],
-    r: users[indexr],
-    c: isCurrent ? "b" : "r",
-    o: isCurrent ? "r" : "b",
-    t: randomNumber(1, 2),
+    users,
+    turn: users[turn][1],
   };
 };
 
@@ -163,6 +161,7 @@ const isValidBoard = (board = []) => {
             v[2],
             v[3].filter((p) => board?.[p[0]]?.[p[1]]?.v === value),
           ])
+          .filter(v => v[2][0] >= 0 && v[2][0] < SIZE && v[2][1] >= 0 && v[2][1] < SIZE)
           .filter((v) => v[3].length !== 0);
 
         if (previus.length !== 0) {
@@ -254,24 +253,24 @@ const isValidBoard = (board = []) => {
     return lines;
   };
 
-  // Se busca si hay extra life (6), axe (7), syringe (8), Bomb (9)
-  const extraLife = elementOnBoard(board, 6); // 🧨 ❤️
+  // Se busca si hay extra life (6), axe (7), rocket (8), Bomb (9)
+  const dynamite = elementOnBoard(board, 6); // 🧨 ❤️
   const axe = elementOnBoard(board, 7); // 🪓 // Horizontal...
-  const syringe = elementOnBoard(board, 8); // 💉 🚀 // vertical...
+  const rocket = elementOnBoard(board, 8); // 💉 🚀 // vertical...
   const bomb = elementOnBoard(board, 9); // 💣
   const three = getThree();
   const four = getFour();
 
   return {
     isValid:
-      [extraLife, axe, syringe, bomb, three, four].filter((v) => v.length !== 0)
+      [dynamite, axe, rocket, bomb, three, four].filter((v) => v.length !== 0)
         .length !== 0,
     values: {
       axe,
       bomb,
       four,
-      extraLife,
-      syringe,
+      dynamite,
+      rocket,
       three,
     },
   };

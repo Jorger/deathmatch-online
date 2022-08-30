@@ -7,7 +7,9 @@
   $(
     "html"
   ).style.cssText += `--h: ${HEIGHT}px; --w: ${WIDTH}px; --db: ${CELL}px`;
-  const setHtml = (element, html) => (element.innerHTML = html);
+  const setHtml = (element, html) => {
+    if (element) element.innerHTML = html;
+  };
   const ObjectKeys = (obj) => Object.keys(obj);
   const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   const clone = (value) => JSON.parse(JSON.stringify(value));
@@ -46,7 +48,7 @@
     getDataCache()[key] || initial;
 
   const getUser = () => [
-    ["name", "token"].map((v) => getValueFromCache(v, "")),
+    ...["name", "token"].map((v) => getValueFromCache(v, "")),
   ];
   // FIN STORAGE
 
@@ -125,6 +127,42 @@
     return newValue;
   };
 
+  const chronometer = (cb, options) => {
+    console.log(options);
+    const { base = 100, inc = -1, int = 250 } = options || {};
+    let interval;
+    let counter = base;
+
+    const pause = () => {
+      if (interval) {
+        clearInterval(interval);
+        interval = null;
+      }
+    };
+
+    const tick = () => {
+      interval = setInterval(() => {
+        counter += inc;
+        if (counter <= 0) {
+          pause();
+        }
+
+        cb(counter);
+      }, int);
+    };
+
+    const start = () => {
+      counter = base;
+      tick();
+    };
+
+    return {
+      tick,
+      start,
+      pause,
+    };
+  };
+
   const newArray = (size = 2, cb) =>
     new Array(size)
       .fill(null)
@@ -144,7 +182,12 @@
   1, vs la máquina...
   2, realtime...
   */
-  const Game = ({ BOARD = newBoard(), type = 0, users = {}, level = 0 }) => {
+  const Game = ({
+    BOARD = newBoard(),
+    typeGame = 0,
+    users = {},
+    level = 0,
+  }) => {
     const BOARD_ELEMENTS = [
       "💀",
       "🎃",
@@ -157,61 +200,125 @@
       "💣",
     ];
     // 💀 ⚰️ ⚱️ 👻 🩸 🪓 💣 🚀 🔫 🦇 🎃 🗡️ 🔥 💉 🧨 🕯️ 🧟‍♂️ 😈
+    const indexCurrentUser = users.users.findIndex(
+      (v) => v[1] === getUser()[1]
+    );
+    const orderUsers = [indexCurrentUser, !indexCurrentUser ? 1 : 0];
     const userData = [
       ["one", "c"],
       ["two", "o"],
     ]
-      .map((v) => ({
+      .map((v, i) => ({
         [v[0]]: {
           p: 0,
-          c: COLOR[users[v[1]]],
-          n: users[users[v[1]]][0],
-          t: users[users[v[1]]][1],
+          m: 2,
+          c: COLOR[users.users[orderUsers[i]][2]],
+          n: users.users[orderUsers[i]][0],
+          t: users.users[orderUsers[i]][1],
         },
       }))
       .reduce((a, s) => ({ ...a, ...s }), {});
 
-    // let counterProgress = 100;
-    let playerHasTurn = users.t === 1 ? "one" : "two";
+    console.log("userData");
+    console.log(userData);
 
-    const chronometer = () => {
-      let interval;
-      let counter = 100;
-      let callback;
+    // // let counterProgress = 100;
+    let counterTimer = 0;
+    let playerHasTurn = users.turn === userData.one.t ? "one" : "two";
+    console.log({ playerHasTurn });
 
-      const pause = () => {
-        if (interval) {
-          clearInterval(interval);
-          interval = null;
-        }
-      };
-
-      const tick = () => {
-        interval = setInterval(() => {
-          counter--;
+    const progress = chronometer((counter) => {
+      if (counter > 0) {
+        counterTimer = counter;
+        if ($("progress")) {
           $("progress").value = counter;
+        }
+      } else {
+        validateTurn();
+      }
+    });
 
-          if (counter <= 0 && callback) {
-            pause();
-            callback();
-          }
-        }, 250);
-      };
+    const validateTurn = (initial = false) => {
+      playerHasTurn = !initial
+        ? playerHasTurn === "one"
+          ? "two"
+          : "one"
+        : playerHasTurn;
+      setHtml(
+        $("#tupl"),
+        playerHasTurn === "one" ? "Your Turn" : "Opponent's Turn"
+      );
+      // Poner el número de  movimientos para ambos de nuevo...
+      userData.two.m = userData.one.m = 2;
+      const isBoardBlocked = typeGame !== 1 ? playerHasTurn === "two" : false;
+      blockBoard(isBoardBlocked, isBoardBlocked);
 
-      const start = (cb) => {
-        callback = cb;
-        counter = 100;
-        tick();
-      };
+      progress.start();
 
-      return {
-        tick,
-        start,
-        pause,
-      };
+      if (typeGame === 2 && playerHasTurn === "two") {
+        console.log("DEBE JUGAR EL BOT");
+        playIA();
+      }
     };
 
-    const progress = chronometer();
+    const playIA = debounce(() => {
+      // Obtener los posibles movimientos...
+      if (playerHasTurn === "one") return;
+      const moves = isValidBoard(BOARD).values;
+      const difficulty = level === 2 ? (randomNumber(0, 1) ? 1 : 3) : level;
+      const elements = ["three", "dynamite", "axe", "rocket", "four", "bomb"];
+      const order =
+        difficulty === 1
+          ? [0, 1, 2, 3, 4, 5]
+          : counterTimer <= 30
+          ? [5, 3, 2, 1, 4, 0]
+          : [4, 5, 3, 2, 1, 0];
+      const posible = {};
+      for (let i = 0; i < order.length; i++) {
+        console.log(elements[order[i]]);
+        if (moves[elements[order[i]]].length !== 0) {
+          posible.type = elements[order[i]];
+          posible.value = moves[elements[order[i]]];
+          break;
+        }
+      }
+      const indexLaunch = randomNumber(0, posible.value.length - 1);
+      console.log("posible", posible);
+      console.log(moves);
+      console.log({ difficulty, indexLaunch });
+      if (["three", "four"].includes(posible.type)) {
+        const movingValues = [];
+        if (posible.type === "three") {
+          // Random de las opciones...
+          const randomPosition = randomNumber(
+            0,
+            posible.value[indexLaunch].length - 1
+          );
+          const indexCanMove = randomNumber(
+            0,
+            posible.value[indexLaunch][randomPosition][3].length - 1
+          );
+          const origin = posible.value[indexLaunch][randomPosition][2];
+          const destinity =
+            posible.value[indexLaunch][randomPosition][3][indexCanMove];
+          console.log({ randomPosition, indexCanMove, origin, destinity });
+          movingValues[0] = BOARD[origin[0]][origin[1]];
+          movingValues[1] = BOARD[destinity[0]][destinity[1]];
+        }
+        validateMove(movingValues);
+
+        // const indexes = posible.type === "three" ? [3, 2] : [2, 1];
+        // const indexCanMove = randomNumber(0, posible.value[indexLaunch][indexes[0]].length - 1);
+        // const origin = posible.value[indexLaunch][indexes[1]];
+        // const destinity = posible.value[indexLaunch][indexes[0]][indexCanMove];
+        // const movingValues = [BOARD[origin[0]][origin[1]], BOARD[destinity[0]][destinity[1]]];
+        // validateMove(movingValues);
+      }
+
+      // if(["dynamite", "axe", "rocket", "bomb"].includes(posible.type)) {
+      //   validateClick();
+      // }
+    }, [2000, 500, 300][level - 1]);
 
     /**
      * Blquea el board y le pone una capa si es necesario...
@@ -538,13 +645,15 @@
         }
       }
       element.setAttribute("id", id);
-      $("board").appendChild(element);
-      await delay(10);
-      classList($(`#${id}`), "s");
-      await delay(1000);
-      classList($(`#${id}`), "h");
-      await delay(500);
-      $(`#${id}`).remove();
+      if ($("board")) {
+        $("board").appendChild(element);
+        await delay(10);
+        classList($(`#${id}`), "s");
+        await delay(1000);
+        classList($(`#${id}`), "h");
+        await delay(500);
+        $(`#${id}`)?.remove();
+      }
     };
 
     /**
@@ -589,9 +698,14 @@
 
         // TODO: se debe mostrar el puntage dependiendo del usuario
         // Para establecer el puntaje
-        userData.one.p += 1;
-        $("#scv-1").innerHTML = userData.one.p;
       }
+
+      // Para la puntuación...
+      userData[playerHasTurn].p += itemsRemove.length;
+      setHtml(
+        $(`#scv-${playerHasTurn === "one" ? 1 : 2}`),
+        userData[playerHasTurn].p
+      );
 
       // Ahora se debe traer la cantidad de elementos que hay en el board...
       // Para así determinar cuales no se deben mostrar en la nueva board...
@@ -711,7 +825,13 @@
         removeAnimateBoardElements(BOARD, newItemsRemove, newPrizes);
       } else {
         progress.tick();
-        blockBoard();
+        if (typeGame === 1 || (typeGame > 1 && playerHasTurn === "one")) {
+          blockBoard();
+        }
+
+        if (typeGame === 2 && playerHasTurn === "two") {
+          playIA();
+        }
       }
     };
 
@@ -852,10 +972,12 @@
           .join("")
       ).join("")}</board>`;
 
+    const Overlay = () => `<div class="df a c wi he" id=ov></div>`;
+
     // Renderizar el UI...
     setHtml(
       $("#render"),
-      `<div class="ba df f wi he">${Back()}${RenderTop()}${RenderBoard()}</div>`
+      `<div class="ba df f wi he">${Overlay()}${Back()}${RenderTop()}${RenderBoard()}</div>`
     );
 
     // Back()[1];
@@ -919,7 +1041,11 @@
 
     //Para la captura de los eventos...
     const handleEvent = {
-      start: (e) => (eventMove.start = getPosition(e)),
+      start: (e) => {
+        if (typeGame === 1 || (typeGame > 1 && playerHasTurn === "one")) {
+          eventMove.start = getPosition(e);
+        }
+      },
       move: (e) => {
         if (eventMove.start && !eventMove.end) {
           const coordenates = getPosition(e);
@@ -974,18 +1100,34 @@
     );
 
     // Inicia el juego...
-    console.log({ playerHasTurn });
-    console.log("userData", userData);
-    console.log("EL TIPO", { type });
+    // console.log({ playerHasTurn });
+    // console.log("userData", userData);
+    console.log("EL TIPO", { typeGame });
     console.log("LOS USERS", users);
     console.log("el level:", level);
     // blockBoard(true, true);
-    progress.start(() => {
-      blockBoard(true, true);
-      // console.log("TERMINA");
-    });
+    // progress.start(() => {
+    //   blockBoard(true, true);
+    //   // console.log("TERMINA");
+    // });
+
+    const initialCounter = 3;
+    setHtml($("#ov"), initialCounter);
+    const initialTimer = chronometer(
+      (counter) => {
+        setHtml($("#ov"), counter);
+        if (counter === 0) {
+          console.log("INICIA EL JUEGO");
+          $("#ov").remove();
+          validateTurn(true);
+        }
+      },
+      { base: initialCounter, int: 1000 }
+    );
+    initialTimer.start();
 
     $on($("#back"), "click", () => {
+      initialTimer.pause();
       progress.pause();
       Screen("Lobby");
     });
@@ -1016,12 +1158,9 @@
 
     evenListButtons((type) => {
       Screen("Game", {
-        type: 2,
+        typeGame: 2,
         level: type + 1,
-        users: setOrder(
-          [...getUser(), ["Bot", ""]],
-          getValueFromCache("token", "")
-        ),
+        users: setOrder([getUser(), ["Bot", "bot"]]),
       });
     });
   };
@@ -1040,11 +1179,8 @@
     evenListButtons((type) => {
       if (type === 0) {
         return Screen("Game", {
-          type: 1,
-          users: setOrder(
-            [...getUser(), ["Guest", ""]],
-            getValueFromCache("token", "")
-          ),
+          typeGame: 1,
+          users: setOrder([getUser(), ["Guest", "guest"]]),
         });
       }
 

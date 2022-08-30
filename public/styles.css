@@ -67,6 +67,14 @@ div {
   width: var(--w);
 }
 
+/* La capa que se muestra al inicio dle juego */
+#ov {
+  background: #000000d6;
+  color: var(--i);
+  font-size: 8em;
+  position: absolute;
+  z-index: 2;
+}
 
 board {
   --s-c: #08457b;
