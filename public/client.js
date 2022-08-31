@@ -13,10 +13,12 @@
   const ObjectKeys = (obj) => Object.keys(obj);
   const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   const clone = (value) => JSON.parse(JSON.stringify(value));
+  // Sockets...
+  let socket;
+  let connectedSocket = false;
 
-  //STORAGE
   /**
-   * Guadar la información dada en localStorage/sessionStorage
+   * Guadar la información dada en localStorage
    * @param {*} data
    */
   const saveCache = (data) =>
@@ -47,22 +49,38 @@
   const getValueFromCache = (key = "", initial) =>
     getDataCache()[key] || initial;
 
+  /**
+   * Retorna la información del usuario actual...
+   * @returns
+   */
   const getUser = () => [
     ...["name", "token"].map((v) => getValueFromCache(v, "")),
   ];
-  // FIN STORAGE
 
+  /**
+   * Función que establece un tiempo de espera para ejecución de la misma...
+   * @param {*} fn
+   * @param {*} delay
+   * @returns
+   */
   const debounce = (fn, delay) => {
     var t;
     return {
       cls: () => clearTimeout(t),
-      fn:() => {
+      fn: () => {
         clearTimeout(t);
         t = setTimeout(fn, delay);
-      }
+      },
     };
   };
 
+  /**
+   * Para agregar eventos...
+   * @param {*} target
+   * @param {*} type
+   * @param {*} callback
+   * @param {*} parameter
+   */
   const $on = (target, type, callback, parameter = {}) => {
     if (target) {
       target.addEventListener(type, callback, parameter);
@@ -82,6 +100,12 @@
     }
   };
 
+  /**
+   * Determina si un elemento tiene una clase...
+   * @param {*} target
+   * @param {*} className
+   * @returns
+   */
   const hasClass = (target, className) => {
     if (target) {
       for (let classText of className.split(" ")) {
@@ -90,6 +114,12 @@
     }
   };
 
+  /**
+   * Agrega o elimina una clase de un elemento...
+   * @param {*} target
+   * @param {*} className
+   * @param {*} type
+   */
   const classList = (target, className, type = "add") => {
     if (target) {
       className.split(" ").forEach((classText) => {
@@ -98,6 +128,11 @@
     }
   };
 
+  /**
+   * Agrega elementos en línea...
+   * @param {*} styles
+   * @returns
+   */
   const inlineStyles = (styles) =>
     ObjectKeys(styles).length
       ? `style='${ObjectKeys(styles)
@@ -105,6 +140,11 @@
           .join(";")}'`
       : "";
 
+  /**
+   * Función que elimina valores respetidos de un array...
+   * @param {*} value
+   * @returns
+   */
   const uniqueValues = (value = []) => {
     const newValue = [];
     for (let i = 0; i < value.length; i++) {
@@ -130,6 +170,9 @@
     return newValue;
   };
 
+  /**
+   * Crear un intervalo de tiempo...
+   */
   const chronometer = (cb, options) => {
     const { base = 100, inc = -1, int = 250 } = options || {};
     let interval;
@@ -143,6 +186,8 @@
     };
 
     const tick = () => {
+      pause();
+
       interval = setInterval(() => {
         counter += inc;
         if (counter <= 0) {
@@ -153,7 +198,10 @@
       }, int);
     };
 
+    const change = (newValue) => (counter = newValue);
+
     const start = () => {
+      pause();
       counter = base;
       tick();
     };
@@ -162,9 +210,17 @@
       tick,
       start,
       pause,
+      change,
     };
   };
 
+  /**
+   * Crear un nuevo array dado su tamaño
+   * Util para crer UI repetido...
+   * @param {*} size
+   * @param {*} cb
+   * @returns
+   */
   const newArray = (size = 2, cb) =>
     new Array(size)
       .fill(null)
@@ -172,22 +228,22 @@
       .join("");
 
   const Back = () => `<button id=back>⬅️</button>`;
-  // $on($("#back"), "click", () => Screen("Lobby"))
-  /*
-  FILAS HORIZINTAL..
-  COlumnas Vertical...
-  */
 
   /*
   type:
-  0, vs mismo device...
-  1, vs la máquina...
-  2, realtime...
+  1, vs mismo device...
+  2, vs la máquina...
+  3, realtime...
   */
+  /**
+   * Componente del juego...
+   * @param {*} param0
+   */
   const Game = ({
     BOARD = newBoard(),
     typeGame = 0,
     users = {},
+    room = "",
     level = 0,
     maxRounds = 5,
   }) => {
@@ -203,65 +259,85 @@
       "💣",
     ];
 
-    // Contador y actual..
     let validateRounds = 0;
     // 💀 ⚰️ ⚱️ 👻 🩸 🪓 💣 🚀 🔫 🦇 🎃 🗡️ 🔥 💉 🧨 🕯️ 🧟‍♂️ 😈
     const indexCurrentUser = users.users.findIndex(
       (v) => v[1] === getUser()[1]
     );
     const orderUsers = [indexCurrentUser, !indexCurrentUser ? 1 : 0];
-    const userData = [
-      ["one", "c"],
-      ["two", "o"],
-    ]
+    const userData = ["one", "two"]
       .map((v, i) => ({
-        [v[0]]: {
+        [v]: {
           p: 0,
           m: 2,
           c: COLOR[users.users[orderUsers[i]][2]],
           n: users.users[orderUsers[i]][0],
           t: users.users[orderUsers[i]][1],
+          so: typeGame === 3 ? users?.users?.[orderUsers?.[i]]?.[3] || "" : "",
         },
       }))
       .reduce((a, s) => ({ ...a, ...s }), {});
 
+    // Inicia el juego...
+    console.log("EL TIPO", { typeGame });
+    console.log("LOS USERS", users);
+    console.log("el level:", level);
     console.log("userData");
     console.log(userData);
+    console.log("room", room);
 
-    // // let counterProgress = 100;
     let counterTimer = 0;
     let playerHasTurn = users.turn === userData.one.t ? "one" : "two";
     const initialPlayerTurn = playerHasTurn;
 
     const progress = chronometer((counter, interval) => {
-      if($("board")) {
+      if ($("board")) {
         if (counter > 0) {
           counterTimer = counter;
           $("progress").value = counter;
         } else {
-          validateTurn();
+          if (typeGame === 3) {
+            if (playerHasTurn === "one") {
+              socket.emit("action", { room, type: "turn" });
+            }
+          } else {
+            validateTurn();
+          }
         }
       } else {
         clearInterval(interval);
       }
     });
 
+    /**
+     * Muestra en la UI el número de movimientos de los usuarios...
+     */
     const showMovements = () => {
-      for(let i = 1; i <= 2; i++) {
-        for(let d = 0; d < 2; d++) {
-          const { m , c } = userData[i === 1 ? "one" : "two"];
+      for (let i = 1; i <= 2; i++) {
+        for (let d = 0; d < 2; d++) {
+          const { m, c } = userData[i === 1 ? "one" : "two"];
           addStyle($(`#mov-${i}-${d}`), { background: m > d ? c : "none" });
         }
       }
     };
 
+    /**
+     * Muestra el mensaje de la UI de los turnos...
+     * @param {*} txt
+     * @param {*} show
+     */
     const turnsMessage = (txt = "", show = false) => {
       classList($("#msb"), "sh", show ? "add" : "remove");
       setHtml($("#msb"), txt);
     };
 
+    /**
+     * Función que valida los turnos...
+     * @param {*} initial
+     * @returns
+     */
     const validateTurn = async (initial = false) => {
-      if(!$("board")) return;
+      if (!$("board")) return;
       playerHasTurn = !initial
         ? playerHasTurn === "one"
           ? "two"
@@ -269,12 +345,13 @@
         : playerHasTurn;
 
       blockBoard(true);
+      progress.pause();
       $("progress").value = 100;
 
-      if(playerHasTurn === initialPlayerTurn) {
+      if (playerHasTurn === initialPlayerTurn) {
         validateRounds++;
-        if(validateRounds <= maxRounds) {
-          for(let i = 1; i <= maxRounds; i++) {
+        if (validateRounds <= maxRounds) {
+          for (let i = 1; i <= maxRounds; i++) {
             classList(
               $(`#in-${i}`),
               "ac",
@@ -286,13 +363,19 @@
           userData.one.m = userData.two.m = 2;
           // Para establecer los movimientos ene UI...
           showMovements();
-          turnsMessage(`Round ${validateRounds}`, true);
+          turnsMessage(
+            validateRounds < maxRounds
+              ? `Round ${validateRounds}`
+              : "FINAL ROUND",
+            true
+          );
           await delay(1000);
         }
       }
 
-      if(validateRounds <= maxRounds) {
-        const txtTurn = playerHasTurn === "one" ? "Your Turn" : "Opponent's Turn";
+      if (validateRounds <= maxRounds) {
+        const txtTurn =
+          playerHasTurn === "one" ? "Your Turn" : "Opponent's Turn";
         setHtml($("#tupl"), txtTurn);
         turnsMessage(txtTurn, true);
         await delay(1000);
@@ -308,9 +391,15 @@
         }
       } else {
         console.log("TERMINA EL JUEGO!!");
+        if (typeGame === 3 && playerHasTurn === "one") {
+          socket.emit("action", { room, type: "end" });
+        }
       }
     };
 
+    /**
+     * Función que ejecuta la acción del Bot...
+     */
     const { fn: playIA, cls: cancelPlayIA } = debounce(() => {
       // Obtener los posibles movimientos...
       if (playerHasTurn === "one" || !$("board")) return;
@@ -333,18 +422,30 @@
       }
       const indexLaunch = randomNumber(0, posible.value.length - 1);
       if (["three", "four"].includes(posible.type)) {
-        const randomPosition = randomNumber(0, posible.value[indexLaunch].length - 1);
+        const randomPosition = randomNumber(
+          0,
+          posible.value[indexLaunch].length - 1
+        );
         const indexes = posible.type === "three" ? [2, 3] : [1, 2];
-        const indexCanMove = randomNumber(0, posible.value[indexLaunch][randomPosition][indexes[1]].length - 1);
+        const indexCanMove = randomNumber(
+          0,
+          posible.value[indexLaunch][randomPosition][indexes[1]].length - 1
+        );
         const origin = posible.value[indexLaunch][randomPosition][indexes[0]];
-        const destinity = posible.value[indexLaunch][randomPosition][indexes[1]][indexCanMove];
-        validateMove([BOARD[origin[0]][origin[1]], BOARD[destinity[0]][destinity[1]]]);
+        const destinity =
+          posible.value[indexLaunch][randomPosition][indexes[1]][indexCanMove];
+        validateMove([
+          BOARD[origin[0]][origin[1]],
+          BOARD[destinity[0]][destinity[1]],
+        ]);
       }
 
-      if(["dynamite", "axe", "rocket", "bomb"].includes(posible.type)) {
-        validateClick(BOARD[posible.value[indexLaunch].i][posible.value[indexLaunch].c]);
+      if (["dynamite", "axe", "rocket", "bomb"].includes(posible.type)) {
+        validateClick(
+          BOARD[posible.value[indexLaunch].i][posible.value[indexLaunch].c]
+        );
       }
-    }, [25, 15, 10][level - 1] * 100);
+    }, [25, 15, 7][level - 1] * 100);
 
     /**
      * Blquea el board y le pone una capa si es necesario...
@@ -692,8 +793,12 @@
     const removeAnimateBoardElements = async (
       copyBoard = [],
       itemsRemove = [],
-      prizes = []
+      prizes = [],
+      move = [],
+      onlineMoves = {} // Sólo cuando es online...
     ) => {
+      // Si es online, sólo se hará para el usuario que tiene el turno...
+      const nextMovements = typeGame !== 3 ? true : playerHasTurn === "one";
       progress.pause();
       // Se establecen los premios...
       for (let i = 0; i < prizes.length; i++) {
@@ -705,9 +810,9 @@
           BOARD_ELEMENTS[prizes[i][1] - 1]
         );
 
-        if (itemIsPrize(prizes[i][1]) && prizes[i][1] !== 9) {
+        if (itemIsPrize(prizes[i][1]) && move.length !== 0) {
           renderExtraMove(prizes[i][0][0], prizes[i][0][1]);
-          userData[playerHasTurn].m ++;
+          userData[playerHasTurn].m++;
           showMovements();
         }
       }
@@ -715,7 +820,6 @@
       // Se ocultan los elementos que se destruyen...
       const originalItemsRemove = [];
       for (let i = 0; i < itemsRemove.length; i++) {
-        // El valor (v) se necesita para el puntaje v = 0...
         const { i: id = 0 } = copyBoard[itemsRemove[i][0]][itemsRemove[i][1]];
         originalItemsRemove.push(id);
         // Se añade la clase de ocultar los elementos...
@@ -723,9 +827,6 @@
         // Se establece que el valor en 0 en el board, para así imdicar que se han eliminado
         // y se pueda validar los espacios vacíos...
         copyBoard[itemsRemove[i][0]][itemsRemove[i][1]].v = 0;
-
-        // TODO: se debe mostrar el puntage dependiendo del usuario
-        // Para establecer el puntaje
       }
 
       // Para la puntuación...
@@ -738,32 +839,37 @@
       // Ahora se debe traer la cantidad de elementos que hay en el board...
       // Para así determinar cuales no se deben mostrar en la nueva board...
       // const BOARD_ELEMENTS = ["💀", "🔥", "🧛", "🧟‍♂️", "👹"];
-      const newBoardItems = newBoard(
-        new Array(MAX_ELEMENTS)
-          .fill(null)
-          .map((_, i) => [i + 1, elementOnBoard(copyBoard, i + 1).length])
-          .sort((a, b) => b[1] - a[1])
-          .slice(0, 1)
-          .filter((v) => v[1] >= 4)
-          .map((v) => v?.[0])
-      );
-      // Ahora se debe determinar los espacios vacíos que han quedado...
-      // En este caso hacia abajo para así saber los espacios que quedan arriba
-      // y que se deben completar con los nuevos ítemas de la nueva board...
-      for (let i = 0; i < SIZE; i++) {
-        for (let c = 0; c < SIZE; c++) {
-          // Tiene un elemento y no tiene base...
-          if (
-            c + 1 < SIZE &&
-            copyBoard[c][i].v &&
-            !copyBoard?.[c + 1]?.[i]?.v
-          ) {
-            // Ahora mover hacia abajo uno los elementos que están arriba...
-            for (let d = c; d >= 0; d--) {
-              if (d + 1 < SIZE && copyBoard?.[d]?.[i]?.v) {
-                copyBoard[d + 1][i].v = copyBoard[d][i].v;
-                copyBoard[d + 1][i].i = copyBoard[d][i].i;
-                copyBoard[d][i].v = 0;
+      const newBoardItems = nextMovements
+        ? newBoard(
+            new Array(MAX_ELEMENTS)
+              .fill(null)
+              .map((_, i) => [i + 1, elementOnBoard(copyBoard, i + 1).length])
+              .sort((a, b) => b[1] - a[1])
+              .slice(0, 1)
+              .filter((v) => v[1] >= 4)
+              .map((v) => v?.[0])
+          )
+        : [];
+
+      if (nextMovements) {
+        // Ahora se debe determinar los espacios vacíos que han quedado...
+        // En este caso hacia abajo para así saber los espacios que quedan arriba
+        // y que se deben completar con los nuevos ítemas de la nueva board...
+        for (let i = 0; i < SIZE; i++) {
+          for (let c = 0; c < SIZE; c++) {
+            // Tiene un elemento y no tiene base...
+            if (
+              c + 1 < SIZE &&
+              copyBoard[c][i].v &&
+              !copyBoard?.[c + 1]?.[i]?.v
+            ) {
+              // Ahora mover hacia abajo uno los elementos que están arriba...
+              for (let d = c; d >= 0; d--) {
+                if (d + 1 < SIZE && copyBoard?.[d]?.[i]?.v) {
+                  copyBoard[d + 1][i].v = copyBoard[d][i].v;
+                  copyBoard[d + 1][i].i = copyBoard[d][i].i;
+                  copyBoard[d][i].v = 0;
+                }
               }
             }
           }
@@ -771,44 +877,68 @@
       }
 
       // Saber los espacios que quedan, para así indicar el punto de partida de las figuras...
-      const spaces = [];
-      for (let i = 0; i < SIZE; i++) {
-        let counter = 0;
-        for (let c = 0; c < SIZE; c++) {
-          counter += +!copyBoard[c][i].v;
+      const spaces = nextMovements ? [] : onlineMoves.spaces;
+
+      if (nextMovements) {
+        for (let i = 0; i < SIZE; i++) {
+          let counter = 0;
+          for (let c = 0; c < SIZE; c++) {
+            counter += +!copyBoard[c][i].v;
+          }
+          spaces.push(counter);
         }
-        spaces.push(counter);
       }
 
       // Guarda las posiciones desde donde empezarán los ítems a moverse cuando cae...
-      const positionsItemsRemove = [];
-      // Guarda el índice de los elementos que se adicionan al board...
-      // es necesario por si el board no tiene solución...
-      const newIndexItemsBoard = [];
-      let counterItems = 0;
-      // Ahora hacer el merge entre las dos boards...
-      for (let i = 0; i < SIZE; i++) {
-        for (let c = 0; c < SIZE; c++) {
-          if (!copyBoard[i][c].v) {
-            copyBoard[i][c].v = newBoardItems[i][c].v;
-            copyBoard[i][c].i = originalItemsRemove[counterItems];
-            newIndexItemsBoard.push([i, c]);
-            positionsItemsRemove.push({
-              i: originalItemsRemove[counterItems],
-              l: Math.round(CELL * c),
-              t: Math.round(CELL * (spaces[c] - i) * -1),
-            });
+      const positionsItemsRemove = nextMovements
+        ? []
+        : onlineMoves.positionsItemsRemove;
 
-            counterItems++;
+      if (nextMovements) {
+        // Guarda el índice de los elementos que se adicionan al board...
+        // es necesario por si el board no tiene solución...
+        const newIndexItemsBoard = [];
+        let counterItems = 0;
+        // Ahora hacer el merge entre las dos boards...
+        for (let i = 0; i < SIZE; i++) {
+          for (let c = 0; c < SIZE; c++) {
+            if (!copyBoard[i][c].v) {
+              copyBoard[i][c].v = newBoardItems[i][c].v;
+              copyBoard[i][c].i = originalItemsRemove[counterItems];
+              newIndexItemsBoard.push([i, c]);
+              positionsItemsRemove.push({
+                i: originalItemsRemove[counterItems],
+                l: Math.round(CELL * c),
+                t: Math.round(CELL * (spaces[c] - i) * -1),
+              });
+
+              counterItems++;
+            }
           }
+        }
+        // Como no es válido, se pondrá un premio de forma aletoria...
+        if (!isValidBoard(copyBoard).isValid) {
+          const randomPosition = randomNumber(0, newIndexItemsBoard.length - 1);
+          const positions = newIndexItemsBoard[randomPosition];
+          copyBoard[positions[0]][positions[1]].v = randomNumber(7, 9);
         }
       }
 
-      // Como no es válido, se pondrá un premio de forma aletoria...
-      if (!isValidBoard(copyBoard).isValid) {
-        const randomPosition = randomNumber(0, newIndexItemsBoard.length - 1);
-        const positions = newIndexItemsBoard[randomPosition];
-        copyBoard[positions[0]][positions[1]].v = randomNumber(7, 9);
+      // Como es online, se debe emitir la data al otro cliente...
+      if (typeGame === 3 && playerHasTurn === "one") {
+        socket.emit("action", {
+          room,
+          itemsRemove,
+          prizes,
+          move,
+          onlineMoves: {
+            positionsItemsRemove,
+            copyBoard,
+            spaces,
+          },
+          type: "move",
+          player: userData[playerHasTurn].t,
+        });
       }
 
       await delay(100);
@@ -826,11 +956,18 @@
 
       await delay(100);
 
+      if (!nextMovements) {
+        copyBoard = onlineMoves.copyBoard;
+      }
+
       // Caída...
       for (let i = 0; i < SIZE; i++) {
         for (let c = 0; c < SIZE; c++) {
           if (copyBoard[i][c].v) {
             const item = $(`#t-${copyBoard[i][c].i}`);
+            // if(hasClass(item, "h")) {
+            //   classList(item, "h", "remove");
+            // }
             if (hasClass(item, "v")) {
               classList(item, "v", "remove");
               setHtml(item, BOARD_ELEMENTS[copyBoard[i][c].v - 1]);
@@ -845,25 +982,38 @@
       }
 
       BOARD = copyBoard;
-      await delay(200);
 
-      const { itemsRemove: newItemsRemove = [], prizes: newPrizes = [] } =
-        validateMatch(BOARD);
-      if (newItemsRemove.length !== 0) {
-        removeAnimateBoardElements(BOARD, newItemsRemove, newPrizes);
-      } else {
-        if(userData[playerHasTurn].m === 0) {
-          progress.pause();
-          validateTurn();
+      if (typeGame !== 3) {
+        await delay(200);
+        const { itemsRemove: newItemsRemove = [], prizes: newPrizes = [] } =
+          validateMatch(BOARD);
+        if (newItemsRemove.length !== 0) {
+          removeAnimateBoardElements(BOARD, newItemsRemove, newPrizes);
         } else {
-          progress.tick();
-        if (typeGame === 1 || (typeGame > 1 && playerHasTurn === "one")) {
-          blockBoard();
-        }
+          if (userData[playerHasTurn].m === 0) {
+            progress.pause();
+            validateTurn();
+          } else {
+            progress.tick();
+            if (typeGame === 1 || (typeGame > 1 && playerHasTurn === "one")) {
+              blockBoard();
+            }
 
-        if (typeGame === 2 && playerHasTurn === "two") {
-          playIA();
+            if (typeGame === 2 && playerHasTurn === "two") {
+              playIA();
+            }
+          }
         }
+      } else {
+        if (playerHasTurn === "two") {
+          // Debe emitir un ack, indicando que ya hizo la animación...
+          socket.emit("action", {
+            room,
+            type: "ack",
+            player: getUser()[1],
+          });
+        } else {
+          classList($("board"), "w");
         }
       }
     };
@@ -947,7 +1097,7 @@
       if (itemsRemove.length !== 0) {
         userData[playerHasTurn].m--;
         showMovements();
-        removeAnimateBoardElements(copyBoard, itemsRemove, prizes);
+        removeAnimateBoardElements(copyBoard, itemsRemove, prizes, move);
       } else {
         // Como no hay match, se devuelve los elementos a su posición original...
         changePositionElements(move, true);
@@ -962,7 +1112,9 @@
           `<div class="scv df a c" id=scv-${i + 1} ${inlineStyles({
             background: userData[!i ? "one" : "two"].c,
           })}>0</div>`
-      )}</div><div class="sci wi df a s">${newArray(maxRounds, (i) => `<div class=scin id=in-${i + 1}>${i + 1}</div>`
+      )}</div><div class="sci wi df a s">${newArray(
+        maxRounds,
+        (i) => `<div class=scin id=in-${i + 1}>${i + 1}</div>`
       )}</div></div></div>`;
 
     // Your Turn - Opponent's Turn
@@ -1016,14 +1168,6 @@
       `<div class="ba df f wi he">${Messages()}${Overlay()}${Back()}${RenderTop()}${RenderBoard()}</div>`
     );
 
-    // Back()[1];
-
-    // Agregra los eventos...
-    // 0 Guarda el índice del elemento que está ene sa posición...
-    /*
-      0: La posición fila y columna de elemento seleccionado {}
-    */
-    let eventMove = {};
     /**
      * Dado dos puntos, regresa la dirección...
      * @param {*} p1
@@ -1075,7 +1219,8 @@
       };
     };
 
-    //Para la captura de los eventos...
+    //Para la captura de los eventos del board...
+    let eventMove = {};
     const handleEvent = {
       start: (e) => {
         if (typeGame === 1 || (typeGame > 1 && playerHasTurn === "one")) {
@@ -1135,11 +1280,6 @@
         .flat()
     );
 
-    // Inicia el juego...
-    console.log("EL TIPO", { typeGame });
-    console.log("LOS USERS", users);
-    console.log("el level:", level);
-
     const initialCounter = 3;
     setHtml($("#ov"), initialCounter);
     const initialTimer = chronometer(
@@ -1154,14 +1294,95 @@
     );
     initialTimer.start();
 
-    $on($("#back"), "click", () => {
-      // Revisar si es necesario
-      // if(typeGame === 2) return location.reload();
+    const exitGame = () => {
+      if (typeGame === 3) {
+        disconnectSocket();
+      }
       cancelPlayIA();
       initialTimer.pause();
       progress.pause();
       Screen("Lobby");
-    });
+    };
+
+    $on($("#back"), "click", exitGame);
+
+    // Es online...
+    if (typeGame === 3 && connectedSocket && socket) {
+      // Para escuchar los eventos...
+      socket.on("action", async (data) => {
+        if (data.type === "leave") {
+          return exitGame();
+        }
+
+        if (data.type === "turn") {
+          progress.pause();
+          return validateTurn();
+        }
+
+        if (data.type === "next") {
+          progress.change(data.counterTimer);
+          return progress.tick();
+        }
+
+        if (data.player !== getUser()[1]) {
+          if (data.type === "move") {
+            let copyBoard = clone(BOARD);
+
+            if (data.move.length !== 0) {
+              changePositionElements(data.move);
+              for (let i = 0; i < 2; i++) {
+                const row = data.move[i].p.i;
+                const col = data.move[i].p.c;
+                const value = data.move[+!i].v;
+                const id = data.move[+!i].i;
+                copyBoard[row][col] = {
+                  ...copyBoard[row][col],
+                  v: value,
+                  i: id,
+                };
+              }
+              await delay(200);
+            }
+
+            userData[playerHasTurn].m--;
+            showMovements();
+            removeAnimateBoardElements(
+              copyBoard,
+              data.itemsRemove,
+              data.prizes,
+              data.move,
+              data.onlineMoves
+            );
+          }
+
+          if (data.type === "ack") {
+            progress.tick();
+            classList($("board"), "w", "remove");
+            // inico
+            const { itemsRemove, prizes } = validateMatch(BOARD);
+            if (itemsRemove.length !== 0) {
+              removeAnimateBoardElements(BOARD, itemsRemove, prizes);
+            } else {
+              if (userData[playerHasTurn].m === 0) {
+                socket.emit("action", { room, type: "turn" });
+              } else {
+                if (
+                  typeGame === 1 ||
+                  (typeGame > 1 && playerHasTurn === "one")
+                ) {
+                  socket.emit("action", {
+                    room,
+                    type: "next",
+                    counterTimer,
+                  });
+                  blockBoard();
+                }
+              }
+            }
+          }
+        }
+      });
+    }
   };
 
   const RenderListButtons = (btns = []) =>
@@ -1209,24 +1430,76 @@
 
     evenListButtons((type) => {
       if (type === 0) {
-        return Screen("Game", {
+        Screen("Game", {
           typeGame: 1,
           users: setOrder([getUser(), ["Guest", "guest"]]),
         });
       }
 
-      if (type === 1) {
-        return Screen("Difficulty");
+      if ([1, 3].includes(type)) {
+        Screen(type === 1 ? "Difficulty" : "SearchOpponent");
       }
     });
   };
 
+  const SearchOpponent = (data = {}) => {
+    setHtml(
+      $("#render"),
+      `<div class="ba df f a wi he">${Back()}Buscar oponente<button id=cancel>Cancelar</button></div>`
+    );
+
+    const returnHome = () => {
+      Screen();
+      disconnectSocket();
+    };
+
+    ["back", "cancel"].forEach(v => $on($(`#${v}`), "click", returnHome));
+
+    // Configura la conexión del socket del juego...
+    configureSocket(data);
+  };
+
   const Screen = (screen = "Lobby", params = {}) => {
-    const Handler = { Game, Lobby, Difficulty };
+    const Handler = { Game, Lobby, SearchOpponent, Difficulty };
     Handler[screen](params);
   };
 
-  const {fn: onWindowResize} = debounce(
+  // Código para manejo de los sockets
+  const disconnectSocket = () => {
+    if (connectedSocket && socket) {
+      connectedSocket = false;
+      socket.disconnect();
+    }
+  };
+
+  const configureSocket = (options = {}) => {
+    socket = io();
+    connectedSocket = true;
+
+    // Envia la data del usuario actual al server y busca un jugador
+    socket.on("connect", () => {
+      const [name, token] = getUser();
+      socket.emit("nU", { ...options, player: { name, token } }, (error) => {
+        if (error) {
+          disconnectSocket();
+          console.log("Error de conexión...");
+        }
+      });
+    });
+
+    socket.on("connect_error", () => {
+      Screen();
+      disconnectSocket();
+      console.log("ERROR!!");
+    });
+
+    socket.on("sG", (data) => {
+      Screen("Game", data);
+    });
+  };
+  // fin código de los sockets
+
+  const { fn: onWindowResize } = debounce(
     () =>
       addStyle($("#render"), {
         transform:

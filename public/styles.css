@@ -112,8 +112,20 @@ board.d {
   pointer-events: none;
 }
 
+board.w,
 board.o {
   filter: brightness(0.6);
+}
+
+board.w:before {
+  content: "Loading...";
+  background: var(--b);
+  color: var(--i);
+  font-size: 15px;
+  padding: 10px;
+  position: absolute;
+  z-index: 1;
+  bottom: 0;
 }
 
 board:active {

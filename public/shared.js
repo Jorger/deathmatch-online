@@ -5,9 +5,19 @@ const HEIGHT = 732;
 const WIDTH = 412;
 const CELL = WIDTH / 7;
 
+/**
+ * Genera un número aleatorio dado un rango
+ * @param {*} min
+ * @param {*} max
+ * @returns
+ */
 const randomNumber = (min, max) =>
   Math.floor(Math.random() * (max - min + 1)) + min;
 
+/**
+ * Para generar un tocken...
+ * @returns
+ */
 const guid = () => {
   const s4 = () =>
     Math.floor((1 + Math.random()) * 0x10000)
@@ -29,6 +39,11 @@ const guid = () => {
   );
 };
 
+/**
+ * Establecer el color y el orden que tendrán los juagdores...
+ * @param {*} users
+ * @returns
+ */
 const setOrder = (users = []) => {
   const color = randomNumber(0, 1);
   const turn = randomNumber(0, 1);
@@ -41,10 +56,16 @@ const setOrder = (users = []) => {
   };
 };
 
+/**
+ * Valida si los índces de una matriz están en rango...
+ * @param {*} r
+ * @param {*} c
+ * @returns
+ */
 const isValidIndex = (r, c) => r >= 0 && r < SIZE && c >= 0 && c < SIZE;
 
 /**
- * dado el tipo, retorna el array con los elementos del mismo tipo...
+ * Dado el tipo, retorna el array con los elementos del mismo tipo...
  * @param {*} board
  * @param {*} type
  * @returns
@@ -66,6 +87,11 @@ const elementOnBoard = (board = [], type = 0) => {
   return elements;
 };
 
+/**
+ * Dada una board, valida si está se puede solucionar...
+ * @param {*} board
+ * @returns
+ */
 const isValidBoard = (board = []) => {
   const getThree = () => {
     const lines = [];
@@ -278,6 +304,12 @@ const isValidBoard = (board = []) => {
   };
 };
 
+/**
+ * Genera una nueva board.
+ * Además valida que inicialemte no tenga match...
+ * @param {*} skip
+ * @returns
+ */
 const generateBoard = (skip = []) => {
   const board = [];
 
@@ -344,6 +376,11 @@ const generateBoard = (skip = []) => {
   return board;
 };
 
+/**
+ * Función preincipal que valida que una board tiene solución...
+ * @param {*} skip
+ * @returns
+ */
 const newBoard = (skip = []) => {
   let board = generateBoard(skip);
 
