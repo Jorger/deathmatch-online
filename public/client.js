@@ -17,6 +17,8 @@
   let socket;
   let connectedSocket = false;
 
+
+  const sanizateTags = input => input ? input.replace(/<\/?[^>]+(>|$)/g, "") : "";
   /**
    * Guadar la información dada en localStorage
    * @param {*} data
@@ -178,8 +180,10 @@
     let interval;
     let counter = base;
 
-    const pause = () => {
+    const pause = (comes = "") => {
+      console.log({comes});
       if (interval) {
+        console.log("LIMPIA EL INTEVALO");
         clearInterval(interval);
         interval = null;
       }
@@ -228,6 +232,58 @@
       .join("");
 
   const Back = () => `<button id=back>⬅️</button>`;
+
+  /**
+   * Renderiza el modal del juego
+   */
+  const Modal = {
+    show({ txt, icon = "", yes = "yes", no = "no", cb, timer = 0 }) {
+      $("modal .txt").innerHTML =
+        (icon
+          ? `<p ${inlineStyles({ "font-size": "3rem" })}>${icon}</p>`
+          : "") + txt;
+      newArray(2, (i) => {
+        addStyle($(`modal #btn${i + 1}`), {
+          display: (!i ? yes : no) ? "block" : "none",
+        });
+        $(`modal #btn${i + 1}`).textContent = !i ? yes : no;
+      });
+      this.change();
+      if (this.interval) {
+        clearTimeout(this.interval);
+      }
+      if (timer) {
+        this.interval = setTimeout(() => {
+          this.hide();
+        }, timer);
+      }
+
+      this.callback = cb;
+    },
+    change(show = true) {
+      classList($("modal"), "hide", show ? "remove" : "add");
+      classList($("modal"), "show", !show ? "remove" : "add");
+    },
+    hide() {
+      this.change(false);
+      if (this.interval) {
+        clearTimeout(this.interval);
+      }
+    },
+    render: () =>
+      `<modal class="hide wi he"><div class="ms wi he"></div><div class="df a c mw wi he"><div class=mc><div class="df a wi he txt"></div><div class="df mb wi he">${newArray(
+        2,
+        (i) => `<button id=btn${i + 1}></button>`
+      )}</div></div></div></modal>`,
+    events() {
+      $$("modal button").forEach((btn) =>
+        $on(btn, "click", (e) => {
+          this.hide();
+          this.callback && this.callback(e.target.id === "btn1");
+        })
+      );
+    },
+  };
 
   /*
   type:
@@ -290,13 +346,15 @@
     let playerHasTurn = users.turn === userData.one.t ? "one" : "two";
     const initialPlayerTurn = playerHasTurn;
 
-    const progress = chronometer((counter, interval) => {
+    let progress = chronometer((counter, interval) => {
+      console.log({counter, interval});
       if ($("board")) {
-        if (counter > 0) {
+        if (counter > 10) {
           counterTimer = counter;
           $("progress").value = counter;
         } else {
           if (typeGame === 3) {
+            blockBoard(true, true);
             if (playerHasTurn === "one") {
               socket.emit("action", { room, type: "turn" });
             }
@@ -337,15 +395,15 @@
      * @returns
      */
     const validateTurn = async (initial = false) => {
-      if (!$("board")) return;
+      if (!$("board") || !progress) return;
       playerHasTurn = !initial
         ? playerHasTurn === "one"
           ? "two"
           : "one"
         : playerHasTurn;
 
-      blockBoard(true);
-      progress.pause();
+      blockBoard(true, true);
+      progress?.pause();
       $("progress").value = 100;
 
       if (playerHasTurn === initialPlayerTurn) {
@@ -384,13 +442,26 @@
         const isBoardBlocked = typeGame !== 1 ? playerHasTurn === "two" : false;
         blockBoard(isBoardBlocked, isBoardBlocked);
 
-        progress.start();
+        progress?.start();
 
         if (typeGame === 2 && playerHasTurn === "two") {
           playIA();
         }
       } else {
-        console.log("TERMINA EL JUEGO!!");
+        const txtType = { tie: ["it's a tie!", "👐"], win: ["You win!", "✌️"], lose: ["You lost!", "😔"]};
+        const p1 = userData.one.p;
+        const p2 = userData.two.p;
+        const result = p1 === p2 ? "tie" : p1 > p2 ? "win" : "lose";
+        Modal.show({
+          icon: txtType[result][1],
+          txt: `<h2>${txtType[result][0]}</h2>`,
+          no: "",
+          yes: "OK",
+          cb() {
+            exitGame();
+          },
+        });
+
         if (typeGame === 3 && playerHasTurn === "one") {
           socket.emit("action", { room, type: "end" });
         }
@@ -402,7 +473,7 @@
      */
     const { fn: playIA, cls: cancelPlayIA } = debounce(() => {
       // Obtener los posibles movimientos...
-      if (playerHasTurn === "one" || !$("board")) return;
+      if (playerHasTurn === "one" || !$("board") || !progress) return;
       const moves = isValidBoard(BOARD).values;
       const difficulty = level === 2 ? (randomNumber(0, 1) ? 1 : 3) : level;
       const elements = ["three", "dynamite", "axe", "rocket", "four", "bomb"];
@@ -799,7 +870,7 @@
     ) => {
       // Si es online, sólo se hará para el usuario que tiene el turno...
       const nextMovements = typeGame !== 3 ? true : playerHasTurn === "one";
-      progress.pause();
+      progress?.pause();
       // Se establecen los premios...
       for (let i = 0; i < prizes.length; i++) {
         // Se cambia en el board el valor del premio...
@@ -965,12 +1036,13 @@
         for (let c = 0; c < SIZE; c++) {
           if (copyBoard[i][c].v) {
             const item = $(`#t-${copyBoard[i][c].i}`);
-            // if(hasClass(item, "h")) {
-            //   classList(item, "h", "remove");
-            // }
             if (hasClass(item, "v")) {
               classList(item, "v", "remove");
               setHtml(item, BOARD_ELEMENTS[copyBoard[i][c].v - 1]);
+            }
+
+            if (hasClass(item, "h")) {
+              classList(item, "h", "remove");
             }
 
             addStyle(item, {
@@ -991,10 +1063,10 @@
           removeAnimateBoardElements(BOARD, newItemsRemove, newPrizes);
         } else {
           if (userData[playerHasTurn].m === 0) {
-            progress.pause();
+            progress?.pause();
             validateTurn();
           } else {
-            progress.tick();
+            progress?.tick();
             if (typeGame === 1 || (typeGame > 1 && playerHasTurn === "one")) {
               blockBoard();
             }
@@ -1013,6 +1085,7 @@
             player: getUser()[1],
           });
         } else {
+          blockBoard(true, true);
           classList($("board"), "w");
         }
       }
@@ -1300,28 +1373,38 @@
       }
       cancelPlayIA();
       initialTimer.pause();
-      progress.pause();
-      Screen("Lobby");
+      progress?.pause("FUNCIÓN SALIR");
+      progress = null;
+      Screen();
     };
 
     $on($("#back"), "click", exitGame);
 
     // Es online...
-    if (typeGame === 3 && connectedSocket && socket) {
+    if (typeGame === 3 && connectedSocket && socket && progress) {
       // Para escuchar los eventos...
       socket.on("action", async (data) => {
         if (data.type === "leave") {
+          Modal.show({
+            icon: "😩",
+            txt: `<h2 ${inlineStyles({
+              "margin-bottom": "10px",
+            })}>User disconnected</h2><p>Your partner has left the room</p>`,
+            no: "",
+            yes: "Ok",
+            timer: 3000,
+          });
           return exitGame();
         }
 
         if (data.type === "turn") {
-          progress.pause();
+          progress?.pause();
           return validateTurn();
         }
 
         if (data.type === "next") {
-          progress.change(data.counterTimer);
-          return progress.tick();
+          progress?.change(data.counterTimer);
+          return progress?.tick();
         }
 
         if (data.player !== getUser()[1]) {
@@ -1356,7 +1439,7 @@
           }
 
           if (data.type === "ack") {
-            progress.tick();
+            progress?.tick();
             classList($("board"), "w", "remove");
             // inico
             const { itemsRemove, prizes } = validateMatch(BOARD);
@@ -1366,10 +1449,7 @@
               if (userData[playerHasTurn].m === 0) {
                 socket.emit("action", { room, type: "turn" });
               } else {
-                if (
-                  typeGame === 1 ||
-                  (typeGame > 1 && playerHasTurn === "one")
-                ) {
+                if (playerHasTurn === "one") {
                   socket.emit("action", {
                     room,
                     type: "next",
@@ -1398,14 +1478,13 @@
   // <span>💀</span>
   const Logo = () => `<div class="lg df a c f"><h1>DEATH MATCH</h1></div>`;
 
+  const UserName = () => `<div class="wi lg df a c"><button class=mB id=nuse>${getUser()[0]}</button></div>`;
+
   const Difficulty = () => {
     setHtml(
       $("#render"),
-      `<div class="ba df f a wi he">${Back()}${Logo()}${RenderListButtons([
-        "EASY",
-        "MEDIUM",
-        "HARD",
-      ])}</div>`
+      `<div class="ba df f a wi he"><div class="df a c f wi he">${Back()}${Logo()}${RenderListButtons(["EASY","MEDIUM","HARD"])}</div>
+      </div>`
     );
 
     evenListButtons((type) => {
@@ -1415,18 +1494,34 @@
         users: setOrder([getUser(), ["Bot", "bot"]]),
       });
     });
+
+    $on($("#back"), "click", () => Screen());
   };
 
   const Lobby = () => {
     setHtml(
       $("#render"),
-      `<div class="ba df f a wi he">${Logo()}${RenderListButtons([
+      `<div class="ba df f a wi he"><div class="df a c f wi he">
+      ${UserName()}${Logo()}${RenderListButtons([
         "TWO PLAYERS",
         "VS BOT",
         "PLAY WITH FRIENDS",
         "PLAY ONLINE",
-      ])}</div>`
+      ])}</div></div>`
     );
+
+    $on($("#nuse"), "click", () => {
+      const newName = sanizateTags(
+        prompt("Write your name (MAX 10)", getUser()[0])
+      );
+
+      if (newName) {
+        const shortName = newName.length > 10 ? newName.substring(0, 10) + "..." : newName;
+
+        $("#nuse").textContent = shortName;
+        savePropierties("name", shortName);
+      }
+    });
 
     evenListButtons((type) => {
       if (type === 0) {
@@ -1438,6 +1533,15 @@
 
       if ([1, 3].includes(type)) {
         Screen(type === 1 ? "Difficulty" : "SearchOpponent");
+      }
+
+      if (type === 2) {
+        Modal.show({
+          icon: "🥰",
+          txt: "<h2>Thanks for sharing</h2>",
+          no: "NADA",
+          yes: "YEAH",
+        });
       }
     });
   };
@@ -1453,7 +1557,7 @@
       disconnectSocket();
     };
 
-    ["back", "cancel"].forEach(v => $on($(`#${v}`), "click", returnHome));
+    ["back", "cancel"].forEach((v) => $on($(`#${v}`), "click", returnHome));
 
     // Configura la conexión del socket del juego...
     configureSocket(data);
@@ -1490,12 +1594,16 @@
     socket.on("connect_error", () => {
       Screen();
       disconnectSocket();
-      console.log("ERROR!!");
+      Modal.show({
+        icon: "🔌",
+        txt: `<h2>Error connecting to server</h2>`,
+        no: "",
+        yes: "Ok",
+        timer: 2000,
+      });
     });
 
-    socket.on("sG", (data) => {
-      Screen("Game", data);
-    });
+    socket.on("sG", (data) => Screen("Game", data));
   };
   // fin código de los sockets
 
@@ -1519,13 +1627,17 @@
 
   if (!ObjectKeys(getDataCache()).length) {
     [
-      ["name", `Zombie ${randomNumber(1, 100)}`],
+      ["name", `Zombie ${randomNumber(100, 1000)}`],
       ["token", guid()],
     ].forEach((v) => savePropierties(v[0], v[1]));
   }
 
   // Renderizar la base del juego...
-  setHtml($("#root"), `<div id="render" class="df c wi he"></div>`);
+  setHtml(
+    $("#root"),
+    `${Modal.render()}<div id="render" class="df c wi he"></div>`
+  );
+  Modal.events();
   Screen();
   $on(document, "contextmenu", (event) => event.preventDefault());
   $on(window, "resize", onWindowResize);

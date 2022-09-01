@@ -1,7 +1,7 @@
 :root {
   --b: #000;
   --i: #fff;
-  --a: linear-gradient(to top, #2a5298, #1e3c72);
+  --a: linear-gradient(to top, #000428, #004e92);
 }
 
 /* Estilos globales */
@@ -197,7 +197,7 @@ item.v {
 }
 
 top {
-  height: calc(var(--h) - var(--w) - 20px); 
+  height: calc(var(--h) - var(--w) - 20px);
   position: relative;
 }
 /* Para el score */
@@ -313,7 +313,7 @@ top {
 }
 
 progress {
-  --p-a: linear-gradient(to bottom,  #ffb76b 0%,#ffa73d 50%,#ff7c00 51%,#ff7f04 100%);
+  --p-a: linear-gradient(to bottom,  #f6e6b4 0%,#ed9017 100%);
   --p-b: #08143a;
   height: 25px;
   background: var(--p-b);
@@ -353,7 +353,7 @@ progress::-webkit-progress-bar {
 
 
 /* Estilo para los botones... */
-.mB {
+/* .mB {
   background-image: linear-gradient(-180deg, #FF7E31, #E62C03);
   border-radius: 6px;
   box-shadow: rgba(0, 0, 0, 0.1) 0 2px 4px;
@@ -366,7 +366,65 @@ progress::-webkit-progress-bar {
 
 .mB:hover {
   box-shadow: rgba(253, 76, 0, 0.5) 0 3px 8px;
+} */
+
+/* .mB {
+  display: inline-block;
+  outline: 0;
+  border: none;
+  cursor: pointer;
+  padding: 0 24px;
+  border-radius: 50px;
+  min-width: 200px;
+  height: 50px;
+  font-size: 18px;
+  background-color: #fd0;
+  font-weight: 500;
+  color: #222;
+} */
+
+
+/* .mB {
+  display: inline-block;
+  outline: 0;
+  border: 0;
+  cursor: pointer;
+  transition: box-shadow 0.15s ease,transform 0.15s ease;
+  will-change: box-shadow,transform;
+  background: #FCFCFD;
+  box-shadow: 0px 2px 4px rgb(45 35 66 / 40%), 0px 7px 13px -3px rgb(45 35 66 / 30%), inset 0px -3px 0px #d6d6e7;
+  height: 48px;
+  padding: 0 32px;
+  font-size: 18px;
+  border-radius: 6px;
+  color: #36395a;
+  transition: box-shadow 0.15s ease,transform 0.15s ease;
 }
+
+.mB:hover {
+    box-shadow: 0px 4px 8px rgb(45 35 66 / 40%), 0px 7px 13px -3px rgb(45 35 66 / 30%), inset 0px -3px 0px #d6d6e7;
+    transform: translateY(-2px);
+}
+.mB:active{
+    box-shadow: inset 0px 3px 7px #d6d6e7;
+    transform: translateY(2px);
+} */
+
+
+
+
+.mB {
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 20px;
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 14px 24px;
+  border: none;
+  background: linear-gradient(to right, rgb(230, 30, 77) 0%, rgb(227, 28, 95) 50%, rgb(215, 4, 102) 100%);
+  color: var(--i);
+}
+
 
 /* Para el logo */
 /* .lg {
@@ -375,17 +433,24 @@ progress::-webkit-progress-bar {
 
 .lg h1 {
   color: white;
+  font-size: 50px;
+  font-weight: bold;
+  margin: 20px;
+  color: #FFFFFF;
+  text-shadow: 0 -1px 4px #FFF, 0 -2px 10px #ff0, 0 -10px 20px #ff8000, 0 -18px 40px #F00;
+  width: 50%;
+  text-align: center;
 }
 
 /* Listado de botones del lobby */
 .mBs {
   /* border: 1px solid red; */
-  width: 70%;
+  width: 60%;
 }
 
 .mBs .mB {
-  margin-bottom: 10px;
-  height: 50px;
+  margin-bottom: 15px;
+  height: 55px;
 }
 
 
@@ -432,4 +497,116 @@ progress::-webkit-progress-bar {
 
 #msb.sh {
   display: block;
+}
+
+/* Estilos para el modal */
+modal {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 100;
+}
+
+modal.hide {
+  pointer-events: none;
+  visibility: hidden;
+  transition: visibility 200ms;
+}
+
+modal.show {
+  visibility: visible;
+}
+
+.ms,
+.mw {
+  left: 0;
+  position: absolute;
+  top: 0;
+}
+
+.ms {
+  backdrop-filter: blur(5px);
+  background: #b6b7c742;
+}
+
+.mw {
+  z-index: 1;
+}
+
+.mc {
+  border-radius: 5px;
+  overflow: hidden;
+  width: 71%;
+  background: var(--i);
+  overflow: hidden;
+}
+
+.mc .txt {
+  color: #8f9cb5;
+  padding: 20px;
+  flex-direction: column;
+}
+
+.mb button {
+  width: 100%;
+  border: none;
+  height: 50px;
+  background: #fc7169;
+  cursor: pointer;
+  color: var(--i);
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+.mb button:nth-child(2) {
+  background: #b6bece;
+}
+
+modal.show .mc {
+  animation: fD 200ms both;
+}
+
+modal.hide .mc {
+  animation: fUp 200ms both;
+}
+
+@keyframes fD {
+  from { opacity: 0; transform: translate3d(0, -100%, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+@keyframes fUp {
+  from { opacity: 1; }
+  to { opacity: 0; transform: translate3d(0, -100%, 0); }
+}
+
+/* fin estilos del modal */
+
+/* Para el nombre del usuario... */
+/* #nuse {
+  cursor: pointer;
+  margin: 20px;
+  font-size: 18px;
+  padding: 15px;
+  background: #1cb2ff;
+  color: var(--i);
+  border: none;
+  width: 45%;
+  border-radius: 5px;
+  box-shadow: rgba(0, 0, 0, 0.25) 0px 14px 28px, rgba(0, 0, 0, 0.22) 0px 10px 10px;
+  position: relative;
+} */
+
+#nuse {
+  margin: 30px;
+  position: relative;
+  width: 40%;
+}
+
+#nuse::after {
+  content: "☠️";
+  position: absolute;
+  left: -40px;
+  font-size: 4.4em;
+  top: 13px;
 }
