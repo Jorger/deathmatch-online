@@ -1,7 +1,7 @@
 (() => {
   // Utilidades
   const CACHE_KEY = "death-match";
-  const COLOR = { b: "#1e90ff", r: "#ff0000" };
+  const COLOR = { b: "#1e90ff", r: "#e91e63" };
   const $ = document.querySelector.bind(document);
   const $$ = document.querySelectorAll.bind(document);
   $(
@@ -17,8 +17,11 @@
   let socket;
   let connectedSocket = false;
 
+  const copyToClipboard = (text = "") => navigator.clipboard.writeText(text);
+  const isValidRoom = (value) => /^\d+$/.test(value) && value.length === 5;
 
-  const sanizateTags = input => input ? input.replace(/<\/?[^>]+(>|$)/g, "") : "";
+  const sanizateTags = (input) =>
+    input ? input.replace(/<\/?[^>]+(>|$)/g, "") : "";
   /**
    * Guadar la información dada en localStorage
    * @param {*} data
@@ -180,10 +183,8 @@
     let interval;
     let counter = base;
 
-    const pause = (comes = "") => {
-      console.log({comes});
+    const pause = () => {
       if (interval) {
-        console.log("LIMPIA EL INTEVALO");
         clearInterval(interval);
         interval = null;
       }
@@ -334,20 +335,11 @@
       }))
       .reduce((a, s) => ({ ...a, ...s }), {});
 
-    // Inicia el juego...
-    console.log("EL TIPO", { typeGame });
-    console.log("LOS USERS", users);
-    console.log("el level:", level);
-    console.log("userData");
-    console.log(userData);
-    console.log("room", room);
-
     let counterTimer = 0;
     let playerHasTurn = users.turn === userData.one.t ? "one" : "two";
     const initialPlayerTurn = playerHasTurn;
 
     let progress = chronometer((counter, interval) => {
-      console.log({counter, interval});
       if ($("board")) {
         if (counter > 10) {
           counterTimer = counter;
@@ -448,7 +440,11 @@
           playIA();
         }
       } else {
-        const txtType = { tie: ["it's a tie!", "👐"], win: ["You win!", "✌️"], lose: ["You lost!", "😔"]};
+        const txtType = {
+          tie: ["it's a tie!", "👐"],
+          win: ["You win!", "✌️"],
+          lose: ["You lost!", "😔"],
+        };
         const p1 = userData.one.p;
         const p2 = userData.two.p;
         const result = p1 === p2 ? "tie" : p1 > p2 ? "win" : "lose";
@@ -1193,7 +1189,9 @@
     // Your Turn - Opponent's Turn
     const RenderTurn = () => {
       const Names = (name = "", id = 1) =>
-        `<div class="tuna df a c" id="na-${id}">${name}</div>`;
+        `<div class="tuna df a c" id="na-${id}" ${inlineStyles({
+          background: userData[id === 1 ? "one" : "two"].c,
+        })}>${name}</div>`;
 
       const Turns = (p) =>
         newArray(
@@ -1373,12 +1371,22 @@
       }
       cancelPlayIA();
       initialTimer.pause();
-      progress?.pause("FUNCIÓN SALIR");
+      progress?.pause();
       progress = null;
       Screen();
     };
 
-    $on($("#back"), "click", exitGame);
+    $on($("#back"), "click", () =>
+      Modal.show({
+        icon: "⚠️",
+        txt: `<h2 ${inlineStyles({
+          "margin-bottom": "10px",
+        })}>Exit game</h2><p>Are you sure you want to exit the game?</p>`,
+        cb(answer) {
+          if (answer) exitGame();
+        },
+      })
+    );
 
     // Es online...
     if (typeGame === 3 && connectedSocket && socket && progress) {
@@ -1478,12 +1486,17 @@
   // <span>💀</span>
   const Logo = () => `<div class="lg df a c f"><h1>DEATH MATCH</h1></div>`;
 
-  const UserName = () => `<div class="wi lg df a c"><button class=mB id=nuse>${getUser()[0]}</button></div>`;
+  const UserName = () =>
+    `<div class="wnuse wi df a c"><button class=mB id=nuse>${
+      getUser()[0]
+    }</button></div>`;
 
   const Difficulty = () => {
     setHtml(
       $("#render"),
-      `<div class="ba df f a wi he"><div class="df a c f wi he">${Back()}${Logo()}${RenderListButtons(["EASY","MEDIUM","HARD"])}</div>
+      `<div class="ba df f a wi he"><div class="df a c f wi he">${Back()}${Logo()}${RenderListButtons(
+        ["EASY", "MEDIUM", "HARD"]
+      )}</div>
       </div>`
     );
 
@@ -1507,7 +1520,7 @@
         "VS BOT",
         "PLAY WITH FRIENDS",
         "PLAY ONLINE",
-      ])}</div></div>`
+      ])}<p class=ab>Game developed by <a href="https://twitter.com/ostjh"  target="_blank" rel="noopener noreferrer">Jorge Rubiano</a> for the 2022 edition of JS13K</p></div></div>`
     );
 
     $on($("#nuse"), "click", () => {
@@ -1516,7 +1529,8 @@
       );
 
       if (newName) {
-        const shortName = newName.length > 10 ? newName.substring(0, 10) + "..." : newName;
+        const shortName =
+          newName.length > 10 ? newName.substring(0, 10) + "..." : newName;
 
         $("#nuse").textContent = shortName;
         savePropierties("name", shortName);
@@ -1529,19 +1543,8 @@
           typeGame: 1,
           users: setOrder([getUser(), ["Guest", "guest"]]),
         });
-      }
-
-      if ([1, 3].includes(type)) {
-        Screen(type === 1 ? "Difficulty" : "SearchOpponent");
-      }
-
-      if (type === 2) {
-        Modal.show({
-          icon: "🥰",
-          txt: "<h2>Thanks for sharing</h2>",
-          no: "NADA",
-          yes: "YEAH",
-        });
+      } else {
+        Screen(["Difficulty", "PlayFriends", "SearchOpponent"][type - 1]);
       }
     });
   };
@@ -1549,7 +1552,27 @@
   const SearchOpponent = (data = {}) => {
     setHtml(
       $("#render"),
-      `<div class="ba df f a wi he">${Back()}Buscar oponente<button id=cancel>Cancelar</button></div>`
+      `<div class="ba df f a wi he"><div class="df a c f wi he">${Back()}${Logo()}
+      ${
+        data.createRoom
+          ? `<div ${inlineStyles({
+              width: "90%",
+            })}><fieldset class="df a c" ${inlineStyles({
+              "margin-top": 0,
+              "flex-direction": "column",
+            })}><legend>Play with Friends</legend><code ${inlineStyles({
+              "font-size": "50px",
+              "font-weight": "bold",
+              "margin-bottom": "10px",
+              "text-align": "center",
+            })}>${
+              data.friendRoom
+            }</code><button id=share class=mB ${inlineStyles({
+              "margin-bottom": "20px",
+            })}>Copy Code</button><p>Share this room code to play with your friend</p></fieldset></div>`
+          : `<div class="sop df a c f"><span>🧟</span><h2>FINDING OPPONENT...<h2></div>`
+      }
+      <button class=mB id=cancel>Cancel</button></div></div>`
     );
 
     const returnHome = () => {
@@ -1559,12 +1582,77 @@
 
     ["back", "cancel"].forEach((v) => $on($(`#${v}`), "click", returnHome));
 
+    if (data.createRoom) {
+      $on($("#share"), "click", () => {
+        copyToClipboard(`${location.href}?room=${data.friendRoom}`);
+        Modal.show({
+          icon: "👍",
+          txt: "<h2>Copied code</h2><p>The URL of the room has been copied into your clipboard</p>",
+          no: "",
+          yes: "Ok",
+          timer: 3000,
+        });
+      });
+    }
+
     // Configura la conexión del socket del juego...
     configureSocket(data);
   };
 
+  const PlayFriends = () => {
+    setHtml(
+      $("#render"),
+      `<div class="ba df f a wi he"><div class="df a c f wi he">${Back()}${Logo()}${[
+        {
+          legend: "Please enter the five room code",
+          html: `<form><input type="tel" id="code" autocomplete="off" maxlength="5"><button type="submit" class=mB>JOIN</button></form>`,
+        },
+        {
+          legend: "Create a private room",
+          html: `<button class=mB>CREATE</button>`,
+        },
+      ]
+        .map(
+          (v, i) =>
+            `<div id=f-${i} ${inlineStyles({
+              width: "80%",
+            })}><fieldset class="df a c"><legend>${v.legend}</legend>${
+              v.html
+            }</fieldset></div>${i === 0 ? "<h2>OR</h2>" : ""}`
+        )
+        .join("")}</div></div>`
+    );
+    $on($("#back"), "click", () => Screen());
+    // Para los eventos...
+    $on($("form"), "submit", (e) => {
+      e.preventDefault();
+      const value = $("#code").value;
+      if (isValidRoom(value)) {
+        Screen("SearchOpponent", {
+          friendRoom: value,
+          type: "friend",
+        });
+      } else {
+        Modal.show({
+          icon: "⚠️",
+          txt: "<h2>Invalid code</h2><p>The code of the room must be a number and five characters</p>",
+          no: "",
+          yes: "Ok",
+        });
+      }
+    });
+
+    $on($("#f-1 button"), "click", () => {
+      Screen("SearchOpponent", {
+        createRoom: true,
+        friendRoom: randomNumber(10000, 99999),
+        type: "friend",
+      });
+    });
+  };
+
   const Screen = (screen = "Lobby", params = {}) => {
-    const Handler = { Game, Lobby, SearchOpponent, Difficulty };
+    const Handler = { Game, Lobby, SearchOpponent, PlayFriends, Difficulty };
     Handler[screen](params);
   };
 
@@ -1586,7 +1674,14 @@
       socket.emit("nU", { ...options, player: { name, token } }, (error) => {
         if (error) {
           disconnectSocket();
-          console.log("Error de conexión...");
+          Screen();
+          Modal.show({
+            icon: "⚠️",
+            txt: `<h2>${error}</h2>`,
+            no: "",
+            yes: "Ok",
+            timer: 4000,
+          });
         }
       });
     });
@@ -1605,7 +1700,6 @@
 
     socket.on("sG", (data) => Screen("Game", data));
   };
-  // fin código de los sockets
 
   const { fn: onWindowResize } = debounce(
     () =>

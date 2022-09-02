@@ -2,6 +2,10 @@
   --b: #000;
   --i: #fff;
   --a: linear-gradient(to top, #000428, #004e92);
+  --s-c: #08457b;
+  --e:#4074b5;
+  --p-a: linear-gradient(to bottom,  #f6e6b4 0%,#ed9017 100%);
+  --p-b: #08143a;
 }
 
 /* Estilos globales */
@@ -19,6 +23,7 @@ body {
   position: fixed;
   -webkit-user-select: none;
   user-select: none;
+  color: var(--i);
 }
 
 div {
@@ -77,14 +82,12 @@ div {
 }
 
 board {
-  --s-c: #08457b;
   overflow: hidden;
   cursor: pointer;
   width: var(--w);
   height: var(--w);
   position: relative;
   background: #005695;
-  /* box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset; */
   box-shadow: rgba(6, 24, 44, 0.4) 0px 0px 0px 2px, rgba(6, 24, 44, 0.65) 0px 4px 6px -1px, rgba(255, 255, 255, 0.08) 0px 1px 0px inset;
   -webkit-tap-highlight-color: transparent;
   background-image: linear-gradient(
@@ -137,7 +140,6 @@ item {
   height: var(--db);
   pointer-events: none;
   position: absolute;
-  /* transition: all 0.2s ease-out; */
   transition: all 0.2s cubic-bezier(0.86, -0.02, 0.45, 1.35);
   width: var(--db);
   opacity: 1;
@@ -166,7 +168,6 @@ item.v {
 
 /* Para el label de vida extra */
 .extra {
-  --e:#4074b5;
   position: absolute;
   pointer-events: none;
   width: var(--db);
@@ -178,7 +179,6 @@ item.v {
   transform: scale(0);
   opacity: 0;
   transition: all 0.3s ease-out;
-  /* transition: all 0.5s cubic-bezier(0.86, -0.02, 0.45, 1.35); */
   text-shadow: 2px 2px 0 var(--e), 2px -2px 0 var(--e), -2px 2px 0 var(--e), -2px -2px 0 var(--e), 2px 0px 0 var(--e), 0px 2px 0 var(--e), -2px 0px 0 var(--e), 0px -2px 0 var(--e);
 }
 
@@ -203,18 +203,15 @@ top {
 /* Para el score */
 .sc {
   position: absolute;
-  /* border: 1px solid green; */
   top: 20px;
 }
 
 .scn {
-  width: 180px;
+  width: 190px;
   height: 65px;
   background: #062d53;
   border-radius: 10px;
   padding: 10px;
-  /* box-shadow: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px; */
-  /* outline: 2px solid black; */
 }
 
 .scv {
@@ -230,42 +227,32 @@ top {
   margin-right: 10px;
 }
 
-/* temporal */
-/* .scv:last-child {
-  background: #ff0000;
-} */
-
 .sci {
   background: #062d53;
   border-radius: 10px;
   padding: 8px;
   color: var(--i);
-  /* box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px; */
-  /* box-shadow: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px; */
 }
 
 .scin {
-  width: 25px;
-  height: 25px;
+  width: 23px;
+  height: 23px;
   border-radius: 50%;
-  border: 1px solid var(--i);
+  outline: 2px solid var(--i);
   text-align: center;
-  line-height: 25px;
-  font-size: 12px;
+  line-height: 23px;
+  font-size: 13px;
   font-weight: bold;
   transition: all 0.2s ease-out;
   opacity: 0.2;
-  /* box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px; */
 }
 
 .scin.ac {
   background: #feae13;
-  border-width: 2px;
   color: var(--i);
   opacity: 1;
 }
 
-/* Para el progreso y los emojis que se "enfrentan" */
 .tu {
   position: absolute;
   bottom: 0;
@@ -294,15 +281,12 @@ top {
 }
 
 .tuna {
-  /* background: linear-gradient(to top, #ef473a, #cb2d3e);; */
   text-align: center;
-  background: #08143a;
-  color: white;
+  color: var(--i);
   width: 100px;
   height: 43px;
   border-radius: 10px;
-  border: 2px solid white;
-  /* box-shadow: rgb(0 0 0 / 16%) 0px 1px 4px, rgb(214 204 204) 0px 0px 0px 3px; */
+  border: 3px solid var(--i);
 }
 
 
@@ -313,8 +297,6 @@ top {
 }
 
 progress {
-  --p-a: linear-gradient(to bottom,  #f6e6b4 0%,#ed9017 100%);
-  --p-b: #08143a;
   height: 25px;
   background: var(--p-b);
   position: relative;
@@ -350,69 +332,7 @@ progress::-webkit-progress-bar {
   margin: 5px;
 }
 
-
-
 /* Estilo para los botones... */
-/* .mB {
-  background-image: linear-gradient(-180deg, #FF7E31, #E62C03);
-  border-radius: 6px;
-  box-shadow: rgba(0, 0, 0, 0.1) 0 2px 4px;
-  color: #FFFFFF;
-  cursor: pointer;
-  padding: 0 20px;
-  width: 100%;
-  border: 0;
-}
-
-.mB:hover {
-  box-shadow: rgba(253, 76, 0, 0.5) 0 3px 8px;
-} */
-
-/* .mB {
-  display: inline-block;
-  outline: 0;
-  border: none;
-  cursor: pointer;
-  padding: 0 24px;
-  border-radius: 50px;
-  min-width: 200px;
-  height: 50px;
-  font-size: 18px;
-  background-color: #fd0;
-  font-weight: 500;
-  color: #222;
-} */
-
-
-/* .mB {
-  display: inline-block;
-  outline: 0;
-  border: 0;
-  cursor: pointer;
-  transition: box-shadow 0.15s ease,transform 0.15s ease;
-  will-change: box-shadow,transform;
-  background: #FCFCFD;
-  box-shadow: 0px 2px 4px rgb(45 35 66 / 40%), 0px 7px 13px -3px rgb(45 35 66 / 30%), inset 0px -3px 0px #d6d6e7;
-  height: 48px;
-  padding: 0 32px;
-  font-size: 18px;
-  border-radius: 6px;
-  color: #36395a;
-  transition: box-shadow 0.15s ease,transform 0.15s ease;
-}
-
-.mB:hover {
-    box-shadow: 0px 4px 8px rgb(45 35 66 / 40%), 0px 7px 13px -3px rgb(45 35 66 / 30%), inset 0px -3px 0px #d6d6e7;
-    transform: translateY(-2px);
-}
-.mB:active{
-    box-shadow: inset 0px 3px 7px #d6d6e7;
-    transform: translateY(2px);
-} */
-
-
-
-
 .mB {
   cursor: pointer;
   font-size: 16px;
@@ -427,24 +347,22 @@ progress::-webkit-progress-bar {
 
 
 /* Para el logo */
-/* .lg {
-  border: 1px solid red;
-} */
+.lg {
+  padding: 20px;
+}
 
 .lg h1 {
-  color: white;
   font-size: 50px;
   font-weight: bold;
   margin: 20px;
-  color: #FFFFFF;
-  text-shadow: 0 -1px 4px #FFF, 0 -2px 10px #ff0, 0 -10px 20px #ff8000, 0 -18px 40px #F00;
+  color: var(--i);
+  text-shadow: 0 -1px 4px var(--i), 0 -2px 10px #ff0, 0 -10px 20px #ff8000, 0 -18px 40px #F00;
   width: 50%;
   text-align: center;
 }
 
 /* Listado de botones del lobby */
 .mBs {
-  /* border: 1px solid red; */
   width: 60%;
 }
 
@@ -453,32 +371,17 @@ progress::-webkit-progress-bar {
   height: 55px;
 }
 
-
-/* .lg span {
-  width: 80px;
-  height: 80px;
-  line-height: 80px;
-  text-align: center;
-  font-size: 3.5em;
-  border-radius: 50%;
-  border: 5px solid white;
-} */
-
-/* CSS */
-
-
-
-
 /* Para el botón back */
 #back {
   cursor: pointer;
   position: absolute;
-  left: 3%;
-  top: 1%;
-  font-size: 1.8em;
+  left: 15px;
+  top: 15px;
+  font-size: 2em;
   z-index: 1;
-  background-color: transparent;
+  background: transparent;
   border: none;
+  text-shadow: 0px 0px 9px var(--b);
 }
 
 /* Para los mensajes del board... */
@@ -581,21 +484,10 @@ modal.hide .mc {
 }
 
 /* fin estilos del modal */
-
-/* Para el nombre del usuario... */
-/* #nuse {
-  cursor: pointer;
-  margin: 20px;
-  font-size: 18px;
-  padding: 15px;
-  background: #1cb2ff;
-  color: var(--i);
-  border: none;
-  width: 45%;
-  border-radius: 5px;
-  box-shadow: rgba(0, 0, 0, 0.25) 0px 14px 28px, rgba(0, 0, 0, 0.22) 0px 10px 10px;
-  position: relative;
-} */
+.wnuse {
+  position: absolute;
+  top: 0;
+}
 
 #nuse {
   margin: 30px;
@@ -609,4 +501,55 @@ modal.hide .mc {
   left: -40px;
   font-size: 4.4em;
   top: 13px;
+}
+
+fieldset {
+  border-radius: 10px;
+  border: 3px solid #ffffff2e;
+  padding: 20px;
+  margin: 30px 0;
+}
+
+fieldset form {
+  display: flex;
+}
+
+#code {
+  border-radius: 10px;
+  border: none;
+  font-size: 30px;
+  margin-right: 10px;
+  text-align: center;
+  width: 65%;
+}
+
+.sop {
+  width: 80%;
+}
+
+.sop span {
+  font-size: 8.5em;
+}
+
+.sop h2 {
+  font-size: 25px;
+  margin: 15px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.ab {
+  width: 80%;
+  margin: 10px;
+  text-align: center;
+  font-size: 20px;
+}
+
+a {
+  color: var(--i);
+  font-weight: bold;
+}
+
+a:visited {
+  color: var(--i);
 }
