@@ -1,7 +1,114 @@
+// Librería zzfx para los sonidos
+let zzfx, zzfxV, zzfxX, zzfxR;
+(zzfxV = 0.3),
+  (zzfx = (
+    z = 1,
+    t = 0.05,
+    f = 220,
+    x = 0,
+    a = 0,
+    e = 0.1,
+    n = 0,
+    h = 1,
+    M = 0,
+    R = 0,
+    i = 0,
+    r = 0,
+    s = 0,
+    o = 0,
+    u = 0,
+    c = 0,
+    d = 0,
+    X = 1,
+    b = 0,
+    w = 0
+  ) => {
+    let l,
+      m,
+      C = 2 * Math.PI,
+      V = (M *= (500 * C) / zzfxR ** 2),
+      A = ((0 < u ? 1 : -1) * C) / 4,
+      B = (f *= ((1 + 2 * t * Math.random() - t) * C) / zzfxR),
+      I = [],
+      P = 0,
+      g = 0,
+      k = 0,
+      D = 1,
+      S = 0,
+      j = 0,
+      p = 0;
+    for (
+      R *= (500 * C) / zzfxR ** 3,
+        u *= C / zzfxR,
+        i *= C / zzfxR,
+        r *= zzfxR,
+        s = (zzfxR * s) | 0,
+        m =
+          ((x = 99 + zzfxR * x) +
+            (b *= zzfxR) +
+            (a *= zzfxR) +
+            (e *= zzfxR) +
+            (d *= zzfxR)) |
+          0;
+      k < m;
+      I[k++] = p
+    )
+      ++j % ((100 * c) | 0) ||
+        ((p = n
+          ? 1 < n
+            ? 2 < n
+              ? 3 < n
+                ? Math.sin((P % C) ** 3)
+                : Math.max(Math.min(Math.tan(P), 1), -1)
+              : 1 - (((((2 * P) / C) % 2) + 2) % 2)
+            : 1 - 4 * Math.abs(Math.round(P / C) - P / C)
+          : Math.sin(P)),
+        (p =
+          (s ? 1 - w + w * Math.sin((2 * Math.PI * k) / s) : 1) *
+          (0 < p ? 1 : -1) *
+          Math.abs(p) ** h *
+          z *
+          zzfxV *
+          (k < x
+            ? k / x
+            : k < x + b
+            ? 1 - ((k - x) / b) * (1 - X)
+            : k < x + b + a
+            ? X
+            : k < m - d
+            ? ((m - k - d) / e) * X
+            : 0)),
+        (p = d
+          ? p / 2 +
+            (d > k ? 0 : ((k < m - d ? 1 : (m - k) / d) * I[(k - d) | 0]) / 2)
+          : p)),
+        (P +=
+          (l = (f += M += R) * Math.sin(g * u - A)) -
+          l * o * (1 - ((1e9 * (Math.sin(k) + 1)) % 2))),
+        (g += l - l * o * (1 - ((1e9 * (Math.sin(k) ** 2 + 1)) % 2))),
+        D && ++D > r && ((f += i), (B += i), (D = 0)),
+        !s || ++S % s || ((f = B), (M = V), (D = D || 1));
+    return (
+      (z = zzfxX.createBuffer(1, m, zzfxR)).getChannelData(0).set(I),
+      ((f = zzfxX.createBufferSource()).buffer = z),
+      f.connect(zzfxX.destination),
+      f.start(),
+      f
+    );
+  }),
+  (zzfxX = new (window.AudioContext || webkitAudioContext)()),
+  (zzfxR = 44100);
 (() => {
   // Utilidades
   const CACHE_KEY = "death-match";
   const COLOR = { b: "#1e90ff", r: "#e91e63" };
+  const SOUNDS = {
+    swipe: [,,150,.05,,.05,,1.3,,,,,,3],
+    bomb: [,,333,.01,0,.9,4,1.9,,,,,,.5,,.6],
+    extra: [,,20,.04,,.6,,1.31,,,-990,.06,.17,,,.04,.07],
+    counter: [,.1,75,.03,.08,.17,1,1.88,7.83,,,,,.4],
+    turn: [,.5,847,.02,.3,.9,1,1.67,,,-294,.04,.13,,,,.1],
+  };
   const $ = document.querySelector.bind(document);
   const $$ = document.querySelectorAll.bind(document);
   $(
@@ -17,9 +124,32 @@
   let socket;
   let connectedSocket = false;
 
+  /**
+   * Devuelve un query parametro de la url...
+   * @param {*} param
+   * @returns
+   */
+  const getUrlParams = (param = "") =>
+    new URLSearchParams(location.search).get(param);
+  /**
+   * Dado un texto lo guarda en el clipboard...
+   * @param {*} text
+   * @returns
+   */
   const copyToClipboard = (text = "") => navigator.clipboard.writeText(text);
+
+  /**
+   * Valida si el valor de una sala es válida...
+   * @param {*} value
+   * @returns
+   */
   const isValidRoom = (value) => /^\d+$/.test(value) && value.length === 5;
 
+  /**
+   * Elimina caracteres especiales de un texto...
+   * @param {*} input
+   * @returns
+   */
   const sanizateTags = (input) =>
     input ? input.replace(/<\/?[^>]+(>|$)/g, "") : "";
   /**
@@ -173,6 +303,10 @@
     }
 
     return newValue;
+  };
+
+  const playSound = (type = "") => {
+    zzfx(...SOUNDS[type]);
   };
 
   /**
@@ -397,6 +531,10 @@
       blockBoard(true, true);
       progress?.pause();
       $("progress").value = 100;
+
+      if (validateRounds + 1 <= maxRounds) {
+        playSound("turn");
+      }
 
       if (playerHasTurn === initialPlayerTurn) {
         validateRounds++;
@@ -819,6 +957,7 @@
      * @param {*} col
      */
     const renderExtraMove = async (row = 0, col = 0) => {
+      playSound("extra");
       const element = document.createElement("div");
       const id = `ex-${randomNumber(1, 1000)}`;
       element.innerHTML = "EXTRA MOVE!";
@@ -1027,6 +1166,7 @@
         copyBoard = onlineMoves.copyBoard;
       }
 
+      playSound("bomb");
       // Caída...
       for (let i = 0; i < SIZE; i++) {
         for (let c = 0; c < SIZE; c++) {
@@ -1102,6 +1242,7 @@
      */
     const validateClick = (element = {}) => {
       if (itemIsPrize(element?.v)) {
+        playSound("swipe");
         userData[playerHasTurn].m--;
         showMovements();
         removeAnimateBoardElements(
@@ -1117,6 +1258,7 @@
      */
     const validateMove = async (move = []) => {
       // Se bloquea el board...
+      playSound("swipe");
       blockBoard(true);
       // Cambia la posición de las figuras..
       changePositionElements(move);
@@ -1351,11 +1493,13 @@
         .flat()
     );
 
+    playSound("counter");
     const initialCounter = 3;
     setHtml($("#ov"), initialCounter);
     const initialTimer = chronometer(
       (counter) => {
         setHtml($("#ov"), counter);
+        playSound("counter");
         if (counter === 0) {
           $("#ov").remove();
           validateTurn(true);
@@ -1732,8 +1876,24 @@
     `${Modal.render()}<div id="render" class="df c wi he"></div>`
   );
   Modal.events();
-  Screen();
   $on(document, "contextmenu", (event) => event.preventDefault());
   $on(window, "resize", onWindowResize);
+
+  // Extraer la información de la url por si se ha compartido una sala...
+  const initialScreen = { s: "Lobby", p: {} };
+  const roomUrl = getUrlParams("room");
+  if (roomUrl) {
+    if (isValidRoom(roomUrl)) {
+      initialScreen.s = "SearchOpponent";
+      initialScreen.p = { friendRoom: roomUrl, type: "friend" };
+    }
+
+    history.replaceState(
+      {},
+      document.title,
+      location.protocol + "//" + location.host + location.pathname
+    );
+  }
+  Screen(initialScreen.s, initialScreen.p);
   onWindowResize();
 })();
