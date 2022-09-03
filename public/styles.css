@@ -59,11 +59,13 @@ div {
   height: 100%;
 }
 
+.pr {
+  position: relative;
+}
+
 #root {
   height: var(--h);
-  justify-content: center;
   overflow: hidden;
-  position: relative;
   width: var(--w);
 }
 
@@ -86,7 +88,6 @@ board {
   cursor: pointer;
   width: var(--w);
   height: var(--w);
-  position: relative;
   background: #005695;
   box-shadow: rgba(6, 24, 44, 0.4) 0px 0px 0px 2px, rgba(6, 24, 44, 0.65) 0px 4px 6px -1px, rgba(255, 255, 255, 0.08) 0px 1px 0px inset;
   -webkit-tap-highlight-color: transparent;
@@ -198,7 +199,6 @@ item.v {
 
 top {
   height: calc(var(--h) - var(--w) - 20px);
-  position: relative;
 }
 /* Para el score */
 .sc {
@@ -293,13 +293,11 @@ top {
 /* La barra de progreso */
 .tup {
   padding: 10px;
-  position: relative;
 }
 
 progress {
   height: 25px;
   background: var(--p-b);
-  position: relative;
 }
 
 progress::-moz-progress-bar {
@@ -372,7 +370,7 @@ progress::-webkit-progress-bar {
 }
 
 /* Para el botón back */
-#back {
+#back, #bso {
   cursor: pointer;
   position: absolute;
   left: 15px;
@@ -382,6 +380,11 @@ progress::-webkit-progress-bar {
   background: transparent;
   border: none;
   text-shadow: 0px 0px 9px var(--b);
+}
+
+#bso {
+  left: unset;
+  right: 15px;
 }
 
 /* Para los mensajes del board... */
@@ -491,7 +494,6 @@ modal.hide .mc {
 
 #nuse {
   margin: 30px;
-  position: relative;
   width: 40%;
 }
 
@@ -523,7 +525,7 @@ fieldset form {
   width: 65%;
 }
 
-.sop {
+.sop, .soh {
   width: 80%;
 }
 
@@ -536,6 +538,11 @@ fieldset form {
   margin: 15px;
   text-align: center;
   font-weight: bold;
+}
+
+.soh {
+  text-align: center;
+  margin-top: 25px;
 }
 
 .ab {
@@ -552,4 +559,35 @@ a {
 
 a:visited {
   color: var(--i);
+}
+
+.eg h2 {
+  font-size: 50px;
+}
+
+.eg span {
+  font-size: 5em;
+  margin: 25px;
+}
+
+.egp {
+  border-radius: 10px;
+  border: 3px solid var(--i);
+  box-shadow: rgba(0, 0, 0, 0.2) 0px 60px 40px -7px;
+  margin-bottom: 70px;
+  padding: 10px;
+  width: 80%;
+}
+
+.egu {
+  text-align: center;
+}
+
+.egn {
+  font-size: 20px;
+}
+
+.egu {
+  font-size: 50px;
+  font-weight: bold;
 }

@@ -107,7 +107,9 @@ let zzfx, zzfxV, zzfxX, zzfxR;
     bomb: [,,333,.01,0,.9,4,1.9,,,,,,.5,,.6],
     extra: [,,20,.04,,.6,,1.31,,,-990,.06,.17,,,.04,.07],
     counter: [,.1,75,.03,.08,.17,1,1.88,7.83,,,,,.4],
-    turn: [,.5,847,.02,.3,.9,1,1.67,,,-294,.04,.13,,,,.1],
+    turn: [,,80,.3,.4,.7,2,.1,-0.73,3.42,-430,.09,.17,,,,.19],
+    lose: [,,925,.04,.3,.6,1,.3,,6.27,-184,.09,.17],
+    win: [,,172,.8,,.8,1,.76,7.7,3.73,-482,.08,.15,,.14],
   };
   const $ = document.querySelector.bind(document);
   const $$ = document.querySelectorAll.bind(document);
@@ -305,8 +307,11 @@ let zzfx, zzfxV, zzfxX, zzfxR;
     return newValue;
   };
 
+  let localSound = getValueFromCache("sound", "yes") === "yes";
   const playSound = (type = "") => {
-    zzfx(...SOUNDS[type]);
+    if(localSound) {
+      zzfx(...SOUNDS[type]);
+    }
   };
 
   /**
@@ -367,6 +372,7 @@ let zzfx, zzfxV, zzfxX, zzfxR;
       .join("");
 
   const Back = () => `<button id=back>⬅️</button>`;
+  const Sound = () => `<button id=bso>${localSound ? "🔈" : "🔇"}</button>`;
 
   /**
    * Renderiza el modal del juego
@@ -532,10 +538,6 @@ let zzfx, zzfxV, zzfxX, zzfxR;
       progress?.pause();
       $("progress").value = 100;
 
-      if (validateRounds + 1 <= maxRounds) {
-        playSound("turn");
-      }
-
       if (playerHasTurn === initialPlayerTurn) {
         validateRounds++;
         if (validateRounds <= maxRounds) {
@@ -562,6 +564,7 @@ let zzfx, zzfxV, zzfxX, zzfxR;
       }
 
       if (validateRounds <= maxRounds) {
+        playSound("turn");
         const txtTurn =
           playerHasTurn === "one" ? "Your Turn" : "Opponent's Turn";
         setHtml($("#tupl"), txtTurn);
@@ -578,27 +581,11 @@ let zzfx, zzfxV, zzfxX, zzfxR;
           playIA();
         }
       } else {
-        const txtType = {
-          tie: ["it's a tie!", "👐"],
-          win: ["You win!", "✌️"],
-          lose: ["You lost!", "😔"],
-        };
-        const p1 = userData.one.p;
-        const p2 = userData.two.p;
-        const result = p1 === p2 ? "tie" : p1 > p2 ? "win" : "lose";
-        Modal.show({
-          icon: txtType[result][1],
-          txt: `<h2>${txtType[result][0]}</h2>`,
-          no: "",
-          yes: "OK",
-          cb() {
-            exitGame();
-          },
-        });
-
         if (typeGame === 3 && playerHasTurn === "one") {
           socket.emit("action", { room, type: "end" });
         }
+        await delay(500)
+        exitGame("EndGame");
       }
     };
 
@@ -1042,6 +1029,8 @@ let zzfx, zzfxV, zzfxX, zzfxR;
         userData[playerHasTurn].p
       );
 
+      playSound("bomb");
+
       // Ahora se debe traer la cantidad de elementos que hay en el board...
       // Para así determinar cuales no se deben mostrar en la nueva board...
       // const BOARD_ELEMENTS = ["💀", "🔥", "🧛", "🧟‍♂️", "👹"];
@@ -1166,7 +1155,6 @@ let zzfx, zzfxV, zzfxX, zzfxR;
         copyBoard = onlineMoves.copyBoard;
       }
 
-      playSound("bomb");
       // Caída...
       for (let i = 0; i < SIZE; i++) {
         for (let c = 0; c < SIZE; c++) {
@@ -1352,15 +1340,15 @@ let zzfx, zzfxV, zzfxX, zzfxR;
       )}</div>${Names(
         userData.two.n,
         2
-      )}</div><div class="tup wi"><progress class="wi" value="100" max="100"></progress><div class="wi" id="tupl"></div></div></div>`;
+      )}</div><div class="tup pr wi"><progress class="wi pr" value="100" max="100"></progress><div class="wi" id="tupl"></div></div></div>`;
     };
 
     // Renderizar la parte superior del juego...
     const RenderTop = () =>
-      `<top class="wi">${RenderScore()}${RenderTurn()}</top>`;
+      `<top class="wi pr">${RenderScore()}${RenderTurn()}</top>`;
 
     const RenderBoard = () =>
-      `<board>${BOARD.map((cell) =>
+      `<board class="pr">${BOARD.map((cell) =>
         cell
           .map(
             (v) =>
@@ -1378,7 +1366,7 @@ let zzfx, zzfxV, zzfxX, zzfxR;
     // Renderizar el UI...
     setHtml(
       $("#render"),
-      `<div class="ba df f wi he">${Messages()}${Overlay()}${Back()}${RenderTop()}${RenderBoard()}</div>`
+      `<div class="ba df f wi he">${Messages()}${Overlay()}${Back()}${Sound()}${RenderTop()}${RenderBoard()}</div>`
     );
 
     /**
@@ -1509,7 +1497,7 @@ let zzfx, zzfxV, zzfxX, zzfxR;
     );
     initialTimer.start();
 
-    const exitGame = () => {
+    const exitGame = (screen = "Lobby") => {
       if (typeGame === 3) {
         disconnectSocket();
       }
@@ -1517,7 +1505,7 @@ let zzfx, zzfxV, zzfxX, zzfxR;
       initialTimer.pause();
       progress?.pause();
       progress = null;
-      Screen();
+      Screen(screen, userData);
     };
 
     $on($("#back"), "click", () =>
@@ -1531,6 +1519,12 @@ let zzfx, zzfxV, zzfxX, zzfxR;
         },
       })
     );
+
+    $on($("#bso"), "click", () => {
+      localSound = !localSound;
+      savePropierties("sound", localSound ? "yes" : "no");
+      setHtml($("#bso"), localSound ? "🔈" : "🔇");
+    });
 
     // Es online...
     if (typeGame === 3 && connectedSocket && socket && progress) {
@@ -1631,9 +1625,43 @@ let zzfx, zzfxV, zzfxX, zzfxR;
   const Logo = () => `<div class="lg df a c f"><h1>DEATH MATCH</h1></div>`;
 
   const UserName = () =>
-    `<div class="wnuse wi df a c"><button class=mB id=nuse>${
+    `<div class="wnuse wi df a c"><button class="mB pr" id=nuse>${
       getUser()[0]
     }</button></div>`;
+
+
+    const EndGame = (data) => {
+      const txtType = {
+        tie: ["IT'S A TIE!", "👻"],
+        win: ["YOU WIN!", "🏆"],
+        lose: ["YOU LOST!", "☠️"],
+      };
+      const p1 = data.one.p;
+      const p2 = data.two.p;
+      const result = p1 === p2 ? "tie" : p1 > p2 ? "win" : "lose";
+      playSound(p1 === p2 || p1 > p2 ? "win" : "lose")
+      setHtml(
+        $("#render"),
+        `<div class="ba df f a wi he">
+         <div class="eg df a c f wi he">
+          ${Back()}${Logo()}
+          <h2>${txtType[result][0]}</h2>
+          <span>${txtType[result][1]}</span>
+          <div class="egp df a c">
+          ${newArray(
+            2,
+            (i) => `<div class="egu wi"><div class=egn>${data[!i ? "one" : "two"].n}</div><div class=egu ${inlineStyles({color: data[!i ? "one" : "two"].c })}>${data[!i ? "one" : "two"].p}</div>
+          </div>`
+          )}
+          </div>
+          <button class=mB id=cancel>HOME</button>
+        </div>
+        </div>`
+      );
+
+    ["back", "cancel"].forEach((v) => $on($(`#${v}`), "click", () => Screen()));
+
+  };
 
   const Difficulty = () => {
     setHtml(
@@ -1714,9 +1742,9 @@ let zzfx, zzfxV, zzfxX, zzfxR;
             }</code><button id=share class=mB ${inlineStyles({
               "margin-bottom": "20px",
             })}>Copy Code</button><p>Share this room code to play with your friend</p></fieldset></div>`
-          : `<div class="sop df a c f"><span>🧟</span><h2>FINDING OPPONENT...<h2></div>`
+          : `<div class="sop df a c f"><span>🧟</span><h2>FINDING OPPONENT...</h2></div>`
       }
-      <button class=mB id=cancel>Cancel</button></div></div>`
+      <button class=mB id=cancel>Cancel</button><p class=soh>💡 Tip: If you want to play with yourself open a private browsing (to simulate another user)</p></div></div>`
     );
 
     const returnHome = () => {
@@ -1796,7 +1824,7 @@ let zzfx, zzfxV, zzfxX, zzfxR;
   };
 
   const Screen = (screen = "Lobby", params = {}) => {
-    const Handler = { Game, Lobby, SearchOpponent, PlayFriends, Difficulty };
+    const Handler = { Game, EndGame, Lobby, SearchOpponent, PlayFriends, Difficulty };
     Handler[screen](params);
   };
 
