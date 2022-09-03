@@ -103,13 +103,13 @@ let zzfx, zzfxV, zzfxX, zzfxR;
   const CACHE_KEY = "death-match";
   const COLOR = { b: "#1e90ff", r: "#e91e63" };
   const SOUNDS = {
-    swipe: [,,150,.05,,.05,,1.3,,,,,,3],
-    bomb: [,,333,.01,0,.9,4,1.9,,,,,,.5,,.6],
-    extra: [,,20,.04,,.6,,1.31,,,-990,.06,.17,,,.04,.07],
-    counter: [,.1,75,.03,.08,.17,1,1.88,7.83,,,,,.4],
-    turn: [,,80,.3,.4,.7,2,.1,-0.73,3.42,-430,.09,.17,,,,.19],
-    lose: [,,925,.04,.3,.6,1,.3,,6.27,-184,.09,.17],
-    win: [,,172,.8,,.8,1,.76,7.7,3.73,-482,.08,.15,,.14],
+    swipe: [, , 150, 0.05, , 0.05, , 1.3, , , , , , 3],
+    bomb: [, , 333, 0.01, 0, 0.9, 4, 1.9, , , , , , 0.5, , 0.6],
+    extra: [, , 20, 0.04, , 0.6, , 1.31, , , -990, 0.06, 0.17, , , 0.04, 0.07],
+    counter: [, 0.1, 75, 0.03, 0.08, 0.17, 1, 1.88, 7.83, , , , , 0.4],
+    turn: [, , 539, 0, 0.04, 0.29, 1, 1.92, , , 567, 0.02, 0.02, , , , 0.04],
+    lose: [, , 925, 0.04, 0.3, 0.6, 1, 0.3, , 6.27, -184, 0.09, 0.17],
+    win: [, , 172, 0.8, , 0.8, 1, 0.76, 7.7, 3.73, -482, 0.08, 0.15, , 0.14],
   };
   const $ = document.querySelector.bind(document);
   const $$ = document.querySelectorAll.bind(document);
@@ -308,11 +308,7 @@ let zzfx, zzfxV, zzfxX, zzfxR;
   };
 
   let localSound = getValueFromCache("sound", "yes") === "yes";
-  const playSound = (type = "") => {
-    if(localSound) {
-      zzfx(...SOUNDS[type]);
-    }
-  };
+  const playSound = (type = "") => localSound && zzfx(...SOUNDS[type]);
 
   /**
    * Crear un intervalo de tiempo...
@@ -412,7 +408,7 @@ let zzfx, zzfxV, zzfxX, zzfxR;
       }
     },
     render: () =>
-      `<modal class="hide wi he"><div class="ms wi he"></div><div class="df a c mw wi he"><div class=mc><div class="df a wi he txt"></div><div class="df mb wi he">${newArray(
+      `<modal class="hide wi he pa"><div class="ms wi he"></div><div class="df a c mw wi he"><div class=mc><div class="df a wi he txt"></div><div class="df mb wi he">${newArray(
         2,
         (i) => `<button id=btn${i + 1}></button>`
       )}</div></div></div></modal>`,
@@ -457,7 +453,6 @@ let zzfx, zzfxV, zzfxX, zzfxR;
     ];
 
     let validateRounds = 0;
-    // 💀 ⚰️ ⚱️ 👻 🩸 🪓 💣 🚀 🔫 🦇 🎃 🗡️ 🔥 💉 🧨 🕯️ 🧟‍♂️ 😈
     const indexCurrentUser = users.users.findIndex(
       (v) => v[1] === getUser()[1]
     );
@@ -565,8 +560,9 @@ let zzfx, zzfxV, zzfxX, zzfxR;
 
       if (validateRounds <= maxRounds) {
         playSound("turn");
-        const txtTurn =
-          playerHasTurn === "one" ? "Your Turn" : "Opponent's Turn";
+        const txtTurn = `${
+          playerHasTurn === "one" ? "Your" : "Opponent's"
+        }  Turn`;
         setHtml($("#tupl"), txtTurn);
         turnsMessage(txtTurn, true);
         await delay(1000);
@@ -584,7 +580,7 @@ let zzfx, zzfxV, zzfxX, zzfxR;
         if (typeGame === 3 && playerHasTurn === "one") {
           socket.emit("action", { room, type: "end" });
         }
-        await delay(500)
+        await delay(500);
         exitGame("EndGame");
       }
     };
@@ -948,7 +944,7 @@ let zzfx, zzfxV, zzfxX, zzfxR;
       const element = document.createElement("div");
       const id = `ex-${randomNumber(1, 1000)}`;
       element.innerHTML = "EXTRA MOVE!";
-      element.className = "df a c extra";
+      element.className = "df a c pa extra";
       const posiblePositions = [
         [-1, -1],
         [1, -1],
@@ -1305,7 +1301,7 @@ let zzfx, zzfxV, zzfxX, zzfxR;
     };
 
     const RenderScore = () =>
-      `<div class="sc df a c f wi"><div class="scn"><div class="df wi he">${newArray(
+      `<div class="sc df a c f wi pa"><div class="scn"><div class="df wi he">${newArray(
         2,
         (i) =>
           `<div class="scv df a c" id=scv-${i + 1} ${inlineStyles({
@@ -1313,7 +1309,7 @@ let zzfx, zzfxV, zzfxX, zzfxR;
           })}>0</div>`
       )}</div><div class="sci wi df a s">${newArray(
         maxRounds,
-        (i) => `<div class=scin id=in-${i + 1}>${i + 1}</div>`
+        (i) => `<div class="scin df a c" id=in-${i + 1}>${i + 1}</div>`
       )}</div></div></div>`;
 
     // Your Turn - Opponent's Turn
@@ -1332,7 +1328,7 @@ let zzfx, zzfxV, zzfxX, zzfxR;
             })}></div>`
         );
 
-      return `<div class="tu wi"><div class="tun df a s wi">${Names(
+      return `<div class="tu wi pa"><div class="tun df a s wi">${Names(
         userData.one.n
       )}<div class="df">${newArray(
         2,
@@ -1340,7 +1336,7 @@ let zzfx, zzfxV, zzfxX, zzfxR;
       )}</div>${Names(
         userData.two.n,
         2
-      )}</div><div class="tup pr wi"><progress class="wi pr" value="100" max="100"></progress><div class="wi" id="tupl"></div></div></div>`;
+      )}</div><div class="tup pr wi"><progress class="wi pr" value="100" max="100"></progress><div class="wi pa" id="tupl"></div></div></div>`;
     };
 
     // Renderizar la parte superior del juego...
@@ -1352,7 +1348,7 @@ let zzfx, zzfxV, zzfxX, zzfxR;
         cell
           .map(
             (v) =>
-              `<item class="df a c" id="t-${`${v.i}`}" ${inlineStyles({
+              `<item class="df a c pa" id="t-${`${v.i}`}" ${inlineStyles({
                 left: `${v.l}px`,
                 top: `${v.t}px`,
               })}>${BOARD_ELEMENTS[v.v - 1]}</item>`
@@ -1360,8 +1356,8 @@ let zzfx, zzfxV, zzfxX, zzfxR;
           .join("")
       ).join("")}</board>`;
 
-    const Overlay = () => `<div class="df a c wi he" id=ov></div>`;
-    const Messages = () => `<div class="df a c wi" id=msb></div>`;
+    const Overlay = () => `<div class="df a c wi he pa" id=ov></div>`;
+    const Messages = () => `<div class="df a c wi pa" id=msb></div>`;
 
     // Renderizar el UI...
     setHtml(
@@ -1511,9 +1507,7 @@ let zzfx, zzfxV, zzfxX, zzfxR;
     $on($("#back"), "click", () =>
       Modal.show({
         icon: "⚠️",
-        txt: `<h2 ${inlineStyles({
-          "margin-bottom": "10px",
-        })}>Exit game</h2><p>Are you sure you want to exit the game?</p>`,
+        txt: "<p>Are you sure you want to exit the game?</p>",
         cb(answer) {
           if (answer) exitGame();
         },
@@ -1532,10 +1526,10 @@ let zzfx, zzfxV, zzfxX, zzfxR;
       socket.on("action", async (data) => {
         if (data.type === "leave") {
           Modal.show({
-            icon: "😩",
+            icon: "😢",
             txt: `<h2 ${inlineStyles({
               "margin-bottom": "10px",
-            })}>User disconnected</h2><p>Your partner has left the room</p>`,
+            })}>Partner offline</h2>`,
             no: "",
             yes: "Ok",
             timer: 3000,
@@ -1587,7 +1581,6 @@ let zzfx, zzfxV, zzfxX, zzfxR;
           if (data.type === "ack") {
             progress?.tick();
             classList($("board"), "w", "remove");
-            // inico
             const { itemsRemove, prizes } = validateMatch(BOARD);
             if (itemsRemove.length !== 0) {
               removeAnimateBoardElements(BOARD, itemsRemove, prizes);
@@ -1621,7 +1614,6 @@ let zzfx, zzfxV, zzfxX, zzfxR;
       $on(btn, "click", (e) => cb(+e.target.id.split("-")[1]))
     );
 
-  // <span>💀</span>
   const Logo = () => `<div class="lg df a c f"><h1>DEATH MATCH</h1></div>`;
 
   const UserName = () =>
@@ -1629,20 +1621,19 @@ let zzfx, zzfxV, zzfxX, zzfxR;
       getUser()[0]
     }</button></div>`;
 
-
-    const EndGame = (data) => {
-      const txtType = {
-        tie: ["IT'S A TIE!", "👻"],
-        win: ["YOU WIN!", "🏆"],
-        lose: ["YOU LOST!", "☠️"],
-      };
-      const p1 = data.one.p;
-      const p2 = data.two.p;
-      const result = p1 === p2 ? "tie" : p1 > p2 ? "win" : "lose";
-      playSound(p1 === p2 || p1 > p2 ? "win" : "lose")
-      setHtml(
-        $("#render"),
-        `<div class="ba df f a wi he">
+  const EndGame = (data) => {
+    const txtType = {
+      tie: ["IT'S A TIE!", "👻"],
+      win: ["YOU WIN!", "🏆"],
+      lose: ["YOU LOST!", "☠️"],
+    };
+    const p1 = data.one.p;
+    const p2 = data.two.p;
+    const result = p1 === p2 ? "tie" : p1 > p2 ? "win" : "lose";
+    playSound(p1 === p2 || p1 > p2 ? "win" : "lose");
+    setHtml(
+      $("#render"),
+      `<div class="ba df f a wi he">
          <div class="eg df a c f wi he">
           ${Back()}${Logo()}
           <h2>${txtType[result][0]}</h2>
@@ -1650,17 +1641,20 @@ let zzfx, zzfxV, zzfxX, zzfxR;
           <div class="egp df a c">
           ${newArray(
             2,
-            (i) => `<div class="egu wi"><div class=egn>${data[!i ? "one" : "two"].n}</div><div class=egu ${inlineStyles({color: data[!i ? "one" : "two"].c })}>${data[!i ? "one" : "two"].p}</div>
+            (i) => `<div class="egu wi"><div class=egn>${
+              data[!i ? "one" : "two"].n
+            }</div><div class=egu ${inlineStyles({
+              color: data[!i ? "one" : "two"].c,
+            })}>${data[!i ? "one" : "two"].p}</div>
           </div>`
           )}
           </div>
           <button class=mB id=cancel>HOME</button>
         </div>
         </div>`
-      );
+    );
 
     ["back", "cancel"].forEach((v) => $on($(`#${v}`), "click", () => Screen()));
-
   };
 
   const Difficulty = () => {
@@ -1692,7 +1686,7 @@ let zzfx, zzfxV, zzfxX, zzfxR;
         "VS BOT",
         "PLAY WITH FRIENDS",
         "PLAY ONLINE",
-      ])}<p class=ab>Game developed by <a href="https://twitter.com/ostjh"  target="_blank" rel="noopener noreferrer">Jorge Rubiano</a> for the 2022 edition of JS13K</p></div></div>`
+      ])}<p class=ab>Game developed by <a href="https://twitter.com/ostjh"  target="_blank" rel="noopener noreferrer">Jorge Rubiano</a>. JS13K 2022</p></div></div>`
     );
 
     $on($("#nuse"), "click", () => {
@@ -1744,7 +1738,7 @@ let zzfx, zzfxV, zzfxX, zzfxR;
             })}>Copy Code</button><p>Share this room code to play with your friend</p></fieldset></div>`
           : `<div class="sop df a c f"><span>🧟</span><h2>FINDING OPPONENT...</h2></div>`
       }
-      <button class=mB id=cancel>Cancel</button><p class=soh>💡 Tip: If you want to play with yourself open a private browsing (to simulate another user)</p></div></div>`
+      <button class=mB id=cancel>Cancel</button></div></div>`
     );
 
     const returnHome = () => {
@@ -1758,8 +1752,8 @@ let zzfx, zzfxV, zzfxX, zzfxR;
       $on($("#share"), "click", () => {
         copyToClipboard(`${location.href}?room=${data.friendRoom}`);
         Modal.show({
-          icon: "👍",
-          txt: "<h2>Copied code</h2><p>The URL of the room has been copied into your clipboard</p>",
+          icon: "📋",
+          txt: "<h2>Copied url</h2>",
           no: "",
           yes: "Ok",
           timer: 3000,
@@ -1807,24 +1801,31 @@ let zzfx, zzfxV, zzfxX, zzfxR;
       } else {
         Modal.show({
           icon: "⚠️",
-          txt: "<h2>Invalid code</h2><p>The code of the room must be a number and five characters</p>",
+          txt: "<h2>Invalid code (Max 5)</h2>",
           no: "",
           yes: "Ok",
         });
       }
     });
 
-    $on($("#f-1 button"), "click", () => {
+    $on($("#f-1 button"), "click", () =>
       Screen("SearchOpponent", {
         createRoom: true,
         friendRoom: randomNumber(10000, 99999),
         type: "friend",
-      });
-    });
+      })
+    );
   };
 
   const Screen = (screen = "Lobby", params = {}) => {
-    const Handler = { Game, EndGame, Lobby, SearchOpponent, PlayFriends, Difficulty };
+    const Handler = {
+      Game,
+      EndGame,
+      Lobby,
+      SearchOpponent,
+      PlayFriends,
+      Difficulty,
+    };
     Handler[screen](params);
   };
 
@@ -1840,6 +1841,15 @@ let zzfx, zzfxV, zzfxX, zzfxR;
     socket = io();
     connectedSocket = true;
 
+    const socketError = (error = "") =>
+      Modal.show({
+        icon: "⚠️",
+        txt: `<h2>${error}</h2>`,
+        no: "",
+        yes: "Ok",
+        timer: 4000,
+      });
+
     // Envia la data del usuario actual al server y busca un jugador
     socket.on("connect", () => {
       const [name, token] = getUser();
@@ -1847,13 +1857,7 @@ let zzfx, zzfxV, zzfxX, zzfxR;
         if (error) {
           disconnectSocket();
           Screen();
-          Modal.show({
-            icon: "⚠️",
-            txt: `<h2>${error}</h2>`,
-            no: "",
-            yes: "Ok",
-            timer: 4000,
-          });
+          socketError(error);
         }
       });
     });
@@ -1861,13 +1865,7 @@ let zzfx, zzfxV, zzfxX, zzfxR;
     socket.on("connect_error", () => {
       Screen();
       disconnectSocket();
-      Modal.show({
-        icon: "🔌",
-        txt: `<h2>Error connecting to server</h2>`,
-        no: "",
-        yes: "Ok",
-        timer: 2000,
-      });
+      socketError("Server error!");
     });
 
     socket.on("sG", (data) => Screen("Game", data));
@@ -1901,7 +1899,7 @@ let zzfx, zzfxV, zzfxX, zzfxR;
   // Renderizar la base del juego...
   setHtml(
     $("#root"),
-    `${Modal.render()}<div id="render" class="df c wi he"></div>`
+    `${Modal.render()}<div id=render class="df c wi he"></div>`
   );
   Modal.events();
   $on(document, "contextmenu", (event) => event.preventDefault());

@@ -1,4 +1,3 @@
-"use strict";
 const MAX_ELEMENTS = 5;
 const SIZE = 7;
 const HEIGHT = 732;

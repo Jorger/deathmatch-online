@@ -1,11 +1,13 @@
 :root {
-  --b: #000;
-  --i: #fff;
   --a: linear-gradient(to top, #000428, #004e92);
-  --s-c: #08457b;
+  --b: #000;
+  --c: #000000d6;
   --e:#4074b5;
+  --i: #fff;
   --p-a: linear-gradient(to bottom,  #f6e6b4 0%,#ed9017 100%);
   --p-b: #08143a;
+  --s-c: #08457b;
+  --tu: #062d53;
 }
 
 /* Estilos globales */
@@ -63,6 +65,10 @@ div {
   position: relative;
 }
 
+.pa {
+  position: absolute;
+}
+
 #root {
   height: var(--h);
   overflow: hidden;
@@ -76,10 +82,8 @@ div {
 
 /* La capa que se muestra al inicio dle juego */
 #ov {
-  background: #000000d6;
-  color: var(--i);
+  background: var(--c);
   font-size: 8em;
-  position: absolute;
   z-index: 2;
 }
 
@@ -124,8 +128,6 @@ board.o {
 board.w:before {
   content: "Loading...";
   background: var(--b);
-  color: var(--i);
-  font-size: 15px;
   padding: 10px;
   position: absolute;
   z-index: 1;
@@ -140,7 +142,6 @@ item {
   font-size: 2.7em;
   height: var(--db);
   pointer-events: none;
-  position: absolute;
   transition: all 0.2s cubic-bezier(0.86, -0.02, 0.45, 1.35);
   width: var(--db);
   opacity: 1;
@@ -169,14 +170,12 @@ item.v {
 
 /* Para el label de vida extra */
 .extra {
-  position: absolute;
   pointer-events: none;
   width: var(--db);
   height: var(--db);
   text-align: center;
   font-weight: bold;
   font-size: 17px;
-  color: var(--i);
   transform: scale(0);
   opacity: 0;
   transition: all 0.3s ease-out;
@@ -202,14 +201,13 @@ top {
 }
 /* Para el score */
 .sc {
-  position: absolute;
   top: 20px;
 }
 
 .scn {
   width: 190px;
   height: 65px;
-  background: #062d53;
+  background: var(--tu);
   border-radius: 10px;
   padding: 10px;
 }
@@ -217,10 +215,8 @@ top {
 .scv {
   width: 50%;
   border-radius: 15px;
-  color: var(--i);
   font-size: 23px;
   font-weight: bold;
-  box-shadow: rgba(0, 0, 0, 0.15) 0px 3px 3px 0px;
 }
 
 .scv:not(:last-child) {
@@ -228,33 +224,27 @@ top {
 }
 
 .sci {
-  background: #062d53;
+  background: var(--tu);
   border-radius: 10px;
   padding: 8px;
-  color: var(--i);
 }
 
 .scin {
-  width: 23px;
-  height: 23px;
+  width: 25px;
+  height: 25px;
   border-radius: 50%;
-  outline: 2px solid var(--i);
-  text-align: center;
-  line-height: 23px;
+  border: 3px solid var(--i);
   font-size: 13px;
   font-weight: bold;
-  transition: all 0.2s ease-out;
   opacity: 0.2;
 }
 
 .scin.ac {
   background: #feae13;
-  color: var(--i);
   opacity: 1;
 }
 
 .tu {
-  position: absolute;
   bottom: 0;
   height: 110px;
   background: linear-gradient(to top, #004e92, #000428);
@@ -282,7 +272,6 @@ top {
 
 .tuna {
   text-align: center;
-  color: var(--i);
   width: 100px;
   height: 43px;
   border-radius: 10px;
@@ -313,12 +302,10 @@ progress::-webkit-progress-bar {
 }
 
 #tupl {
-  position: absolute;
   left: 0;
   top: 13px;
   text-align: center;
   text-shadow: 1px 1px 1px var(--b);
-  color: var(--i);
 }
 
 /* Donde muestra los turnos */
@@ -343,7 +330,6 @@ progress::-webkit-progress-bar {
   color: var(--i);
 }
 
-
 /* Para el logo */
 .lg {
   padding: 20px;
@@ -353,7 +339,6 @@ progress::-webkit-progress-bar {
   font-size: 50px;
   font-weight: bold;
   margin: 20px;
-  color: var(--i);
   text-shadow: 0 -1px 4px var(--i), 0 -2px 10px #ff0, 0 -10px 20px #ff8000, 0 -18px 40px #F00;
   width: 50%;
   text-align: center;
@@ -379,7 +364,6 @@ progress::-webkit-progress-bar {
   z-index: 1;
   background: transparent;
   border: none;
-  text-shadow: 0px 0px 9px var(--b);
 }
 
 #bso {
@@ -390,10 +374,8 @@ progress::-webkit-progress-bar {
 /* Para los mensajes del board... */
 #msb {
   padding: 10px;
-  background: #000000d6;
-  color: var(--i);
+  background: var(--c);
   font-size: 2em;
-  position: absolute;
   z-index: 2;
   bottom: 200px;
   pointer-events: none;
@@ -407,7 +389,6 @@ progress::-webkit-progress-bar {
 
 /* Estilos para el modal */
 modal {
-  position: absolute;
   top: 0;
   left: 0;
   z-index: 100;
@@ -507,7 +488,7 @@ modal.hide .mc {
 
 fieldset {
   border-radius: 10px;
-  border: 3px solid #ffffff2e;
+  border: 3px solid var(--i);
   padding: 20px;
   margin: 30px 0;
 }
@@ -525,7 +506,7 @@ fieldset form {
   width: 65%;
 }
 
-.sop, .soh {
+.sop {
   width: 80%;
 }
 
@@ -535,18 +516,13 @@ fieldset form {
 
 .sop h2 {
   font-size: 25px;
-  margin: 15px;
+  margin: 25px;
   text-align: center;
   font-weight: bold;
 }
 
-.soh {
-  text-align: center;
-  margin-top: 25px;
-}
-
 .ab {
-  width: 80%;
+  width: 85%;
   margin: 10px;
   text-align: center;
   font-size: 20px;
@@ -573,7 +549,6 @@ a:visited {
 .egp {
   border-radius: 10px;
   border: 3px solid var(--i);
-  box-shadow: rgba(0, 0, 0, 0.2) 0px 60px 40px -7px;
   margin-bottom: 70px;
   padding: 10px;
   width: 80%;
