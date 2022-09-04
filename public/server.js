@@ -44,12 +44,12 @@ module.exports = {
 
             // Si existe la sala
             if (indexPartner < 0) {
-              return callback("Room does not exist");
+              return callback("Invalid room");
             }
           }
 
           if (indexPartner < 0) {
-            return callback("Invalid game type");
+            return callback("Invalid type");
           }
 
           const userData = {

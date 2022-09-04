@@ -1,4 +1,4 @@
-const MAX_ELEMENTS = 5;
+const MAX = 5;
 const SIZE = 7;
 const HEIGHT = 732;
 const WIDTH = 412;
@@ -348,7 +348,7 @@ const generateBoard = (skip = []) => {
     board[i] = [];
 
     for (let c = 0; c < SIZE; c++) {
-      let value = randomNumber(1, MAX_ELEMENTS);
+      let value = randomNumber(1, MAX);
 
       do {
         if (
@@ -356,7 +356,7 @@ const generateBoard = (skip = []) => {
           isSquare(i, c, value) ||
           skip.includes(value)
         ) {
-          value = randomNumber(1, MAX_ELEMENTS);
+          value = randomNumber(1, MAX);
         } else {
           break;
         }

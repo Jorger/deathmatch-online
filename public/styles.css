@@ -438,7 +438,6 @@ modal.show {
   background: #fc7169;
   cursor: pointer;
   color: var(--i);
-  text-transform: uppercase;
   font-weight: bold;
 }
 
@@ -473,14 +472,6 @@ modal.hide .mc {
 #nuse {
   margin: 30px;
   width: 40%;
-}
-
-#nuse::after {
-  content: "☠️";
-  position: absolute;
-  left: -40px;
-  font-size: 4.4em;
-  top: -22px;
 }
 
 fieldset {
@@ -561,4 +552,8 @@ a:visited {
 .egu {
   font-size: 50px;
   font-weight: bold;
+}
+
+#sh {
+  margin-bottom: 20px;
 }

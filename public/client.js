@@ -103,11 +103,11 @@ let zzfx, zzfxV, zzfxX, zzfxR;
   const CACHE_KEY = "DM";
   const COLOR = { b: "#1e90ff", r: "#e91e63" };
   const SOUNDS = {
-    bomb: [, , 333, 0.01, 0, 0.9, 4, 1.9, , , , , , 0.5, , 0.6],
-    counter: [, 0.1, 75, 0.03, 0.08, 0.17, 1, 1.88, 7.83, , , , , 0.4],
-    turn: [, , 20, 0.04, , 0.6, , 1.31, , , -990, 0.06, 0.17, , , 0.04, 0.07],
-    lose: [, , 925, 0.04, 0.3, 0.6, 1, 0.3, , 6.27, -184, 0.09, 0.17],
-    win: [, , 172, 0.8, , 0.8, 1, 0.76, 7.7, 3.73, -482, 0.08, 0.15, , 0.14],
+    b: [, , 333, 0.01, 0, 0.9, 4, 1.9, , , , , , 0.5, , 0.6],
+    c: [, 0.1, 75, 0.03, 0.08, 0.17, 1, 1.88, 7.83, , , , , 0.4],
+    t: [, , 20, 0.04, , 0.6, , 1.31, , , -990, 0.06, 0.17, , , 0.04, 0.07],
+    l: [, , 925, 0.04, 0.3, 0.6, 1, 0.3, , 6.27, -184, 0.09, 0.17],
+    w: [, , 172, 0.8, , 0.8, 1, 0.76, 7.7, 3.73, -482, 0.08, 0.15, , 0.14],
   };
   const $ = document.querySelector.bind(document);
   const $$ = document.querySelectorAll.bind(document);
@@ -117,9 +117,9 @@ let zzfx, zzfxV, zzfxX, zzfxR;
   const setHtml = (element, html) => {
     if (element) element.innerHTML = html;
   };
-  const ObjectKeys = (obj) => Object.keys(obj);
-  const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-  const clone = (value) => JSON.parse(JSON.stringify(value));
+  const ObjectKeys = (o) => Object.keys(o);
+  const delay = (m) => new Promise((resolve) => setTimeout(resolve, m));
+  const clone = (v) => JSON.parse(JSON.stringify(v));
   // Sockets...
   let socket;
   let connectedSocket = false;
@@ -129,8 +129,8 @@ let zzfx, zzfxV, zzfxX, zzfxR;
    * @param {*} param
    * @returns
    */
-  const getUrlParams = (param = "") =>
-    new URLSearchParams(location.search).get(param);
+  const getUrlParams = (p = "") =>
+    new URLSearchParams(location.search).get(p);
   /**
    * Dado un texto lo guarda en el clipboard...
    * @param {*} text
@@ -372,7 +372,7 @@ let zzfx, zzfxV, zzfxX, zzfxR;
    * Renderiza el modal del juego
    */
   const Modal = {
-    show({ txt, icon = "", yes = "yes", no = "no", cb, timer = 0 }) {
+    show({ txt, icon = "", yes = "OK", no = "NO", cb, timer = 0 }) {
       $(".txt").innerHTML =
         (icon
           ? `<p ${inlineStyles({ "font-size": "3rem" })}>${icon}</p>`
@@ -557,7 +557,7 @@ let zzfx, zzfxV, zzfxX, zzfxR;
       }
 
       if (validateRounds <= maxRounds) {
-        playSound("turn");
+        playSound("t");
         const txtTurn = `${
           playerHasTurn === "one" ? "Your" : "Opponent's"
         }  Turn`;
@@ -1022,14 +1022,14 @@ let zzfx, zzfxV, zzfxX, zzfxR;
         userData[playerHasTurn].p
       );
 
-      playSound("bomb");
+      playSound("b");
 
       // Ahora se debe traer la cantidad de elementos que hay en el board...
       // Para así determinar cuales no se deben mostrar en la nueva board...
       // const BOARD_ELEMENTS = ["💀", "🔥", "🧛", "🧟‍♂️", "👹"];
       const newBoardItems = nextMovements
         ? newBoard(
-            new Array(MAX_ELEMENTS)
+            new Array(MAX)
               .fill(null)
               .map((_, i) => [i + 1, elementOnBoard(copyBoard, i + 1).length])
               .sort((a, b) => b[1] - a[1])
@@ -1472,13 +1472,13 @@ let zzfx, zzfxV, zzfxX, zzfxR;
         .flat()
     );
 
-    playSound("counter");
+    playSound("c");
     const initialCounter = 3;
     setHtml($("#ov"), initialCounter);
     const initialTimer = chronometer(
       (counter) => {
         setHtml($("#ov"), counter);
-        playSound("counter");
+        playSound("c");
         if (counter === 0) {
           $("#ov").remove();
           validateTurn(true);
@@ -1526,7 +1526,6 @@ let zzfx, zzfxV, zzfxX, zzfxR;
               "margin-bottom": "10px",
             })}>Partner offline</h2>`,
             no: "",
-            yes: "Ok",
             timer: 3000,
           });
           return exitGame();
@@ -1625,30 +1624,8 @@ let zzfx, zzfxV, zzfxX, zzfxR;
     const p1 = data.one.p;
     const p2 = data.two.p;
     const result = p1 === p2 ? "tie" : p1 > p2 ? "win" : "lose";
-    playSound(p1 === p2 || p1 > p2 ? "win" : "lose");
-    setHtml(
-      $("#render"),
-      `<div class="ba df f a wi he">
-         <div class="eg df a c f wi he">
-          ${Back()}${Logo()}
-          <h2>${txtType[result][0]}</h2>
-          <span>${txtType[result][1]}</span>
-          <div class="egp df a c">
-          ${newArray(
-            2,
-            (i) => `<div class="egu wi"><div class=egn>${
-              data[!i ? "one" : "two"].n
-            }</div><div class=egu ${inlineStyles({
-              color: data[!i ? "one" : "two"].c,
-            })}>${data[!i ? "one" : "two"].p}</div>
-          </div>`
-          )}
-          </div>
-          <button class=mB id=cancel>HOME</button>
-        </div>
-        </div>`
-    );
-
+    playSound(p1 === p2 || p1 > p2 ? "w" : "l");
+    setHtml($("#render"), `<div class="ba df f a wi he"><div class="eg df a c f wi he">${Back()}${Logo()}<h2>${txtType[result][0]}</h2><span>${txtType[result][1]}</span><div class="egp df a c">${newArray(2,(i) => `<div class="egu wi"><div class=egn>${data[!i ? "one" : "two"].n}</div><div class=egu ${inlineStyles({color: data[!i ? "one" : "two"].c})}>${data[!i ? "one" : "two"].p}</div></div>`)}</div><button class=mB id=cancel>HOME</button></div></div>`);
     ["back", "cancel"].forEach((v) => $on($(`#${v}`), "click", () => Screen()));
   };
 
@@ -1681,7 +1658,7 @@ let zzfx, zzfxV, zzfxX, zzfxR;
         "VS BOT",
         "PLAY WITH FRIENDS",
         "PLAY ONLINE",
-      ])}<p class=ab>By <a href="https://twitter.com/ostjh"  target="_blank" rel="noopener noreferrer">Jorge Rubiano</a></p></div></div>`
+      ])}<p class=ab><a href=https://twitter.com/ostjh target=_blank rel="noopener noreferrer">Jorge Rubiano</a></p></div></div>`
     );
 
     $on($("#nuse"), "click", () => {
@@ -1698,12 +1675,12 @@ let zzfx, zzfxV, zzfxX, zzfxR;
 
     evenListButtons((type) => {
       if (type === 0) {
-        Screen("Game", {
+        return Screen("Game", {
           users: setOrder([getUser(), ["Guest", "guest"]]),
         });
-      } else {
-        Screen(["Difficulty", "PlayFriends", "SearchOpponent"][type - 1]);
       }
+
+      Screen(["Difficulty", "PlayFriends", "SearchOpponent"][type - 1]);
     });
   };
 
@@ -1715,19 +1692,13 @@ let zzfx, zzfxV, zzfxX, zzfxR;
         data.createRoom
           ? `<div ${inlineStyles({
               width: "90%",
-            })}><fieldset class="df a c" ${inlineStyles({
-              "margin-top": 0,
-              "flex-direction": "column",
-            })}><legend>Play with Friends</legend><code ${inlineStyles({
+            })}><fieldset class="df a c f"><legend>Play with Friends</legend><code ${inlineStyles({
               "font-size": "50px",
               "font-weight": "bold",
               "margin-bottom": "10px",
-              "text-align": "center",
             })}>${
               data.friendRoom
-            }</code><button id=share class=mB ${inlineStyles({
-              "margin-bottom": "20px",
-            })}>Copy Code</button></fieldset></div>`
+            }</code><button id=sh class=mB>Copy Code</button></fieldset></div>`
           : `<div class="sop df a c f"><span>🧟</span><h2>FINDING OPPONENT...</h2></div>`
       }
       <button class=mB id=cancel>Cancel</button></div></div>`
@@ -1741,13 +1712,12 @@ let zzfx, zzfxV, zzfxX, zzfxR;
     ["back", "cancel"].forEach((v) => $on($(`#${v}`), "click", returnHome));
 
     if (data.createRoom) {
-      $on($("#share"), "click", () => {
+      $on($("#sh"), "click", () => {
         copyToClipboard(`${location.href}?room=${data.friendRoom}`);
         Modal.show({
           icon: "📋",
           txt: "<h2>Copied url</h2>",
           no: "",
-          yes: "Ok",
           timer: 3000,
         });
       });
@@ -1795,7 +1765,6 @@ let zzfx, zzfxV, zzfxX, zzfxR;
           icon: "⚠️",
           txt: "<h2>Invalid code (Max 5)</h2>",
           no: "",
-          yes: "Ok",
         });
       }
     });
@@ -1838,7 +1807,6 @@ let zzfx, zzfxV, zzfxX, zzfxR;
         icon: "⚠️",
         txt: `<h2>${error}</h2>`,
         no: "",
-        yes: "Ok",
         timer: 4000,
       });
 
@@ -1894,7 +1862,7 @@ let zzfx, zzfxV, zzfxX, zzfxR;
     `${Modal.render()}<div id=render class="df c wi he"></div>`
   );
   Modal.events();
-  $on(document, "contextmenu", (event) => event.preventDefault());
+  $on(document, "contextmenu", (e) => e.preventDefault());
   $on(window, "resize", onWindowResize);
 
   // Extraer la información de la url por si se ha compartido una sala...
