@@ -87,13 +87,12 @@ div {
   z-index: 2;
 }
 
-board {
+bo {
   overflow: hidden;
   cursor: pointer;
   width: var(--w);
   height: var(--w);
   background: #005695;
-  box-shadow: rgba(6, 24, 44, 0.4) 0px 0px 0px 2px, rgba(6, 24, 44, 0.65) 0px 4px 6px -1px, rgba(255, 255, 255, 0.08) 0px 1px 0px inset;
   -webkit-tap-highlight-color: transparent;
   background-image: linear-gradient(
       45deg,
@@ -116,16 +115,16 @@ board {
 }
 
 
-board.d {
+bo.d {
   pointer-events: none;
 }
 
-board.w,
-board.o {
+bo.w,
+bo.o {
   filter: brightness(0.6);
 }
 
-board.w:before {
+bo.w:before {
   content: "Loading...";
   background: var(--b);
   padding: 10px;
@@ -134,11 +133,11 @@ board.w:before {
   bottom: 0;
 }
 
-board:active {
+bo:active {
   cursor:grabbing;
 }
 
-item {
+.it {
   font-size: 2.7em;
   height: var(--db);
   pointer-events: none;
@@ -146,14 +145,13 @@ item {
   width: var(--db);
   opacity: 1;
   box-shadow: none;
-  text-shadow: 0px 0px 7px var(--b);
 }
 
-item.h {
+.it.h {
   transform: scale(2.5);
 }
 
-item.h::after {
+.it.h::after {
   content: "💥";
   height: 100%;
   left: 0;
@@ -163,7 +161,7 @@ item.h::after {
   width: 100%;
 }
 
-item.v {
+.it.v {
   transform: none;
   transition: none;
 }
@@ -284,20 +282,20 @@ top {
   padding: 10px;
 }
 
-progress {
+.bp {
   height: 25px;
   background: var(--p-b);
 }
 
-progress::-moz-progress-bar {
+.bp::-moz-progress-bar {
   background: var(--p-a);
 }
 
-progress::-webkit-progress-value {
+.bp::-webkit-progress-value {
   background: var(--p-a);
 }
 
-progress::-webkit-progress-bar {
+.bp::-webkit-progress-bar {
   background: var(--p-b);
 }
 
@@ -321,12 +319,11 @@ progress::-webkit-progress-bar {
 .mB {
   cursor: pointer;
   font-size: 16px;
-  line-height: 20px;
   font-weight: 600;
   border-radius: 8px;
   padding: 14px 24px;
   border: none;
-  background: linear-gradient(to right, rgb(230, 30, 77) 0%, rgb(227, 28, 95) 50%, rgb(215, 4, 102) 100%);
+  background: linear-gradient(to right, #e61e4d 0%, #e31c5f 50%, #d70466);
   color: var(--i);
 }
 
@@ -428,7 +425,7 @@ modal.show {
   overflow: hidden;
 }
 
-.mc .txt {
+.txt {
   color: #8f9cb5;
   padding: 20px;
   flex-direction: column;
@@ -483,7 +480,7 @@ modal.hide .mc {
   position: absolute;
   left: -40px;
   font-size: 4.4em;
-  top: 13px;
+  top: -22px;
 }
 
 fieldset {
@@ -517,7 +514,6 @@ fieldset form {
 .sop h2 {
   font-size: 25px;
   margin: 25px;
-  text-align: center;
   font-weight: bold;
 }
 

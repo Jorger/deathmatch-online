@@ -100,14 +100,12 @@ let zzfx, zzfxV, zzfxX, zzfxR;
   (zzfxR = 44100);
 (() => {
   // Utilidades
-  const CACHE_KEY = "death-match";
+  const CACHE_KEY = "DM";
   const COLOR = { b: "#1e90ff", r: "#e91e63" };
   const SOUNDS = {
-    swipe: [, , 150, 0.05, , 0.05, , 1.3, , , , , , 3],
     bomb: [, , 333, 0.01, 0, 0.9, 4, 1.9, , , , , , 0.5, , 0.6],
-    extra: [, , 20, 0.04, , 0.6, , 1.31, , , -990, 0.06, 0.17, , , 0.04, 0.07],
     counter: [, 0.1, 75, 0.03, 0.08, 0.17, 1, 1.88, 7.83, , , , , 0.4],
-    turn: [, , 539, 0, 0.04, 0.29, 1, 1.92, , , 567, 0.02, 0.02, , , , 0.04],
+    turn: [, , 20, 0.04, , 0.6, , 1.31, , , -990, 0.06, 0.17, , , 0.04, 0.07],
     lose: [, , 925, 0.04, 0.3, 0.6, 1, 0.3, , 6.27, -184, 0.09, 0.17],
     win: [, , 172, 0.8, , 0.8, 1, 0.76, 7.7, 3.73, -482, 0.08, 0.15, , 0.14],
   };
@@ -375,7 +373,7 @@ let zzfx, zzfxV, zzfxX, zzfxR;
    */
   const Modal = {
     show({ txt, icon = "", yes = "yes", no = "no", cb, timer = 0 }) {
-      $("modal .txt").innerHTML =
+      $(".txt").innerHTML =
         (icon
           ? `<p ${inlineStyles({ "font-size": "3rem" })}>${icon}</p>`
           : "") + txt;
@@ -434,7 +432,7 @@ let zzfx, zzfxV, zzfxX, zzfxR;
    */
   const Game = ({
     BOARD = newBoard(),
-    typeGame = 0,
+    typeGame = 1,
     users = {},
     room = "",
     level = 0,
@@ -475,7 +473,7 @@ let zzfx, zzfxV, zzfxX, zzfxR;
     const initialPlayerTurn = playerHasTurn;
 
     let progress = chronometer((counter, interval) => {
-      if ($("board")) {
+      if ($("bo")) {
         if (counter > 10) {
           counterTimer = counter;
           $("progress").value = counter;
@@ -522,7 +520,7 @@ let zzfx, zzfxV, zzfxX, zzfxR;
      * @returns
      */
     const validateTurn = async (initial = false) => {
-      if (!$("board") || !progress) return;
+      if (!$("bo") || !progress) return;
       playerHasTurn = !initial
         ? playerHasTurn === "one"
           ? "two"
@@ -590,7 +588,7 @@ let zzfx, zzfxV, zzfxX, zzfxR;
      */
     const { fn: playIA, cls: cancelPlayIA } = debounce(() => {
       // Obtener los posibles movimientos...
-      if (playerHasTurn === "one" || !$("board") || !progress) return;
+      if (playerHasTurn === "one" || !$("bo") || !progress) return;
       const moves = isValidBoard(BOARD).values;
       const difficulty = level === 2 ? (randomNumber(0, 1) ? 1 : 3) : level;
       const elements = ["three", "dynamite", "axe", "rocket", "four", "bomb"];
@@ -643,8 +641,8 @@ let zzfx, zzfxV, zzfxX, zzfxR;
      */
     const blockBoard = (d = false, o = false) =>
       classList(
-        $("board"),
-        `d${o || hasClass($("board"), "o") ? " o" : ""}`,
+        $("bo"),
+        `d${o || hasClass($("bo"), "o") ? " o" : ""}`,
         d || o ? "add" : "remove"
       );
 
@@ -940,7 +938,6 @@ let zzfx, zzfxV, zzfxX, zzfxR;
      * @param {*} col
      */
     const renderExtraMove = async (row = 0, col = 0) => {
-      playSound("extra");
       const element = document.createElement("div");
       const id = `ex-${randomNumber(1, 1000)}`;
       element.innerHTML = "EXTRA MOVE!";
@@ -961,8 +958,8 @@ let zzfx, zzfxV, zzfxX, zzfxR;
         }
       }
       element.setAttribute("id", id);
-      if ($("board")) {
-        $("board").appendChild(element);
+      if ($("bo")) {
+        $("bo").appendChild(element);
         await delay(10);
         classList($(`#${id}`), "s");
         await delay(1000);
@@ -1206,7 +1203,7 @@ let zzfx, zzfxV, zzfxX, zzfxR;
           });
         } else {
           blockBoard(true, true);
-          classList($("board"), "w");
+          classList($("bo"), "w");
         }
       }
     };
@@ -1226,7 +1223,6 @@ let zzfx, zzfxV, zzfxX, zzfxR;
      */
     const validateClick = (element = {}) => {
       if (itemIsPrize(element?.v)) {
-        playSound("swipe");
         userData[playerHasTurn].m--;
         showMovements();
         removeAnimateBoardElements(
@@ -1242,7 +1238,6 @@ let zzfx, zzfxV, zzfxX, zzfxR;
      */
     const validateMove = async (move = []) => {
       // Se bloquea el board...
-      playSound("swipe");
       blockBoard(true);
       // Cambia la posición de las figuras..
       changePositionElements(move);
@@ -1301,7 +1296,7 @@ let zzfx, zzfxV, zzfxX, zzfxR;
     };
 
     const RenderScore = () =>
-      `<div class="sc df a c f wi pa"><div class="scn"><div class="df wi he">${newArray(
+      `<div class="sc df a c f wi pa"><div class=scn><div class="df wi he">${newArray(
         2,
         (i) =>
           `<div class="scv df a c" id=scv-${i + 1} ${inlineStyles({
@@ -1323,20 +1318,20 @@ let zzfx, zzfxV, zzfxX, zzfxR;
         newArray(
           2,
           (i) =>
-            `<div class="tuni" id=mov-${p}-${p === 2 ? +!i : i} ${inlineStyles({
+            `<div class=tuni id=mov-${p}-${p === 2 ? +!i : i} ${inlineStyles({
               background: userData[p === 1 ? "one" : "two"].c,
             })}></div>`
         );
 
       return `<div class="tu wi pa"><div class="tun df a s wi">${Names(
         userData.one.n
-      )}<div class="df">${newArray(
+      )}<div class=df>${newArray(
         2,
-        (i) => `<div class="df">${Turns(i + 1)}</div>`
+        (i) => `<div class=df>${Turns(i + 1)}</div>`
       )}</div>${Names(
         userData.two.n,
         2
-      )}</div><div class="tup pr wi"><progress class="wi pr" value="100" max="100"></progress><div class="wi pa" id="tupl"></div></div></div>`;
+      )}</div><div class="tup pr wi"><progress class="bp wi pr" value="100" max="100"></progress><div class="wi pa" id="tupl"></div></div></div>`;
     };
 
     // Renderizar la parte superior del juego...
@@ -1344,17 +1339,17 @@ let zzfx, zzfxV, zzfxX, zzfxR;
       `<top class="wi pr">${RenderScore()}${RenderTurn()}</top>`;
 
     const RenderBoard = () =>
-      `<board class="pr">${BOARD.map((cell) =>
+      `<bo class=pr>${BOARD.map((cell) =>
         cell
           .map(
             (v) =>
-              `<item class="df a c pa" id="t-${`${v.i}`}" ${inlineStyles({
+              `<div class="it df a c pa" id="t-${`${v.i}`}" ${inlineStyles({
                 left: `${v.l}px`,
                 top: `${v.t}px`,
-              })}>${BOARD_ELEMENTS[v.v - 1]}</item>`
+              })}>${BOARD_ELEMENTS[v.v - 1]}</div>`
           )
           .join("")
-      ).join("")}</board>`;
+      ).join("")}</bo>`;
 
     const Overlay = () => `<div class="df a c wi he pa" id=ov></div>`;
     const Messages = () => `<div class="df a c wi pa" id=msb></div>`;
@@ -1467,7 +1462,7 @@ let zzfx, zzfxV, zzfxX, zzfxR;
     };
 
     addListenerMulti(
-      $("board"),
+      $("bo"),
       [
         [["mousedown", "touchstart"], "start"],
         [["mousemove", "touchmove"], "move"],
@@ -1507,7 +1502,7 @@ let zzfx, zzfxV, zzfxX, zzfxR;
     $on($("#back"), "click", () =>
       Modal.show({
         icon: "⚠️",
-        txt: "<p>Are you sure you want to exit the game?</p>",
+        txt: "<p>Do you want to exit the game?</p>",
         cb(answer) {
           if (answer) exitGame();
         },
@@ -1580,7 +1575,7 @@ let zzfx, zzfxV, zzfxX, zzfxR;
 
           if (data.type === "ack") {
             progress?.tick();
-            classList($("board"), "w", "remove");
+            classList($("bo"), "w", "remove");
             const { itemsRemove, prizes } = validateMatch(BOARD);
             if (itemsRemove.length !== 0) {
               removeAnimateBoardElements(BOARD, itemsRemove, prizes);
@@ -1606,7 +1601,7 @@ let zzfx, zzfxV, zzfxX, zzfxR;
 
   const RenderListButtons = (btns = []) =>
     `<div class="df a c f mBs">${btns
-      .map((v, i) => `<button id="el-${i}" class="mB wi">${v}</button>`)
+      .map((v, i) => `<button id=el-${i} class="mB wi">${v}</button>`)
       .join("")}</div>`;
 
   const evenListButtons = (cb) =>
@@ -1686,13 +1681,11 @@ let zzfx, zzfxV, zzfxX, zzfxR;
         "VS BOT",
         "PLAY WITH FRIENDS",
         "PLAY ONLINE",
-      ])}<p class=ab>Game developed by <a href="https://twitter.com/ostjh"  target="_blank" rel="noopener noreferrer">Jorge Rubiano</a>. JS13K 2022</p></div></div>`
+      ])}<p class=ab>By <a href="https://twitter.com/ostjh"  target="_blank" rel="noopener noreferrer">Jorge Rubiano</a></p></div></div>`
     );
 
     $on($("#nuse"), "click", () => {
-      const newName = sanizateTags(
-        prompt("Write your name (MAX 10)", getUser()[0])
-      );
+      const newName = sanizateTags(prompt("Your name", getUser()[0]));
 
       if (newName) {
         const shortName =
@@ -1706,7 +1699,6 @@ let zzfx, zzfxV, zzfxX, zzfxR;
     evenListButtons((type) => {
       if (type === 0) {
         Screen("Game", {
-          typeGame: 1,
           users: setOrder([getUser(), ["Guest", "guest"]]),
         });
       } else {
@@ -1735,7 +1727,7 @@ let zzfx, zzfxV, zzfxX, zzfxR;
               data.friendRoom
             }</code><button id=share class=mB ${inlineStyles({
               "margin-bottom": "20px",
-            })}>Copy Code</button><p>Share this room code to play with your friend</p></fieldset></div>`
+            })}>Copy Code</button></fieldset></div>`
           : `<div class="sop df a c f"><span>🧟</span><h2>FINDING OPPONENT...</h2></div>`
       }
       <button class=mB id=cancel>Cancel</button></div></div>`
@@ -1770,11 +1762,11 @@ let zzfx, zzfxV, zzfxX, zzfxR;
       $("#render"),
       `<div class="ba df f a wi he"><div class="df a c f wi he">${Back()}${Logo()}${[
         {
-          legend: "Please enter the five room code",
-          html: `<form><input type="tel" id="code" autocomplete="off" maxlength="5"><button type="submit" class=mB>JOIN</button></form>`,
+          legend: "Room code",
+          html: `<form><input type=tel id=code autocomplete=off maxlength=5><button type=submit class=mB>JOIN</button></form>`,
         },
         {
-          legend: "Create a private room",
+          legend: "Private room",
           html: `<button class=mB>CREATE</button>`,
         },
       ]
@@ -1855,9 +1847,9 @@ let zzfx, zzfxV, zzfxX, zzfxR;
       const [name, token] = getUser();
       socket.emit("nU", { ...options, player: { name, token } }, (error) => {
         if (error) {
+          socketError(error);
           disconnectSocket();
           Screen();
-          socketError(error);
         }
       });
     });
