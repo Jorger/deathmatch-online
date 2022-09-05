@@ -441,8 +441,8 @@ let zzfx, zzfxV, zzfxX, zzfxR;
     const BOARD_ELEMENTS = [
       "💀",
       "🎃",
-      "🧛",
-      "🔥",
+      "🧛‍♂️",
+      "🧠",
       "👹",
       "🧨",
       "🪓",
@@ -590,7 +590,7 @@ let zzfx, zzfxV, zzfxX, zzfxR;
       // Obtener los posibles movimientos...
       if (playerHasTurn === "one" || !$("bo") || !progress) return;
       const moves = isValidBoard(BOARD).values;
-      const difficulty = level === 2 ? (randomNumber(0, 1) ? 1 : 3) : level;
+      const difficulty = level === 2 ? (rnd(0, 1) ? 1 : 3) : level;
       const elements = ["three", "dynamite", "axe", "rocket", "four", "bomb"];
       const order =
         difficulty === 1
@@ -606,14 +606,14 @@ let zzfx, zzfxV, zzfxX, zzfxR;
           break;
         }
       }
-      const indexLaunch = randomNumber(0, posible.value.length - 1);
+      const indexLaunch = rnd(0, posible.value.length - 1);
       if (["three", "four"].includes(posible.type)) {
-        const randomPosition = randomNumber(
+        const randomPosition = rnd(
           0,
           posible.value[indexLaunch].length - 1
         );
         const indexes = posible.type === "three" ? [2, 3] : [1, 2];
-        const indexCanMove = randomNumber(
+        const indexCanMove = rnd(
           0,
           posible.value[indexLaunch][randomPosition][indexes[1]].length - 1
         );
@@ -786,7 +786,7 @@ let zzfx, zzfxV, zzfxX, zzfxR;
       const finalPrizez = [];
       // De los premios que quedan, se obtiene aleatoriamente el premio que se dará...
       for (let i = 0; i < listPrizes.length; i++) {
-        const randomPrize = randomNumber(0, listPrizes[i].length - 1);
+        const randomPrize = rnd(0, listPrizes[i].length - 1);
         const prize = prizes[listPrizes[i][randomPrize]];
         finalPrizez.push([prize.position, prize.prize]);
       }
@@ -939,7 +939,7 @@ let zzfx, zzfxV, zzfxX, zzfxR;
      */
     const renderExtraMove = async (row = 0, col = 0) => {
       const element = document.createElement("div");
-      const id = `ex-${randomNumber(1, 1000)}`;
+      const id = `ex-${rnd(1, 1000)}`;
       element.innerHTML = "EXTRA MOVE!";
       element.className = "df a c pa extra";
       const posiblePositions = [
@@ -1031,7 +1031,7 @@ let zzfx, zzfxV, zzfxX, zzfxR;
         ? newBoard(
             new Array(MAX)
               .fill(null)
-              .map((_, i) => [i + 1, elementOnBoard(copyBoard, i + 1).length])
+              .map((_, i) => [i + 1, eBoard(copyBoard, i + 1).length])
               .sort((a, b) => b[1] - a[1])
               .slice(0, 1)
               .filter((v) => v[1] >= 4)
@@ -1106,9 +1106,9 @@ let zzfx, zzfxV, zzfxX, zzfxR;
         }
         // Como no es válido, se pondrá un premio de forma aletoria...
         if (!isValidBoard(copyBoard).isValid) {
-          const randomPosition = randomNumber(0, newIndexItemsBoard.length - 1);
+          const randomPosition = rnd(0, newIndexItemsBoard.length - 1);
           const positions = newIndexItemsBoard[randomPosition];
-          copyBoard[positions[0]][positions[1]].v = randomNumber(7, 9);
+          copyBoard[positions[0]][positions[1]].v = rnd(7, 9);
         }
       }
 
@@ -1625,8 +1625,8 @@ let zzfx, zzfxV, zzfxX, zzfxR;
     const p2 = data.two.p;
     const result = p1 === p2 ? "tie" : p1 > p2 ? "win" : "lose";
     playSound(p1 === p2 || p1 > p2 ? "w" : "l");
-    setHtml($("#render"), `<div class="ba df f a wi he"><div class="eg df a c f wi he">${Back()}${Logo()}<h2>${txtType[result][0]}</h2><span>${txtType[result][1]}</span><div class="egp df a c">${newArray(2,(i) => `<div class="egu wi"><div class=egn>${data[!i ? "one" : "two"].n}</div><div class=egu ${inlineStyles({color: data[!i ? "one" : "two"].c})}>${data[!i ? "one" : "two"].p}</div></div>`)}</div><button class=mB id=cancel>HOME</button></div></div>`);
-    ["back", "cancel"].forEach((v) => $on($(`#${v}`), "click", () => Screen()));
+    setHtml($("#render"), `<div class="ba df f a wi he"><div class="eg df a c f wi he">${Logo()}<h2>${txtType[result][0]}</h2><span>${txtType[result][1]}</span><div class="egp df a c">${newArray(2,(i) => `<div class="egu wi"><div class=egn>${data[!i ? "one" : "two"].n}</div><div class=egu ${inlineStyles({color: data[!i ? "one" : "two"].c})}>${data[!i ? "one" : "two"].p}</div></div>`)}</div><button class=mB id=cancel>HOME</button></div></div>`);
+    $on($("#cancel"), "click", () => Screen());
   };
 
   const Difficulty = () => {
@@ -1687,7 +1687,7 @@ let zzfx, zzfxV, zzfxX, zzfxR;
   const SearchOpponent = (data = {}) => {
     setHtml(
       $("#render"),
-      `<div class="ba df f a wi he"><div class="df a c f wi he">${Back()}${Logo()}
+      `<div class="ba df f a wi he"><div class="df a c f wi he">${Logo()}
       ${
         data.createRoom
           ? `<div ${inlineStyles({
@@ -1709,7 +1709,7 @@ let zzfx, zzfxV, zzfxX, zzfxR;
       disconnectSocket();
     };
 
-    ["back", "cancel"].forEach((v) => $on($(`#${v}`), "click", returnHome));
+    $on($("#cancel"), "click", returnHome);
 
     if (data.createRoom) {
       $on($("#sh"), "click", () => {
@@ -1772,7 +1772,7 @@ let zzfx, zzfxV, zzfxX, zzfxR;
     $on($("#f-1 button"), "click", () =>
       Screen("SearchOpponent", {
         createRoom: true,
-        friendRoom: randomNumber(10000, 99999),
+        friendRoom: rnd(10000, 99999),
         type: "friend",
       })
     );
@@ -1851,7 +1851,7 @@ let zzfx, zzfxV, zzfxX, zzfxR;
 
   if (!ObjectKeys(getDataCache()).length) {
     [
-      ["name", `Zombie ${randomNumber(100, 1000)}`],
+      ["name", `Zombie ${rnd(100, 1000)}`],
       ["token", guid()],
     ].forEach((v) => savePropierties(v[0], v[1]));
   }

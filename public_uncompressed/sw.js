@@ -1,14 +1,16 @@
 var version = "v1";
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(version).then((cache) => {
-      return cache.addAll([
-        "index.html",
-        "client.js",
-        "shared.js",
-        "socket.io/socket.io.min.js",
-      ]);
-    })
+    caches
+      .open(version)
+      .then((cache) =>
+        cache.addAll([
+          "index.html",
+          "client.js",
+          "shared.js",
+          "socket.io/socket.io.min.js",
+        ])
+      )
   );
 });
 
@@ -18,22 +20,20 @@ self.addEventListener("activate", (event) => {
       includeUncontrolled: true,
     })
     .then((clientList) => {
-      var urls = clientList.map((client) => {
-        return client.url;
-      });
+      clientList.map((client) => client.url);
     });
   event.waitUntil(
     caches
       .keys()
-      .then((cacheNames) => {
-        return Promise.all(
+      .then((cacheNames) =>
+        Promise.all(
           cacheNames.map((cacheName) => {
             if (cacheName !== version) {
               return caches.delete(cacheName);
             }
           })
-        );
-      })
+        )
+      )
       .then(function () {
         return self.clients.claim();
       })
@@ -47,11 +47,11 @@ self.addEventListener("fetch", (event) => {
   )
     return;
   event.respondWith(
-    caches.match(event.request).then((resp) => {
-      return (
+    caches.match(event.request).then(
+      (resp) =>
         resp ||
-        fetch(event.request).then((response) => {
-          return caches.open(version).then((cache) => {
+        fetch(event.request).then((response) =>
+          caches.open(version).then((cache) => {
             if (
               event.request.method !== "POST" &&
               !event.request.url.includes("socket.io")
@@ -63,9 +63,8 @@ self.addEventListener("fetch", (event) => {
               }
             }
             return response;
-          });
-        })
-      );
-    })
+          })
+        )
+    )
   );
 });

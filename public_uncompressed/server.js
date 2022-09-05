@@ -1,4 +1,4 @@
-let availableUsers = [];
+const users = [];
 const rooms = [];
 
 /**
@@ -21,12 +21,12 @@ module.exports = {
         // Primero validar el tipo de conexión...
         // Traer los usuarios que estén disponibles
         // Se filtrará que no permita al mismo usuario
-        const filteredAvailableUsers = availableUsers.filter(
+        const filterUsers = users.filter(
           (v) => v.type === type && v.player.token !== player.token
         );
 
         if (
-          (filteredAvailableUsers.length !== 0 && !createRoom) ||
+          (filterUsers.length !== 0 && !createRoom) ||
           (type === "friend" && !createRoom)
         ) {
           // Si es de tipo jugar con amigos, se debe buscar que exista la sala...
@@ -34,13 +34,11 @@ module.exports = {
 
           if (type === "online") {
             // Hay usuarios dipsonibles para jugar....
-            indexPartner = randomNumber(0, filteredAvailableUsers.length - 1);
+            indexPartner = rnd(0, filterUsers.length - 1);
           }
 
           if (type === "friend") {
-            indexPartner = filteredAvailableUsers.findIndex(
-              (v) => v.room === friendRoom
-            );
+            indexPartner = filterUsers.findIndex((v) => v.room === friendRoom);
 
             // Si existe la sala
             if (indexPartner < 0) {
@@ -54,23 +52,21 @@ module.exports = {
 
           const userData = {
             player,
-            partner: filteredAvailableUsers[indexPartner].player,
+            partner: filterUsers[indexPartner].player,
           };
 
           // Genera la data de los usuarios...
-          const users = setOrder(
-            ["player", "partner"].map((v) => [
-              userData[v].name,
-              userData[v].token,
-              0,
-              userData[v].id,
-            ])
-          );
-
-          const newRoom = filteredAvailableUsers[indexPartner].room;
+          const newRoom = filterUsers[indexPartner].room;
           const gameData = {
             BOARD: newBoard(),
-            users,
+            users: setOrder(
+              ["player", "partner"].map((v) => [
+                userData[v].name,
+                userData[v].token,
+                0,
+                userData[v].id,
+              ])
+            ),
             room: newRoom,
             typeGame: 3,
           };
@@ -79,14 +75,14 @@ module.exports = {
             room: newRoom,
             users: [userData.player.id, userData.partner.id],
           });
-          const indexRoom = availableUsers.findIndex((v) => v.room === newRoom);
-          availableUsers.splice(indexRoom, 1);
+          const indexRoom = users.findIndex((v) => v.room === newRoom);
+          users.splice(indexRoom, 1);
           io.sockets.in(newRoom).emit("sG", gameData);
         } else {
           // Se guardará el usuario en el lstado de usuarios disponibles...
           const room = String(type === "online" ? guid() : friendRoom);
 
-          availableUsers.push({
+          users.push({
             room,
             type,
             player,
@@ -102,11 +98,11 @@ module.exports = {
      * Evento que recibe las diferentes acciones del juego...
      */
     socket.on("action", (data) => {
-      if(data.type !== "end") {
+      if (data.type !== "end") {
         io.sockets.in(data.room).emit("action", data);
       } else {
         const indexRoom = rooms.findIndex(({ room }) => data.room === room);
-        if(indexRoom >= 0) {
+        if (indexRoom >= 0) {
           rooms.splice(indexRoom, 1);
         }
       }
@@ -123,18 +119,18 @@ module.exports = {
 
       if (indexRoom >= 0) {
         // Se emite al jugador que quedó que se ha desconectado el otro jugador
-        io.sockets.in(rooms[indexRoom].room).emit("action", { type : "leave"});
+        io.sockets.in(rooms[indexRoom].room).emit("action", { type: "leave" });
         // Se elimina la sala
         rooms.splice(indexRoom, 1);
       } else {
         // Buscar en el listado de usuarios pendientes a jugar
-        const indexPlayer = availableUsers.findIndex(
+        const indexPlayer = users.findIndex(
           ({ player }) => player.id === socket.id
         );
 
         // Se saca al usuario del listado de jugadores disponibles
         if (indexPlayer >= 0) {
-          availableUsers.splice(indexPlayer, 1);
+          users.splice(indexPlayer, 1);
         }
       }
     });

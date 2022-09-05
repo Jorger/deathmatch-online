@@ -10,7 +10,7 @@ const CELL = WIDTH / 7;
  * @param {*} max
  * @returns
  */
-const randomNumber = (min, max) =>
+const rnd = (min, max) =>
   Math.floor(Math.random() * (max - min + 1)) + min;
 
 /**
@@ -44,8 +44,8 @@ const guid = () => {
  * @returns
  */
 const setOrder = (users = []) => {
-  const color = randomNumber(0, 1);
-  const turn = randomNumber(0, 1);
+  const color = rnd(0, 1);
+  const turn = rnd(0, 1);
   users[0][2] = color ? "r": "b";
   users[1][2] = color ? "b": "r";
 
@@ -69,7 +69,7 @@ const isValidIndex = (r, c) => r >= 0 && r < SIZE && c >= 0 && c < SIZE;
  * @param {*} type
  * @returns
  */
-const elementOnBoard = (board = [], type = 0) => {
+const eBoard = (board = [], type = 0) => {
   const elements = [];
   for (let i = 0; i < SIZE; i++) {
     for (let c = 0; c < SIZE; c++) {
@@ -281,10 +281,10 @@ const isValidBoard = (board = []) => {
   };
 
   // Se busca si hay extra life (6), axe (7), rocket (8), Bomb (9)
-  const dynamite = elementOnBoard(board, 6); // 🧨 ❤️
-  const axe = elementOnBoard(board, 7); // 🪓 // Horizontal...
-  const rocket = elementOnBoard(board, 8); // 💉 🚀 // vertical...
-  const bomb = elementOnBoard(board, 9); // 💣
+  const dynamite = eBoard(board, 6); // 🧨 ❤️
+  const axe = eBoard(board, 7); // 🪓 // Horizontal...
+  const rocket = eBoard(board, 8); // 💉 🚀 // vertical...
+  const bomb = eBoard(board, 9); // 💣
   const three = getThree();
   const four = getFour();
 
@@ -309,7 +309,7 @@ const isValidBoard = (board = []) => {
  * @param {*} skip
  * @returns
  */
-const generateBoard = (skip = []) => {
+const genBoard = (skip = []) => {
   const board = [];
 
   const is3Lines = (r, c, value) =>
@@ -348,7 +348,7 @@ const generateBoard = (skip = []) => {
     board[i] = [];
 
     for (let c = 0; c < SIZE; c++) {
-      let value = randomNumber(1, MAX);
+      let value = rnd(1, MAX);
 
       do {
         if (
@@ -356,7 +356,7 @@ const generateBoard = (skip = []) => {
           isSquare(i, c, value) ||
           skip.includes(value)
         ) {
-          value = randomNumber(1, MAX);
+          value = rnd(1, MAX);
         } else {
           break;
         }
@@ -381,11 +381,11 @@ const generateBoard = (skip = []) => {
  * @returns
  */
 const newBoard = (skip = []) => {
-  let board = generateBoard(skip);
+  let board = genBoard(skip);
 
   do {
     if (!isValidBoard(board).isValid) {
-      board = generateBoard(skip);
+      board = genBoard(skip);
     } else {
       break;
     }

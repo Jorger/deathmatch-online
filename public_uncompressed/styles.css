@@ -125,7 +125,7 @@ bo.o {
 }
 
 bo.w:before {
-  content: "Loading...";
+  content: "⏳";
   background: var(--b);
   padding: 10px;
   position: absolute;
@@ -394,7 +394,6 @@ modal {
 modal.hide {
   pointer-events: none;
   visibility: hidden;
-  transition: visibility 200ms;
 }
 
 modal.show {
@@ -409,8 +408,7 @@ modal.show {
 }
 
 .ms {
-  backdrop-filter: blur(5px);
-  background: #b6b7c742;
+  background: var(--c);
 }
 
 .mw {
@@ -443,24 +441,6 @@ modal.show {
 
 .mb button:nth-child(2) {
   background: #b6bece;
-}
-
-modal.show .mc {
-  animation: fD 200ms both;
-}
-
-modal.hide .mc {
-  animation: fUp 200ms both;
-}
-
-@keyframes fD {
-  from { opacity: 0; transform: translate3d(0, -100%, 0); }
-  to { opacity: 1; transform: translate3d(0, 0, 0); }
-}
-
-@keyframes fUp {
-  from { opacity: 1; }
-  to { opacity: 0; transform: translate3d(0, -100%, 0); }
 }
 
 /* fin estilos del modal */
