@@ -1,4 +1,12 @@
-# Deathmatch - Online
+# 💀 Deathmatch
+
+
+Deathmatch es un juego realizado para la edición 2022 de la [JS13k](https://js13kgames.com/), cuyo tema es [DEATH](https://medium.com/js13kgames/js13kgames-2022-has-started-73a7bd31721b).
+
+En está competencia existe la categoría de [server](https://github.com/js13kGames/js13kserver), en la cual se entrega un proyecto el cual ya tiene configurado lo necesario para establecer una conexión en tiempo real, en este caso haciedo uso de la popular librería conocida como [socket.io](https://socket.io/), 
+la idea es que el juego comprimido en un acrhivo .zip no supere los 13KB, para este juego el archivo que contiene todo el juego y que pesa 13 KB, es el denominado [dist.zip](https://github.com/Jorger/deathmatch-online/blob/main/dist.zip), los archivos comprimidos está ubicados en la carpeta [public](https://github.com/Jorger/deathmatch-online/tree/main/public), 
+de la misma forma los archivos no comprimidos del juego se encuetran en la carpeta [public_uncompressed](https://github.com/Jorger/deathmatch-online/tree/main/public_uncompressed)
+
 
 
 # Two Players
