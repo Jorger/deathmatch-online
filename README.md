@@ -217,7 +217,7 @@ Se utilizarán los siguientes herramientas para comprimir los archivos:
 
 Para los sonidos se uzó la librería [ZzFX](https://github.com/KilledByAPixel/ZzFX), la cual es una de las recomendadas entre los [recursos](https://js13kgames.github.io/resources/) de la competencia
 
-## 🤯 Sobre los emojis.
+# 🤯 Sobre los emojis.
 
 Debido a que se está usando emojis para el juego, se toman los emojis nativos de cada sistema operativo, por lo que la apariencia de estos pueden cambiar, se probó el juego en Windows (10 y 11) en iOS (mac/iPad/iPhone) y Android.
 
@@ -225,4 +225,7 @@ Debido a que se está usando emojis para el juego, se toman los emojis nativos d
 ![emojis_os](https://user-images.githubusercontent.com/30050/188927564-636f71eb-1a2d-4a3c-81a7-1819a858ee63.png)
 <em>Windows/Android/iOS</em>
 
+# 🐛 Known issues:
 
+- [ ] En Windows 8 e inferior algunos emojis no cargan, ya que no son soportados, una posible solución es usar los emojis de twitter ([Unicode 13 emoji](https://xem.github.io/unicode13/emoji.html))
+- [ ] En resoluciones inferiores de 412x732 el swipe del board está desfasado.
