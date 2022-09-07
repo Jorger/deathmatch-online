@@ -9,7 +9,7 @@ de la misma forma los archivos no comprimidos del juego se encuetran en la carpe
 
 # Reglas.
 
-La meta en Death Match es despejar tantas filas y columnas como sea posible utilizando el menor número de movimientos posible. Es posible despejar ítems  del tablero alineando tres (o más) en una fila, lo cual se logra intercambiando las piezas hasta formar tríos de piezas iguales.
+La meta en Death Match es despejar tantas filas y columnas como sea posible utilizando el menor número de movimientos posible. Es posible despejar ítems  del tablero alineando tres (o más) en una fila, lo cual se logra intercambiando las piezas hasta formar tríos de piezas iguales. gana el juagdor que tenga más puntuación al final de los cinco turnos.
 
 ![parejas_tres](https://user-images.githubusercontent.com/30050/188906867-358ba85b-22e3-4511-85a0-ea5e2129cd24.gif)
 
@@ -27,7 +27,7 @@ Se tiene un tiempo de 20 segundos para realizar el movimiento, si en este tiempo
 
 ## Premios.
 
-Existen 4 tipo de premios como son:
+Existen 4 tipos de premios como son:
 
 ### 🧨 Dinamita:
 
@@ -92,6 +92,19 @@ Al activar la bomba se eliminan todos los ítems que estén en un radio de dos e
 | 💥 | 💥 | 💥 | 💥 | 💥 |
 
 
+Es posible combinar premios, por ejemplo:
+
+| 🚀 | 💥 | 💣 |
+|----|----|----|
+| 💥 | 🧨 | 💥 |
+| 💥 | 💥 | 🪓 |
+
+* Si se activa la dinamita, está a su vez activará los demás premios.
+* Si se activa el rocket, ya que sólo tiene efecto de forma vertical, no activará los demás premios.
+* El mismo caso del hacha, ya que sólo afecta horizontalmente.
+* En e caso de la bomba debido a que tiene un mayor radio, activará los demás premios.
+
+**💡 Cuando se consigue un premio (siempre y cuando haya sido logrado por el usuario y no por la caída de nuevos elementos) se le otorga un movimiento extra al jugador, entre nás movimientos se tengan más jugados y putuación de puede obtener.**
 
 
 
