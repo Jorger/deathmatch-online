@@ -23,7 +23,7 @@ Se cuenta con cinco turnos, en cada uno el jugador tiene un máximo de dos inten
 
 ### Tiempo
 
-Se tiene un tiempo de 20 segundos para realizar el movimiento, si en este tiempo no se hace movimiento algo se perderá el turno, cada vez que se hace un movimiento el tiempo se pausa.
+Se tiene un tiempo de 20 segundos para realizar el movimiento, si en este tiempo no se hace movimiento alguno se perderá el turno, cada vez que se hace un movimiento el tiempo se pausa.
 
 ## Premios.
 
@@ -116,7 +116,7 @@ Si en este caso se mueve la dinamita hacía abajo, debido a que el rango de elim
 
 Pero si se mueve por ejemplo el hacha hacía arriba, debido a que la fila cambia, activará la dinamita ya que estarían en la misma fila, y está a si vez activaría los demas premios.
 
-💡 Cuando se consigue un premio (siempre y cuando haya sido logrado por el usuario y no por la caída de nuevos elementos) se le otorga un movimiento extra al jugador, entre nás movimientos se tengan más jugados y putuación de puede obtener.
+💡 Cuando se consigue un premio **(siempre y cuando haya sido logrado por el usuario y no por la caída de nuevos elementos)** se le otorga un movimiento extra al jugador, entre más movimientos se tengan, se pueden hacer más jugadas y por consiguiente más putuación.
 
 
 
