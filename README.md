@@ -29,7 +29,7 @@ Se tiene un tiempo de 20 segundos para realizar el movimiento, si en este tiempo
 
 Existen 4 tipo de premios como son:
 
-### Dinamita:
+### 🧨 Dinamita:
 
 Se consigue cuando se completan 4 ítems, en este caso como un cuadrado.
 
@@ -37,7 +37,60 @@ Se consigue cuando se completan 4 ítems, en este caso como un cuadrado.
 |:---:|:---:|:---:|
 | 💀 | 💀 |    |
 
+
+Cuando se activa una dinamita se eliminan los elementos que están alrededor de está.
+
+| 💥 | 💥 | 💥 |
+|----|----|----|
+| 💥 | 🧨 | 💥 |
+| 💥 | 💥 | 💥 |
+
+
     
+### 🪓 Hacha (Axe):
+
+Se consigue cuando se completan 4 o más ítems de forma horizontal.
+
+
+| 🎃 | 🎃 | 🎃 | 🎃 | = |  🪓 |
+|----|----|----|----|---|-----|
+
+
+Al activarla se eliminarán todos elementos que estén en la fila.
+
+### 🚀 Cohete (Rocket):
+
+Se obtiene cuando se logran tres o más ítems verticalmente.
+
+
+| 👹 |
+|----|
+| 👹 |
+| 👹 |
+| 👹 |
+| =  |
+| 🚀 |
+
+Al activar este premio se destruyen todos los elementos de la columna.
+
+### 🚀 Bomba:
+
+Se obtien cuando se logran tres o más elementos de forma horizontal y vertical.
+
+|    |    | 🧠 |   |    |
+|----|----|----|---|----|
+|    |    | 🧠 | = | 💣 |
+| 🧠 | 🧠 | 🧠 |   |    |
+
+Al activar la bomba se eliminan todos los ítems que estén en un radio de dos espacios.
+
+| 💥 | 💥 | 💥 | 💥 | 💥 |
+|----|----|----|----|----|
+| 💥 | 💥 | 💥 | 💥 | 💥 |
+| 💥 | 💥 | 💣 | 💥 | 💥 |
+| 💥 | 💥 | 💥 | 💥 | 💥 |
+| 💥 | 💥 | 💥 | 💥 | 💥 |
+
 
 
 
