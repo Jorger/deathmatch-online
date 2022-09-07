@@ -100,7 +100,9 @@ Al activar la bomba se eliminan todos los ítems que estén en un radio de dos e
 | 💥 | 💥 | 💥 | 💥 | 💥 |
 
 
-Es posible combinar premios, por ejemplo:
+#### 💡 Notas:
+
+* Es posible combinar premios, por ejemplo:
 
 | 🚀 | 💥 | 💣 |
 |----|----|----|
@@ -112,7 +114,7 @@ Es posible combinar premios, por ejemplo:
 * El mismo caso del hacha, ya que sólo afecta horizontalmente.
 * En e caso de la bomba debido a que tiene un mayor radio, activará los demás premios.
 
-💡 Es posible activar un premio al cambiar su posición con otro elemento o al hacer click/touch sobre éste, esto es importante por que puede cambiar el rango de destrucción:
+* Es posible activar un premio al cambiar su posición con otro elemento o al hacer click/touch sobre éste, esto es importante por que puede cambiar el rango de destrucción:
 
 | 🚀 | 💥 | 💣 |
 |----|----|----|
@@ -124,7 +126,7 @@ Si en este caso se mueve la dinamita hacía abajo, debido a que el rango de elim
 
 Pero si se mueve por ejemplo el hacha hacía arriba, debido a que la fila cambia, activará la dinamita ya que estarían en la misma fila, y está a si vez activaría los demas premios.
 
-💡 Cuando se consigue un premio **(siempre y cuando haya sido logrado por el usuario y no por la caída de nuevos elementos)** se le otorga un movimiento extra al jugador, entre más movimientos se tengan, se pueden hacer más jugadas y por consiguiente más putuación.
+* Cuando se consigue un premio **(siempre y cuando haya sido logrado por el usuario y no por la caída de nuevos elementos)** se le otorga un movimiento extra al jugador, entre más movimientos se tengan, se pueden hacer más jugadas y por consiguiente más putuación.
 
 # 🎮 Modalidades de Juego.
 
@@ -175,4 +177,6 @@ Esta modalidad nos permitirá inciar una partida con cualquier jugador que este 
 
 Es una extensión de la modalidad anterior, pero en este caso se creará una sala privada, es decir, sólo aquellos usuarios que tengan el código de la sala podrán jugar la partida, se aplican las mismas funcionalidades de la modalidad anterior.
 
-💡 Para cada usuario se crea un token (el que se guarda en localStorage), por lo cual si desea jugar contra sí mismo en la opción online, es necesario usar otro navegador o una navegación privada, para así simular otro usuario.
+#### 💡 Nota
+
+Para cada usuario se crea un token (el que se guarda en localStorage), por lo cual si desea jugar contra sí mismo en la opción online, es necesario usar otro navegador o una navegación privada, para así simular otro usuario.
