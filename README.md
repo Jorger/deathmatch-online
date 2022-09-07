@@ -7,25 +7,25 @@ En está competencia existe la categoría de [server](https://github.com/js13kGa
 la idea es que el juego comprimido en un acrhivo .zip no supere los 13KB, para este juego el archivo que contiene todo el juego y que pesa 13 KB, es el denominado [dist.zip](https://github.com/Jorger/deathmatch-online/blob/main/dist.zip), los archivos comprimidos está ubicados en la carpeta [public](https://github.com/Jorger/deathmatch-online/tree/main/public), 
 de la misma forma los archivos no comprimidos del juego se encuetran en la carpeta [public_uncompressed](https://github.com/Jorger/deathmatch-online/tree/main/public_uncompressed)
 
-# Reglas.
+# 📖 Reglas.
 
 La meta en Death Match es despejar tantas filas y columnas como sea posible utilizando el menor número de movimientos posible. Es posible despejar ítems  del tablero alineando tres (o más) en una fila, lo cual se logra intercambiando las piezas hasta formar tríos de piezas iguales. gana el juagdor que tenga más puntuación al final de los cinco turnos.
 
 ![parejas_tres](https://user-images.githubusercontent.com/30050/188906867-358ba85b-22e3-4511-85a0-ea5e2129cd24.gif)
 
-## Turnos/movimientos y tiempo.
+## 🗺️ Turnos/movimientos y tiempo.
 
 ![image](https://user-images.githubusercontent.com/30050/188908330-c3a933b3-5c51-4299-91b1-0b29d322a846.png)
 
-### Turnos/movimientos
+### 🖐️ Turnos/movimientos
 
 Se cuenta con cinco turnos, en cada uno el jugador tiene un máximo de dos intentos (o más si se consiguen premios).
 
-### Tiempo
+### ⏱️ Tiempo
 
 Se tiene un tiempo de 20 segundos para realizar el movimiento, si en este tiempo no se hace movimiento alguno se perderá el turno, cada vez que se hace un movimiento el tiempo se pausa.
 
-## Premios.
+## 🏅 Premios.
 
 Existen 4 tipos de premios como son:
 
