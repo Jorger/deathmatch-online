@@ -118,21 +118,51 @@ Pero si se mueve por ejemplo el hacha hacía arriba, debido a que la fila cambia
 
 💡 Cuando se consigue un premio **(siempre y cuando haya sido logrado por el usuario y no por la caída de nuevos elementos)** se le otorga un movimiento extra al jugador, entre más movimientos se tengan, se pueden hacer más jugadas y por consiguiente más putuación.
 
+# 🎮 Modalidades de Juego.
+
+![image](https://user-images.githubusercontent.com/30050/188919918-687c03af-bd8d-479c-a117-34a9436cc5a6.png)
+
+El juego cuenta con dos tipos de modalidades como son:
+
+* **1️⃣ Offline:** Que a la vez se componente de:
+
+  * 👽 Two Players
+  * 🤖 vs Bot
+  
+* **2️⃣ Online:** De la misma forma se compone de:
+
+  * 🌎 Play Online
+  * 🤝 Play with friends
 
 
-# Two Players
+## 1️⃣ Offline.
+
+En está modalidad toda la actividad del juego se lleva a cabo en el mismo dispotivo, gracias al uso de [service workers](https://developers.google.com/web/fundamentals/primers/service-workers), el juego puede funcionar offline, además de ser un [PWA](https://web.dev/progressive-web-apps/)
+
+### 👽 Two Players
+
 https://user-images.githubusercontent.com/30050/188747351-857773fd-0c98-4d0d-aa8b-e7b9fbe7a872.mov
 
-# Vs Bot
+En esta modalidad la partida se llevará a cabo en el mismo dispositivo.
+
+### 🤖 vs Bot
 
 https://user-images.githubusercontent.com/30050/188747419-1089aa19-db2a-47c1-a15b-f53ea8bcf2f0.mov
 
-# Play with Friends
+En esta modalidad se competirá vs un bot, es una modalidad que también sirve como práctica, a la vez se cuenta con tres modos de dificultad.
+
+## 2️⃣ Online.
+
+Está modalidad requiere conexión a internet, ya que se hará uso de [websockets](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API), se tienen las siguientes opciones:
+
+### 🌎 Play Online
+
+![play_online](https://user-images.githubusercontent.com/30050/188748377-29b58544-f855-47fc-b239-9013f36ceb4b.gif)
+
+Esta modalidad nos permitirá inciar una partida con cualquier jugador que este conectado, se podría intepretar como una partida aleatoria, ya que se creará una sala con aquella persona que este disponible en ese momento.
+
+### 🤝 Play with friends
 
 ![play_with_friend](https://user-images.githubusercontent.com/30050/188748338-91afd751-9e4b-4e83-8e16-5e3828a2b04f.gif)
 
-
-# Play online.
-
-
-![play_online](https://user-images.githubusercontent.com/30050/188748377-29b58544-f855-47fc-b239-9013f36ceb4b.gif)
+Es una extensión de la modalidad anterior, pero en este caso se creará una sala privada, es decir, sólo aquellos usuarios que tengan el código de la sala podrán jugar la partida, se aplican las mismas funcionalidades de la modalidad anterior.
