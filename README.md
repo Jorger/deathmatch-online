@@ -13,6 +13,14 @@ La meta en Death Match es despejar tantas filas y columnas como sea posible util
 
 ![parejas_tres](https://user-images.githubusercontent.com/30050/188906867-358ba85b-22e3-4511-85a0-ea5e2129cd24.gif)
 
+
+# 🙂 Personalizar nombre.
+
+https://user-images.githubusercontent.com/30050/188922014-162c22dc-29ec-49a0-9ee4-e4f1d26a8997.mov
+
+En la página principal del juego, es posible establecer el nombre con el cual se desea ser identificado en el juego, por defecto el juego dará un nombre aleatorio.
+
+
 ## 🗺️ Turnos/movimientos y tiempo.
 
 ![image](https://user-images.githubusercontent.com/30050/188908330-c3a933b3-5c51-4299-91b1-0b29d322a846.png)
@@ -166,3 +174,5 @@ Esta modalidad nos permitirá inciar una partida con cualquier jugador que este 
 ![play_with_friend](https://user-images.githubusercontent.com/30050/188748338-91afd751-9e4b-4e83-8e16-5e3828a2b04f.gif)
 
 Es una extensión de la modalidad anterior, pero en este caso se creará una sala privada, es decir, sólo aquellos usuarios que tengan el código de la sala podrán jugar la partida, se aplican las mismas funcionalidades de la modalidad anterior.
+
+
