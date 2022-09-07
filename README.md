@@ -136,7 +136,7 @@ El juego cuenta con dos tipos de modalidades como son:
 
 * **1️⃣ Offline:** Que a la vez se componente de:
 
-  * 👽 Two Players
+  * 🧟 Two Players
   * 🤖 vs Bot
   
 * **2️⃣ Online:** De la misma forma se compone de:
@@ -149,7 +149,7 @@ El juego cuenta con dos tipos de modalidades como son:
 
 En está modalidad toda la actividad del juego se lleva a cabo en el mismo dispotivo, gracias al uso de [service workers](https://developers.google.com/web/fundamentals/primers/service-workers), el juego puede funcionar offline, además de ser un [PWA](https://web.dev/progressive-web-apps/)
 
-### 👽 Two Players
+### 🧟 Two Players
 
 https://user-images.githubusercontent.com/30050/188747351-857773fd-0c98-4d0d-aa8b-e7b9fbe7a872.mov
 
