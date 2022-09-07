@@ -180,3 +180,39 @@ Es una extensión de la modalidad anterior, pero en este caso se creará una sal
 ### 💡 Nota
 
 Para cada usuario se crea un token (el que se guarda en localStorage), por lo cual si desea jugar contra sí mismo en la opción online, es necesario usar otro navegador o una navegación privada, para así simular otro usuario.
+
+## 🏃‍♂️ Ejecución.
+
+Este proyecto es un fork del [proyecto original](https://github.com/js13kGames/js13kserver) creado para está categoría, en este caso se requiere de NodeJS.
+
+### Instalación de dependencias.
+
+```
+npm i
+```
+
+### Ejecución del proyecto
+
+```
+npm run start:dev
+```
+
+En este caso se el proyecto correrá en http://localhost:3000/
+
+**💡 Nota:**
+
+Se recomiendo renombrar la carpeta `public_uncompressed` a `public` y ésta última ponerle otro nombre, para así ver los archivos sin compresión.
+
+
+## 📦 Compresión de archivos.
+
+Se utilizarán los siguientes herramientas para comprimir los archivos:
+
+* https://www.digitalocean.com/community/tools/minify
+* https://csscompressor.com/
+* https://tinypng.com/
+* https://www.textfixer.com/html/compress-html-compression.php
+
+## 🔈 Sonidos.
+
+Para los sonidos se uzó la librería [ZzFX](https://github.com/KilledByAPixel/ZzFX), la cual es una de las recomendadas entre los [recursos](https://js13kgames.github.io/resources/) de la competencia
