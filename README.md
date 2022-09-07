@@ -175,4 +175,4 @@ Esta modalidad nos permitirá inciar una partida con cualquier jugador que este 
 
 Es una extensión de la modalidad anterior, pero en este caso se creará una sala privada, es decir, sólo aquellos usuarios que tengan el código de la sala podrán jugar la partida, se aplican las mismas funcionalidades de la modalidad anterior.
 
-
+💡 Para cada usuario se crea un token (el que se guarda en localStorage), por lo cual si desea jugar contra sí mismo en la opción online, es necesario usar otro navegador o una navegación privada, para así simular otro usuario.
