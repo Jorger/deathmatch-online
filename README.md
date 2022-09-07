@@ -13,6 +13,32 @@ La meta en Death Match es despejar tantas filas y columnas como sea posible util
 
 ![parejas_tres](https://user-images.githubusercontent.com/30050/188906867-358ba85b-22e3-4511-85a0-ea5e2129cd24.gif)
 
+## Turnos/movimientos y tiempo.
+
+![image](https://user-images.githubusercontent.com/30050/188908330-c3a933b3-5c51-4299-91b1-0b29d322a846.png)
+
+### Turnos/movimientos
+
+Se cuenta con cinco turnos, en cada uno el jugador tiene un máximo de dos intentos (o más si se consiguen premios).
+
+### Tiempo
+
+Se tiene un tiempo de 20 segundos para realizar el movimiento, si en este tiempo no se hace movimiento algo se perderá el turno, cada vez que se hace un movimiento el tiempo se pausa.
+
+## Premios.
+
+Existen 4 tipo de premios como son:
+
+### Dinamita:
+
+Se consigue cuando se completan 4 ítems, en este caso como un cuadrado.
+
+| 💀 | 💀 | 🧨 |
+|:---:|:---:|:---:|
+| 💀 | 💀 |    |
+
+    
+
 
 
 
