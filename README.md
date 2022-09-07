@@ -81,7 +81,7 @@ Se obtiene cuando se logran tres o más ítems verticalmente.
 
 Al activar este premio se destruyen todos los elementos de la columna.
 
-### 🚀 Bomba:
+### 💣 Bomba:
 
 Se obtien cuando se logran tres o más elementos de forma horizontal y vertical.
 
