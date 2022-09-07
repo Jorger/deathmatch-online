@@ -104,7 +104,19 @@ Es posible combinar premios, por ejemplo:
 * El mismo caso del hacha, ya que sólo afecta horizontalmente.
 * En e caso de la bomba debido a que tiene un mayor radio, activará los demás premios.
 
-**💡 Cuando se consigue un premio (siempre y cuando haya sido logrado por el usuario y no por la caída de nuevos elementos) se le otorga un movimiento extra al jugador, entre nás movimientos se tengan más jugados y putuación de puede obtener.**
+💡 Es posible activar un premio al cambiar su posición con otro elemento o al hacer click/touch sobre éste, esto es importante por que puede cambiar el rango de destrucción:
+
+| 🚀 | 💥 | 💣 |
+|----|----|----|
+| 💥 | 🧨 | 💥 |
+| 💥 | 💥 | 🪓 |
+
+
+Si en este caso se mueve la dinamita hacía abajo, debido a que el rango de eliminación es de una sola celda, la dinamita no activaría la bomba y el cohete.
+
+Pero si se mueve por ejemplo el hacha hacía arriba, debido a que la fila cambia, activará la dinamita ya que estarían en la misma fila, y está a si vez activaría los demas premios.
+
+💡 Cuando se consigue un premio (siempre y cuando haya sido logrado por el usuario y no por la caída de nuevos elementos) se le otorga un movimiento extra al jugador, entre nás movimientos se tengan más jugados y putuación de puede obtener.
 
 
 
