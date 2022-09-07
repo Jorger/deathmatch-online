@@ -229,3 +229,4 @@ Debido a que se está usando emojis para el juego, se toman los emojis nativos d
 
 - [ ] En Windows 8 e inferior algunos emojis no cargan, ya que no son soportados, una posible solución es usar los emojis de twitter ([Unicode 13 emoji](https://xem.github.io/unicode13/emoji.html))
 - [ ] En resoluciones inferiores de 412x732 el swipe del board está desfasado.
+- [ ] No es un issue, pero Heoku ofrecerá sólo hasta Noviembre 28 de 2022 dynos gratuitos, por lo que se debe buscar una alternativa (tal vez https://render.com/)
