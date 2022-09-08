@@ -197,16 +197,16 @@ npm i
 npm run start:dev
 ```
 
-En este caso se el proyecto correrá en http://localhost:3000/
+En este caso el proyecto correrá en http://localhost:4000/
 
 **💡 Nota:**
 
-Se recomiendo renombrar la carpeta `public_uncompressed` a `public` y ésta última ponerle otro nombre, para así ver los archivos sin compresión.
+Se recomienda renombrar la carpeta `public_uncompressed` a `public` y ésta última ponerle otro nombre, para así ver los archivos sin compresión.
 
 
 ## 📦 Compresión de archivos.
 
-Se utilizarán los siguientes herramientas para comprimir los archivos:
+Se utilizarón los siguientes herramientas para comprimir los archivos:
 
 * https://www.digitalocean.com/community/tools/minify
 * https://csscompressor.com/
@@ -215,11 +215,11 @@ Se utilizarán los siguientes herramientas para comprimir los archivos:
 
 ## 🔈 Sonidos.
 
-Para los sonidos se uzó la librería [ZzFX](https://github.com/KilledByAPixel/ZzFX), la cual es una de las recomendadas entre los [recursos](https://js13kgames.github.io/resources/) de la competencia
+Para los sonidos se uzó la librería [ZzFX](https://github.com/KilledByAPixel/ZzFX), la cual es una de las recomendadas entre los [recursos](https://js13kgames.github.io/resources/) de la competencia.
 
 # 🤯 Sobre los emojis.
 
-Debido a que se está usando emojis para el juego, se toman los emojis nativos de cada sistema operativo, por lo que la apariencia de estos pueden cambiar, se probó el juego en Windows (10 y 11) en iOS (mac/iPad/iPhone) y Android.
+Debido a que se está usando emojis para el juego, se toman los emojis nativos de cada sistema operativo, por lo que la apariencia de estos cambian, se probó el juego en Windows (10 y 11) en iOS (mac/iPad/iPhone) y Android.
 
 
 ![emojis_os](https://user-images.githubusercontent.com/30050/188927564-636f71eb-1a2d-4a3c-81a7-1819a858ee63.png)
@@ -228,7 +228,7 @@ Debido a que se está usando emojis para el juego, se toman los emojis nativos d
 # 🐛 Known issues:
 
 - [ ] En Windows 8 e inferior algunos emojis no cargan, ya que no son soportados, una posible solución es usar los emojis de twitter ([Unicode 13 emoji](https://xem.github.io/unicode13/emoji.html))
-- [ ] En resoluciones inferiores de 412x732 el swipe del board está desfasado.
+- [ ] En resoluciones inferiores de 412x732 el swipe del board está desfasado (debido al escalemiento del juego en esas resoluciones)
 - [ ] No es un issue del juego per se, pero Heroku ofrecerá sólo hasta [Noviembre 28 de 2022 dynos](https://devcenter.heroku.com/changelog-items/2461) gratuitos, por lo que se debe buscar una alternativa (tal vez https://render.com/)
 
 
@@ -237,5 +237,4 @@ Debido a que se está usando emojis para el juego, se toman los emojis nativos d
 * Jorge Rubiano 
 * https://bio.link/jorgerub
 * [@ostjh](https://twitter.com/ostjh)
-
 
